@@ -1,7 +1,7 @@
-package com.springboot.order_items.entity;
+package com.springboot.order_item.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.springboot.order_headers.entity.OrderHeaders;
+import com.springboot.order_header.entity.OrderHeaders;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,7 +38,7 @@ public class OrderItems {
     private BigDecimal unitPrice;
 
     @ManyToOne
-    @JoinColumn(name = "orderId")
-    @JsonBackReference("header-item")
+    @JoinColumn(name = "order_id")
+    @JsonBackReference
     private OrderHeaders orderHeaders;
 }

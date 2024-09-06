@@ -42,11 +42,11 @@ public class Item {
     @Column(nullable = false)
     private String category;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "item")
     @JsonManagedReference
     private List<ItemManufacture> itemManufactures = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "item")
     @JsonManagedReference
     private List<BuyerItem> buyerItems = new ArrayList<>();
 }

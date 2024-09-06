@@ -1,8 +1,11 @@
-package com.springboot.order_headers.entity;
+package com.springboot.order_header.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.springboot.order_items.entity.OrderItems;
+import com.springboot.buyer.Buyer;
+import com.springboot.member.entity.Member;
+import com.springboot.order_item.entity.OrderItems;
+import com.springboot.sale_history.entity.SaleHistory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,10 +28,7 @@ public class OrderHeaders {
     private LocalDateTime requestDate;
 
     @Column(nullable = false)
-    private Long employeeId;
-
-    @Column(nullable = false)
-    private String buyerCD;
+    private String buyerCd;
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -37,19 +37,23 @@ public class OrderHeaders {
     @Column(length = 50, nullable = false)
     private OrderStatus orderStatus = OrderStatus.REQUEST_TEMP;
 
-    @OneToMany(mappedBy = "orderHeaders", fetch = FetchType.LAZY)
-    @JsonManagedReference("header-item")
+    @OneToMany(mappedBy = "orderHeaders")
+    @JsonManagedReference
     private List<OrderItems> orderItems = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "employeeId", nullable = false)
-    @JsonBackReference("header-member")
+    @JoinColumn(name = "member_id", nullable = false)
+    @JsonBackReference
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "buyerCd", referencedColumnName = "buyerCd", nullable = false)
-    @JsonBackReference("header-buyer")
+    @JoinColumn(name = "buyer_id", updatable = false)
+    @JsonBackReference
     private Buyer buyer;
+
+    @OneToMany(mappedBy = "orderHeaders")
+    @JsonManagedReference
+    private List<SaleHistory> saleHistory = new ArrayList<>();
 
     public enum OrderStatus {
         REQUEST_TEMP("견적요청"),

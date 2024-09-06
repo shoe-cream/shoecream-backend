@@ -25,7 +25,7 @@ public class Manufacture {
     @Column
     private String email;
 
-    @OneToMany(mappedBy = "manufacture", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "manufacture")
     @JsonManagedReference
     private List<ItemManufacture> itemManufactures = new ArrayList<>();
 }
