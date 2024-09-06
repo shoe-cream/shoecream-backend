@@ -40,8 +40,4 @@ public class Member {
     @OneToMany(mappedBy = "member")
     @JsonManagedReference
     private List<OrderHeaders> orderHeaders = new ArrayList<>();
-
-
-
-
 }
