@@ -16,7 +16,7 @@ import javax.persistence.*;
 public class ItemManufacture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int mfItemId;
+    private long mfItemId;
 
     @Column
     private int unitPrice;
@@ -25,12 +25,12 @@ public class ItemManufacture {
     private int qty;
 
     @ManyToOne
-    @JoinColumn(name = "mfId")
+    @JoinColumn(name = "mf_id")
     @JsonBackReference
     private Manufacture manufacture;
 
     @ManyToOne
-    @JoinColumn(name = "itemId")
+    @JoinColumn(name = "item_id")
     @JsonBackReference
     private Item item;
 }

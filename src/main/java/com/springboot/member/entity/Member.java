@@ -1,5 +1,7 @@
 package com.springboot.member.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.springboot.order_header.entity.OrderHeaders;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,10 +17,10 @@ import java.util.List;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberId;
+    private long memberId;
 
     @Column(nullable = false, updatable = false, unique = true)
-    private Long employeeId;
+    private long employeeId;
 
     @Column(nullable = false, length = 100)
     private String password;
@@ -34,6 +36,10 @@ public class Member {
 
     @Column(nullable = true)
     private String profileUrl = "https://img.hankyung.com/photo/202208/BF.30820179.1.jpg";
+
+    @OneToMany(mappedBy = "member")
+    @JsonManagedReference
+    private List<OrderHeaders> orderHeaders = new ArrayList<>();
 
 
 

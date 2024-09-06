@@ -23,6 +23,9 @@ public class BuyerItem {
     private String buyerNm;
 
     @Column
+    private String buyerCd;
+
+    @Column
     private String itemCd;
 
     @Column(nullable = false)
@@ -41,12 +44,12 @@ public class BuyerItem {
     private LocalDateTime endDate;
 
     @ManyToOne
-    @JoinColumn(name = "buyerCd", referencedColumnName = "buyerCd")
+    @JoinColumn(name = "buyer_id")
     @JsonBackReference
     private Buyer buyer;
 
     @ManyToOne
-    @JoinColumn(name = "itemId")
+    @JoinColumn(name = "item_id")
     @JsonBackReference
     private Item item;
 }

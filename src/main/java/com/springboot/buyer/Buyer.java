@@ -1,9 +1,8 @@
 package com.springboot.buyer;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.springboot.buyer_item.entity.BuyerItem;
-import com.springboot.order_headers.entity.OrderHeaders;
+import com.springboot.order_header.entity.OrderHeaders;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,12 +38,11 @@ public class Buyer {
     @Column(nullable = false)
     private String businessType;
 
-    @OneToMany(mappedBy = "buyer", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "buyer")
     @JsonManagedReference
     private List<BuyerItem> buyerItems = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "buyerCd", referencedColumnName = "buyerCd")
-    @JsonBackReference
-    private OrderHeaders orderHeader;
+    @OneToMany(mappedBy = "buyer")
+    @JsonManagedReference
+    private List<OrderHeaders> orderHeaders = new ArrayList<>();
 }
