@@ -2,7 +2,7 @@ package com.springboot.order_header.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.springboot.buyer.Buyer;
+import com.springboot.buyer.entity.Buyer;
 import com.springboot.member.entity.Member;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.sale_history.entity.SaleHistory;
