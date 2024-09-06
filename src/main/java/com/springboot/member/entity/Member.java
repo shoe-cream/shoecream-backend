@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,15 +18,22 @@ import java.util.List;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long memberId;
+    private Long memberId;
 
     @Column(nullable = false, updatable = false, unique = true)
     private long employeeId;
+
+    @Column(nullable = false, updatable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false, length = 100)
+    private String name;
 
     @Column(nullable = false, length = 100)
     private String password;
 
     @Column(nullable = false, length = 15)
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호는 000-0000-0000 형식이어야 합니다.")
     private String tel;
 
     @Column(nullable = false)
@@ -41,7 +49,22 @@ public class Member {
     @JsonManagedReference
     private List<OrderHeaders> orderHeaders = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
 
+    public enum MemberStatus {
+        MEMBER_ACTIVE("활동중"),
+        MEMBER_SLEEP("휴면 상태"),
+        MEMBER_QUIT("탈퇴 상태");
+
+        @Getter
+        private String status;
+
+        MemberStatus(String status) {
+            this.status = status;
+        }
+    }
 
 
 }
