@@ -3,7 +3,7 @@ package com.springboot.order_header.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.springboot.buyer.entity.Buyer;
-import com.springboot.member.entity.Member;
+//import com.springboot.member.entity.Member;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.sale_history.entity.SaleHistory;
 import lombok.Getter;
@@ -27,9 +27,6 @@ public class OrderHeaders {
     @Column(nullable = false)
     private LocalDateTime requestDate;
 
-    @Column(nullable = false)
-    private String buyerCd;
-
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -37,14 +34,14 @@ public class OrderHeaders {
     @Column(length = 50, nullable = false)
     private OrderStatus orderStatus = OrderStatus.REQUEST_TEMP;
 
-    @OneToMany(mappedBy = "orderHeaders")
+    @OneToMany(mappedBy = "orderHeaders", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<OrderItems> orderItems = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    @JsonBackReference
-    private Member member;
+//    @ManyToOne
+//    @JoinColumn(name = "member_id", nullable = false)
+//    @JsonBackReference
+//    private Member member;
 
     @ManyToOne
     @JoinColumn(name = "buyer_id", updatable = false)
