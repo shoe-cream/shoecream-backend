@@ -6,13 +6,18 @@ import com.springboot.helper.event.MemberRegistrationApplicationEvent;
 import com.springboot.member.entity.Member;
 import com.springboot.member.repository.MemberRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.springboot.member.entity.Member.MemberStatus.MEMBER_QUIT;
+
+@Service
 public class MemberService {
+
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher publisher;
 
@@ -33,7 +38,6 @@ public class MemberService {
 
 
         Member savedMember = memberRepository.save(member);
-
         publisher.publishEvent(new MemberRegistrationApplicationEvent(this, savedMember));
         return savedMember;
     }
@@ -75,5 +79,13 @@ public class MemberService {
     public void verifyExistsEmail(String email) {
         Optional<Member> member = memberRepository.findByEmail(email);
         if (member.isPresent()) throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
+    }
+
+    public void deleteMember(String email) {
+        Member findMember = findVerifiedMember(email);
+
+        findMember.setMemberStatus(MEMBER_QUIT);
+
+        memberRepository.save(findMember);
     }
 }

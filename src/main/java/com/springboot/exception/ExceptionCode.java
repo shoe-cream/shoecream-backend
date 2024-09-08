@@ -21,7 +21,9 @@ public enum ExceptionCode {
     INVALID_REPORT_TARGET(400, "Report target is invalid"),
     CANNOT_REPORT_YOURSELF(400,"Cannot report yourself"),
     MBTI_TEST_REQUIRED(403, "Must complete the MBTI test before you gain access"),
-    CONFIRM_REQUEST(400, "Confirm Parameter or Contents");
+    CONFIRM_REQUEST(400, "Confirm Parameter or Contents"),
+    MEMBER_EXISTS(409, "Member exists"),
+    EMAIL_NOT_AUTH(409, "Email not Auth");
 
     @Getter
     private int status;

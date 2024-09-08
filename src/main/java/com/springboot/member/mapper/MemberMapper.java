@@ -8,25 +8,31 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MemberMapper {
 
+
     default Member memberPostToMember(MemberDto.Post requestBody){
+
         Member member = new Member();
         member.setEmail(requestBody.getEmail());
         member.setPassword(requestBody.getPassword());
         member.setName(requestBody.getName());
         member.setEmployeeId(requestBody.getEmployeeId());
         return member;
+
     }
+
 
     Member memberPatchToMember(MemberDto.Patch requestBody);
 
+    MemberDto.Response memberToMemberResponse(Member member);
 
-    default Member memberPatchPasswordToMember(MemberDto.PatchPassword requestBody){
+    default Member memberPatchPasswordToMember(MemberDto.PatchPassword requestBody) {
+
         Member member = new Member();
         member.setMemberId(requestBody.getMemberId());
         member.setPassword(requestBody.getNewPassword());
         return member;
+
     }
 
-    ESZ
 
 }
