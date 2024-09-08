@@ -6,8 +6,14 @@ import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.repository.OrderHeadersRepository;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -58,16 +64,30 @@ public class OrderService {
         return orderHeadersRepository.save(orderHeaders);
     }
 
-//    public OrderHeaders findOrder(Long orderId) {
-//
-//    }
+    public OrderHeaders findOrder(Long orderId) {
+        return findVerifiedOrder(orderId);
+    }
+
+    public Page<OrderHeaders> findOrders (int page, int size, String status, LocalDate startDate, LocalDate endDate) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        LocalDateTime searchStartDate = startDate.atStartOfDay();
+        LocalDateTime searchEndDate = endDate.atTime(23, 59, 59);
+
+        if(status.equalsIgnoreCase("ALL")) {
+            return orderHeadersRepository.findByRequestDateBetween(searchStartDate, searchEndDate,pageable);
+        } else {
+            OrderHeaders.OrderStatus orderStatus = OrderHeaders.OrderStatus.valueOf(status.toUpperCase());
+            return orderHeadersRepository.findByRequestDateBetweenAndOrderStatus(searchStartDate, searchEndDate, orderStatus, pageable);
+        }
+    }
 
     public OrderHeaders findVerifiedOrder(Long orderId) {
         Optional<OrderHeaders> findOrder = orderHeadersRepository.findById(orderId);
         return findOrder.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
     }
 
-    public OrderItems findVerifiedOrderItems(Long itemId) {
+    private OrderItems findVerifiedOrderItems(Long itemId) {
         Optional<OrderItems> findItem = orderItemsRepository.findById(itemId);
         return findItem.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
     }
