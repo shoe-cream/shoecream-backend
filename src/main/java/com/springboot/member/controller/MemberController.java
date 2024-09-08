@@ -83,10 +83,9 @@ public class MemberController {
 @PatchMapping("/{member-id}/password")
     public ResponseEntity patchMemberPassword(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.PatchPassword requestBody,
                                               Authentication authentication){
-
         requestBody.setMemberId(memberId);
         String email = authentication.getName();
-        memberService.verifyPassword(mamberId, requestBody.getPassword(), requestBody.getNewPassword());
+        memberService.verifyPassword(memberId, requestBody.getPassword(), requestBody.getNewPassword());
 
 }
 

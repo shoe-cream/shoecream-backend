@@ -117,7 +117,7 @@ public class MemberService {
     public void verifyPassword(long memberId, String password, String newPassword){
         Member member = findVerifiedMember(memberId);
         if(!passwordEncoder.matches(password, member.getPassword())){
-            throw new BusinessLogicException(ExceptionCode.PASSWORD_WRONG);
+            throw new BusinessLogicException(ExceptionCode.CONFIRM_PASSWORD_MISMATCH);
         }
     }
 }
