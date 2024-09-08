@@ -15,10 +15,16 @@ public enum ExceptionCode {
     ORDER_NOT_FOUND(404,"Order Not Found"),
     ITEM_NOT_FOUND(404,"Item Not Found" ),
     MEMBER_EXISTS(409,"Member Already Exists" ),
+<<<<<<< HEAD
+    EMAIL_NOT_AUTH(409, "Email not Auth"),
+    CANNOT_CHANGE_MEMBER_STATUS(403, "MemberStatus cannot change" ),
+    CONFIRM_TYPE(400, "Please Confirm Type" );
+=======
     CONFIRM_TYPE(400, "Please Confirm Type" ),
     EMAIL_NOT_AUTH(409, "Email not Auth"),
     CANNOT_CHANGE_MEMBER_STATUS(403, "MemberStatus cannot change" );
 
+>>>>>>> e0e20c3bb48b1aa4297eddbac3a7172b39d139a8
 
     @Getter
     private int status;
