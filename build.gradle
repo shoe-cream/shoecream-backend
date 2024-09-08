@@ -47,9 +47,15 @@ dependencies {
 	runtimeOnly	'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'commons-codec:commons-codec:1.15'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0' // 추가
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-/*	implementation 'software.amazon.awssdk:s3:2.17.218'
+	implementation 'mysql:mysql-connector-java'
+/*	i
+mplementation 'software.amazon.awssdk:s3:2.17.218'
 	implementation 'mysql:mysql-connector-java'*/
 	implementation "com.querydsl:querydsl-jpa"
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"

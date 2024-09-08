@@ -5,6 +5,9 @@ import com.springboot.member.entity.Member;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MemberMapper {
 
@@ -26,6 +29,21 @@ public interface MemberMapper {
         member.setPassword(requestBody.getNewPassword());
         return member;
     }
+
+
+    MemberDto.Response memberToMemberResponse(Member member);
+
+
+    default MemberDto.Response memberToMemberResponseMyPage(Member member){
+        MemberDto.Response response = new MemberDto.Response();
+        response.setMemberId(member.getMemberId());
+        response.setName(member.getName());
+        response.setEmail(member.getEmail());
+        response.setProfileUrl(member.getProfileUrl());
+        response.setMemberStatus(member.getMemberStatus());
+        return response;
+    }
+
 
 
 
