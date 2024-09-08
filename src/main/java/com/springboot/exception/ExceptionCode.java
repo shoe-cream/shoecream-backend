@@ -14,7 +14,8 @@ public enum ExceptionCode {
     AT_LEAST_ONE_CONDITION(404, "적어도 하나의 검색 조건을 입력해야 합니다."),
     ORDER_NOT_FOUND(404,"Order Not Found"),
     ITEM_NOT_FOUND(404,"Item Not Found" ),
-    MEMBER_EXISTS(409,"Member Already Exists" );
+    MEMBER_EXISTS(409,"Member Already Exists" ),
+    CONFIRM_TYPE(400, "Please Confirm Type" );
 
     @Getter
     private int status;
