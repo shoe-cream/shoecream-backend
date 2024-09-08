@@ -10,6 +10,7 @@ import com.springboot.order_header.service.OrderService;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
+import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.repository.SaleHistoryRepository;
 import com.springboot.utils.UriCreator;
 import org.springframework.data.domain.Page;
@@ -129,5 +130,11 @@ public class OrderController {
         List<OrderHeaders> orderLists = orderPages.getContent();
         return new ResponseEntity(new MultiResponseDto<>(orderMapper
                 .ordersToOrderResponseDtos(orderLists), orderPages),HttpStatus.OK);
+    }
+
+    @GetMapping("/orders/{order-id}/history")
+    public ResponseEntity getOrderHistory(@PathVariable Long orderId) {
+        List<SaleHistory> historyList = saleHistoryRepository.findByOrderHeaders_OrderId(orderId);
+        return ResponseEntity.ok(historyList);
     }
 }
