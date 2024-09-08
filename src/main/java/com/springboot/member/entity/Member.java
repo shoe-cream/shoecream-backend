@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberId;
+    private long memberId;
 
     @Column(nullable = false, updatable = false, unique = true)
     private long employeeId;
@@ -34,7 +33,6 @@ public class Member {
     private String password;
 
     @Column(nullable = false, length = 15)
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$", message = "전화번호는 000-0000-0000 형식이어야 합니다.")
     private String tel;
 
     @Column(nullable = false)

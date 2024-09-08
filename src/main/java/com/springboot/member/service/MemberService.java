@@ -1,11 +1,13 @@
 package com.springboot.member.service;
 
+import com.springboot.email.service.EmailService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.helper.event.MemberRegistrationApplicationEvent;
 import com.springboot.member.entity.Member;
 import com.springboot.member.repository.MemberRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.springboot.member.entity.Member.MemberStatus.MEMBER_ACTIVE;
 import static com.springboot.member.entity.Member.MemberStatus.MEMBER_QUIT;
 
 @Service
@@ -20,11 +23,18 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher publisher;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtAuthorityUtils authorityUtils;
+    private final EmailService emailService;
 
 
-    public MemberService(MemberRepository memberRepository, ApplicationEventPublisher publisher) {
+
+    public MemberService(MemberRepository memberRepository, ApplicationEventPublisher publisher, PasswordEncoder passwordEncoder, JwtAuthorityUtils authorityUtils, EmailService emailService) {
         this.memberRepository = memberRepository;
         this.publisher = publisher;
+        this.passwordEncoder = passwordEncoder;
+        this.authorityUtils = authorityUtils;
+        this.emailService = emailService;
     }
 
     public Member createMember(Member member) {
@@ -67,7 +77,11 @@ public class MemberService {
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
         return findMember;
     }
-
+    public Member findVerifiedMember(long memberId) {
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
+        return optionalMember.orElseThrow(() ->
+                new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+    }
     @Transactional(readOnly = true)
     public Member findVerifiedEmployee(long employeeId){
         Optional<Member> optionalMember = memberRepository.findByEmployeeId(employeeId);
@@ -87,5 +101,23 @@ public class MemberService {
         findMember.setMemberStatus(MEMBER_QUIT);
 
         memberRepository.save(findMember);
+    }
+
+    public void sleepMember(long memberId) {
+        Member findMember = findVerifiedMember(memberId);
+
+        if (findMember.getMemberStatus() != MEMBER_ACTIVE) {
+            throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_MEMBER_STATUS);
+        }
+
+        findMember.setMemberStatus(Member.MemberStatus.MEMBER_SLEEP);
+        memberRepository.save(findMember);
+    }
+
+    public void verifyPassword(long memberId, String password, String newPassword){
+        Member member = findVerifiedMember(memberId);
+        if(!passwordEncoder.matches(password, member.getPassword())){
+            throw new BusinessLogicException(ExceptionCode.PASSWORD_WRONG);
+        }
     }
 }
