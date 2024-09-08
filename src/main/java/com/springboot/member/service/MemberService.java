@@ -1,5 +1,6 @@
 package com.springboot.member.service;
 
+import com.springboot.auth.utils.JwtAuthorityUtils;
 import com.springboot.email.service.EmailService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
@@ -40,11 +41,11 @@ public class MemberService {
     public Member createMember(Member member) {
         verifyExistsEmail(member.getEmail());
 
-//        String encryptedPassword = passwordEncoder.encode(member.getPassword());
-//        member.setPassword(encryptedPassword);
-//
-//        List<String> roles = authorityUtils.createRoles(member.getEmail());
-//        member.setRoles(roles);
+        String encryptedPassword = passwordEncoder.encode(member.getPassword());
+        member.setPassword(encryptedPassword);
+
+        List<String> roles = authorityUtils.createRoles(member.getEmail());
+        member.setRoles(roles);
 
 
         Member savedMember = memberRepository.save(member);
@@ -119,5 +120,18 @@ public class MemberService {
         if(!passwordEncoder.matches(password, member.getPassword())){
             throw new BusinessLogicException(ExceptionCode.CONFIRM_PASSWORD_MISMATCH);
         }
+    }
+
+    public Member updatePassword(Member member, String email) {
+        Member findMember = findVerifiedMember(member.getMemberId());
+
+        if (member.getPassword() == null || member.getPassword().isEmpty()) {
+            throw new BusinessLogicException(ExceptionCode.PASSWORD_WRONG);
+        }
+
+        Optional.ofNullable(member.getPassword())
+                .ifPresent(password -> findMember.setPassword(passwordEncoder.encode(member.getPassword())));
+
+        return memberRepository.save(findMember);
     }
 }

@@ -65,5 +65,7 @@ public class Member {
         }
     }
 
-
+    public Member(String email) {
+        this.email = email;
+    }
 }

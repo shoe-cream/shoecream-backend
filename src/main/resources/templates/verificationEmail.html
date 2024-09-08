@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이메일 인증</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #a349a4;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .code {
+            font-size: 48px;
+            color: #a349a4;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .content {
+            font-size: 18px;
+            color: #333333;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .content a {
+            color: #8A2BE2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #a349a4;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1>인증 코드</h1>
+    </div>
+    <div class="content">
+        <p>이메일 인증을 위해 아래의 인증 코드를 입력해세요:</p>
+        <div class="code">
+            <span th:text="${code}">123456</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 Today Dream. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
