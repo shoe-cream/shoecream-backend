@@ -1,5 +1,6 @@
 package com.springboot.member.controller;
 
+import com.springboot.auth.service.AuthService;
 import com.springboot.email.service.EmailService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
@@ -40,7 +41,7 @@ public class MemberController {
     }
 
     @PostMapping
-    public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody){
+    public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody) {
 
         boolean isEmailVerified = emailService.verifyFinalAuthCode(requestBody.getEmail(), requestBody.getAuthCode());
 
@@ -59,7 +60,7 @@ public class MemberController {
 
     @PatchMapping("/{member-id}")
     public ResponseEntity patchMember(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.Patch requestBody,
-                                      Authentication authentication){
+                                      Authentication authentication) {
         requestBody.setMemberId(memberId);
         String email = authentication.getName();
 
@@ -70,24 +71,41 @@ public class MemberController {
     }
 
     @GetMapping("/check-email")
-    public ResponseEntity checkEmailDuplicate(@RequestBody MemberDto.EmailCheckDto requestBody){
-
+    public ResponseEntity checkEmailDuplicate(@RequestBody MemberDto.EmailCheckDto requestBody) {
+// 이메일 중복여부
         boolean isDuplicate = memberService.isEmailDuplicate(requestBody.getEmail());
 
-        MemberDto.Check responseDto = new  MemberDto.Check(isDuplicate);
+        MemberDto.Check responseDto = new MemberDto.Check(isDuplicate);
 
         return new ResponseEntity<>(
                 new SingleResponseDto<>(responseDto), HttpStatus.OK);
     }
 
-@PatchMapping("/{member-id}/password")
+    @GetMapping("/member-email")
+    public ResponseEntity getMemberEmail(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        Member member = memberService.findVerifiedMember(email);
+        if (member == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 회원을 찾을 수 없을 때
+        }
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{member-id}/password")
     public ResponseEntity patchMemberPassword(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.PatchPassword requestBody,
-                                              Authentication authentication){
+                                              Authentication authentication) {
         requestBody.setMemberId(memberId);
         String email = authentication.getName();
         memberService.verifyPassword(memberId, requestBody.getPassword(), requestBody.getNewPassword());
+        Member member = memberService.updatePassword(mapper.memberPatchPasswordToMember(requestBody), email);
+        return  new ResponseEntity<>(
+                new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
 
-}
+    }
 
 
 }
