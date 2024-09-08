@@ -32,10 +32,10 @@ public class Member {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, length = 15)
+    @Column(nullable = true, length = 15)
     private String tel;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String address;
 
     @ElementCollection(fetch = FetchType.EAGER)
