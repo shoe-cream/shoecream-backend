@@ -3,7 +3,6 @@ package com.springboot.order_header.mapper;
 import com.springboot.order_header.dto.OrderDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_item.entity.OrderItems;
-import org.hibernate.criterion.Order;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -27,4 +26,6 @@ public interface OrderMapper {
    }
 
    List<OrderItems> orderItemDtosToOrderItems(List<OrderDto.OrderItemDto> orderItemDtos);
+
+   List<OrderDto.Response> ordersToOrderResponseDtos (List<OrderHeaders> orderHeaders);
 }

@@ -8,7 +8,10 @@ import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.mapper.OrderMapper;
 import com.springboot.order_header.service.OrderService;
 import com.springboot.order_item.entity.OrderItems;
+import com.springboot.response.MultiResponseDto;
 import com.springboot.utils.UriCreator;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -92,9 +96,25 @@ public class OrderController {
         return new ResponseEntity<>(orderMapper.orderToOrderResponseDto(updatedOrder),HttpStatus.OK);
     }
 
-//    @GetMapping("/{order-id}")
-//    public ResponseEntity getOrder(@PathVariable Long orderId) {
-//        OrderHeaders orderHeaders = orderService.findOrder(orderId);
-//        return new ResponseEntity<>(orderMapper.orderToOrderResponseDto(),HttpStatus.OK);
-//    }
+    //개별조회
+    @GetMapping("/{order-id}")
+    public ResponseEntity getOrder(@Positive @PathVariable("order-id") Long orderId) {
+        OrderHeaders orderHeaders = orderService.findOrder(orderId);
+        return new ResponseEntity<>(orderMapper.orderToOrderResponseDto(orderHeaders),HttpStatus.OK);
+    }
+
+    //status, 기간 으로 filtering
+    @GetMapping
+    public ResponseEntity getOrders(@RequestParam(required = false) String status,
+                                    @RequestParam(required = false, defaultValue = "19000101") @DateTimeFormat(pattern = "yyyyMMdd") LocalDate searchStartDate,
+                                    @RequestParam(required = false, defaultValue = "99991231") @DateTimeFormat(pattern = "yyyyMMdd") LocalDate searchEndDate,
+                                    @Positive @RequestParam int page,
+                                    @Positive @RequestParam int size) {
+
+
+        Page<OrderHeaders> orderPages = orderService.findOrders(page-1, size, status, searchStartDate, searchEndDate);
+        List<OrderHeaders> orderLists = orderPages.getContent();
+        return new ResponseEntity(new MultiResponseDto<>(orderMapper
+                .ordersToOrderResponseDtos(orderLists), orderPages),HttpStatus.OK);
+    }
 }

@@ -15,6 +15,7 @@ public enum ExceptionCode {
     ORDER_NOT_FOUND(404,"Order Not Found"),
     ITEM_NOT_FOUND(404,"Item Not Found" ),
     MEMBER_EXISTS(409,"Member Already Exists" ),
+    CONFIRM_TYPE(400, "Please Confirm Type" ),
     EMAIL_NOT_AUTH(409, "Email not Auth"),
     CANNOT_CHANGE_MEMBER_STATUS(403, "MemberStatus cannot change" );
 
