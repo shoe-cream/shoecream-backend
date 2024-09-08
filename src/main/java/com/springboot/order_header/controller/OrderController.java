@@ -9,6 +9,8 @@ import com.springboot.order_header.mapper.OrderMapper;
 import com.springboot.order_header.service.OrderService;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.response.MultiResponseDto;
+import com.springboot.response.SingleResponseDto;
+import com.springboot.sale_history.repository.SaleHistoryRepository;
 import com.springboot.utils.UriCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,12 +34,14 @@ public class OrderController {
     private final static String ORDER_DEFAULT_URL = "/orders";
     private final MemberService memberService;
     private final BuyerService buyerService;
+    private final SaleHistoryRepository saleHistoryRepository;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper, MemberService memberService, BuyerService buyerService) {
+    public OrderController(OrderService orderService, OrderMapper orderMapper, MemberService memberService, BuyerService buyerService, SaleHistoryRepository saleHistoryRepository) {
         this.orderService = orderService;
         this.orderMapper = orderMapper;
         this.memberService = memberService;
         this.buyerService = buyerService;
+        this.saleHistoryRepository = saleHistoryRepository;
     }
 
     @PostMapping
@@ -57,6 +61,7 @@ public class OrderController {
         orderHeaders.setOrderItems(orderItemsList);
 
         OrderHeaders createOrder = orderService.createOrder(orderHeaders);
+        saleHistoryRepository.save(orderMapper.orderToSaleHistory(createOrder));
 
         URI location = UriCreator.createUri(ORDER_DEFAULT_URL, createOrder.getOrderId());
         return ResponseEntity.created(location).build();
@@ -67,16 +72,21 @@ public class OrderController {
                                      @Valid @RequestBody OrderDto.OrderPatch orderPatchDto /*, Authentication authentication*/) {
         orderPatchDto.setOrderId(orderId);
         OrderHeaders orderHeaders = orderService.updateOrder(orderMapper.orderPatchDtoToOrder(orderPatchDto));
-        return new ResponseEntity(orderMapper.orderToOrderResponseDto(orderHeaders), HttpStatus.OK);
+        saleHistoryRepository.save(orderMapper.orderToSaleHistory(orderHeaders));
+
+        return new ResponseEntity(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)), HttpStatus.OK);
     }
 
     @PatchMapping("/{order-id}/items/{item-id}")
     public ResponseEntity patchOrderItem(@Positive @PathVariable("order-id") Long orderId,
                                          @Positive @PathVariable("item-id") Long itemId,
                                      @Valid @RequestBody OrderDto.ItemPatch itemPatch /*, Authentication authentication*/) {
+
         OrderItems item = orderService.updateOrderItem(orderId, itemId, orderMapper.itemPatchDtoToOrderItem(itemPatch));
         OrderHeaders orderHeaders = orderService.findVerifiedOrder(orderId);
         item.setOrderHeaders(orderHeaders);
+
+        saleHistoryRepository.save(orderMapper.orderToSaleHistory(orderHeaders));
         return new ResponseEntity(orderMapper.orderToOrderResponseDto(orderHeaders), HttpStatus.OK);
     }
 
@@ -85,7 +95,8 @@ public class OrderController {
     public ResponseEntity approveStatus(@Positive @PathVariable("order-id") Long orderId) {
         //팀장권한확인
         OrderHeaders updatedOrder = orderService.updateStatus(orderId, OrderHeaders.OrderStatus.APPROVED);
-        return new ResponseEntity<>(orderMapper.orderToOrderResponseDto(updatedOrder),HttpStatus.OK);
+        saleHistoryRepository.save(orderMapper.orderToSaleHistory(updatedOrder));
+        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
     }
 
     //팀장 반려
@@ -93,14 +104,16 @@ public class OrderController {
     public ResponseEntity rejectStatus(@Positive @PathVariable("order-id") Long orderId) {
         //팀장권한확인
         OrderHeaders updatedOrder = orderService.updateStatus(orderId, OrderHeaders.OrderStatus.REJECTED);
-        return new ResponseEntity<>(orderMapper.orderToOrderResponseDto(updatedOrder),HttpStatus.OK);
+
+        saleHistoryRepository.save(orderMapper.orderToSaleHistory(updatedOrder));
+        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
     }
 
     //개별조회
     @GetMapping("/{order-id}")
     public ResponseEntity getOrder(@Positive @PathVariable("order-id") Long orderId) {
         OrderHeaders orderHeaders = orderService.findOrder(orderId);
-        return new ResponseEntity<>(orderMapper.orderToOrderResponseDto(orderHeaders),HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)),HttpStatus.OK);
     }
 
     //status, 기간 으로 filtering
