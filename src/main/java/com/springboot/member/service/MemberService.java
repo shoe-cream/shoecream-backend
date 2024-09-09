@@ -90,7 +90,7 @@ public class MemberService {
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
     @Transactional(readOnly = true)
-    public Member findVerifiedEmployee(long employeeId){
+    public Member findVerifiedEmployee(String employeeId){
         Optional<Member> optionalMember = memberRepository.findByEmployeeId(employeeId);
         Member findMember = optionalMember.orElseThrow(() ->
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
