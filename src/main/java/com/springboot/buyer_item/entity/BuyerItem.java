@@ -21,21 +21,6 @@ public class BuyerItem {
     private long buyerItemId;
 
     @Column(nullable = false)
-    private String buyerNm;
-
-    @Column
-    private String buyerCd;
-
-    @Column
-    private String itemCd;
-
-    @Column(nullable = false)
-    private String itemNm;
-
-    @Column(nullable = false)
-    private String unit;
-
-    @Column(nullable = false)
     private String unitPrice;
 
     @Column
@@ -43,9 +28,6 @@ public class BuyerItem {
 
     @Column
     private LocalDateTime endDate;
-
-    @Enumerated(EnumType.STRING)
-    private ItemStatus itemStatus = ItemStatus.ACTIVE;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "buyer_id")
@@ -63,15 +45,10 @@ public class BuyerItem {
         }
     }
 
-    @AllArgsConstructor
-    public enum ItemStatus {
-        ACTIVE ("활성 상태"),
-        INACTIVE ("비활성 상태"),
-        DELETED ("삭제 상태"),
-        OUT_OF_STOCK ("품절 상태");
-
-        @Setter
-        @Getter
-        private String statusDescription;
+    public void addItem(Item item) {
+        this.item = item;
+        if(!item.getBuyerItems().contains(this)) {
+            item.getBuyerItems().add(this);
+        }
     }
 }
