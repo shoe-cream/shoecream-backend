@@ -56,12 +56,13 @@ public class OrderService {
 
         Member member = verifiedMember(authentication);
         OrderHeaders findOrder = findVerifiedOrder(orderHeaders.getOrderId());
-        //승인. 반려 상태로는 변경 못한다. (팀장만 가능 , updateStatus 메서드로 승인
+
+        //승인. 반려 상태로는 변경 못한다. (팀장만 가능 , updateStatus 메서드로 승인)
         if(orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.APPROVED || orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.REJECTED) {
             throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
         }
+
         //승인 이후에는 주문취소로 변경할 수 없다.
-        //즉 findOrder 상태가 견적요청, 발주요청 상태가 아닐 경우에는 취소할 수없다.
         List<OrderHeaders.OrderStatus> notApproveStatus =
                 Arrays.asList(OrderHeaders.OrderStatus.PURCHASE_REQUEST, OrderHeaders.OrderStatus.REQUEST_TEMP);
 
@@ -69,6 +70,7 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
+        // 상태, 납기일 변경
         Optional.ofNullable(orderHeaders.getOrderStatus()).ifPresent(findOrder::setOrderStatus);
         Optional.ofNullable(orderHeaders.getRequestDate()).ifPresent(findOrder::setRequestDate);
 
@@ -81,6 +83,11 @@ public class OrderService {
         Member member = verifiedMember(authentication);
         OrderHeaders orderHeaders = findVerifiedOrder(orderId);
         OrderItems findItem = findVerifiedOrderItems(itemId);
+
+        //주문내역에 해당 item 이 있는지 확인
+        if (!findItem.getOrderHeaders().getOrderId().equals(orderId)) {
+            throw new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND_IN_ORDER);
+        }
 
         Optional.ofNullable(orderItems.getQuantity()).ifPresent(findItem::setQuantity);
         Optional.ofNullable(orderItems.getUnitPrice()).ifPresent(findItem::setUnitPrice);
@@ -102,33 +109,39 @@ public class OrderService {
         return orderHeadersRepository.save(orderHeaders);
     }
 
+    // order 개별조회
     public OrderHeaders findOrder(Long orderId) {
         return findVerifiedOrder(orderId);
     }
 
+    // order 조회 (조회조건 (조합 가능) : 주문 상태별, buyerCode별, itemCode별, 날짜별로 조회가능(기본값 별도))
     public Page<OrderHeaders> findOrders(int page, int size, OrderDto.OrderSearchRequest orderSearchRequest) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return orderQueryRepository.findByRequestDateBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCD(orderSearchRequest, pageable);
+        return orderQueryRepository.findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCDAndOrderId(orderSearchRequest, pageable);
     }
 
+    // 판매내역 조회 (order-id로 분류)
     public Page<SaleHistory> findHistories (int page, int size, Long orderId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return saleHistoryRepository.findByOrderHeaders_OrderId(orderId, pageable);
+        return saleHistoryRepository.findByOrderId(orderId, pageable);
     }
+
 
     public OrderHeaders findVerifiedOrder(Long orderId) {
         Optional<OrderHeaders> findOrder = orderHeadersRepository.findById(orderId);
         return findOrder.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
     }
 
+    // orderItem 검증 및 조회
     private OrderItems findVerifiedOrderItems(Long itemId) {
         Optional<OrderItems> findItem = orderItemsRepository.findById(itemId);
         return findItem.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
     }
 
+    //member 검증 및 반환
     private Member verifiedMember(Authentication authentication) {
 
         String user = (String) authentication.getPrincipal();
-        return memberService.findVerifiedMember(user);
+        return memberService.findVerifiedEmployee(user);
     }
 }

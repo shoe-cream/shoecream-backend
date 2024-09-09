@@ -118,12 +118,13 @@ public class OrderController {
             @RequestParam(required = false) String buyerCode,
             @RequestParam(required = false) String itemCode,
             @RequestParam(required = false) OrderHeaders.OrderStatus status,
+            @RequestParam(required = false) Long orderId,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchStartDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchEndDate,
             @Positive @RequestParam int page,
             @Positive @RequestParam int size) {
 
-        OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCode, itemCode, status, searchStartDate, searchEndDate);
+        OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCode, itemCode, status, orderId, searchStartDate, searchEndDate);
         Page<OrderHeaders> orderPages = orderService.findOrders(page - 1, size, orderSearchRequest);
         List<OrderHeaders> orderLists = orderPages.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);
