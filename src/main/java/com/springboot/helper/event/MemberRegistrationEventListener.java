@@ -24,17 +24,17 @@ public class MemberRegistrationEventListener {
         this.emailSender = emailSender;
         this.memberService = memberService;
     }
-    @Async
-    @EventListener
-    public void listen(MemberRegistrationApplicationEvent event) throws  Exception{
-        try {
-            String message = "any email message";
-            emailSender.sendEmail(message);
-        }catch (MailSendException e){
-            e.printStackTrace();
-            log.error("MailSendException: rollback for Member Registration:");
-            Member member = event.getMember();
-            memberService.deleteMember(member.getEmail());
-        }
-    }
+//    @Async
+//    @EventListener
+//    public void listen(MemberRegistrationApplicationEvent event) throws  Exception{
+//        try {
+//            String message = "any email message";
+//            emailSender.sendEmail(message);
+//        }catch (MailSendException e){
+//            e.printStackTrace();
+//            log.error("MailSendException: rollback for Member Registration:");
+//            Member member = event.getMember();
+//            memberService.deleteMember(member.getEmail());
+//        }
+//    }
 }

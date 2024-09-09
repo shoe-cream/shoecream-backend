@@ -43,8 +43,14 @@ public class Buyer {
     private BuyerStatus buyerStatus = BuyerStatus.ACTIVE;
 
     @OneToMany(mappedBy = "buyer")
-    @JsonManagedReference
     private List<BuyerItem> buyerItems = new ArrayList<>();
+
+    public void addBuyerItem(BuyerItem buyerItem) {
+        buyerItems.add(buyerItem);
+        if(buyerItem.getBuyer() != this) {
+            buyerItem.setBuyer(this);
+        }
+    }
 
     @OneToMany(mappedBy = "buyer")
     @JsonManagedReference

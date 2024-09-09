@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 public class Dto {
     @Getter
@@ -54,6 +55,8 @@ public class Dto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BuyerResponse {
+        private long buyerId;
+
         private String buyerCd;
 
         private String buyerNm;
@@ -65,5 +68,16 @@ public class Dto {
         private String businessType;
 
         private String email;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BuyerResponseWithItemDto {
+        private String buyerNm;
+        private String buyerCd;
+        private String tel;
+        private List<com.springboot.buyer_item.dto.Dto.BuyerItemResponseDto> buyerItems;
     }
 }

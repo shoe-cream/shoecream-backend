@@ -4,6 +4,8 @@ import com.springboot.buyer.dto.Dto;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.mapper.BuyerMapper;
 import com.springboot.buyer.service.BuyerService;
+import com.springboot.buyer_item.entity.BuyerItem;
+import com.springboot.buyer_item.mapper.BuyerItemMapper;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.List;
 public class BuyerController {
     private final BuyerService buyerService;
     private final BuyerMapper buyerMapper;
+    private final BuyerItemMapper buyerItemMapper;
 
     @PostMapping
     public ResponseEntity postBuyer(@Valid @RequestBody Dto.BuyerPostDto postDto) {
@@ -33,15 +36,31 @@ public class BuyerController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // 특정 바이어를, 바이어이름, 바이어코드, 바이어의 사업유형으로 조회 (없으면 예외처리)
     @GetMapping("/search")
-    public ResponseEntity getBuyerByCd(@RequestParam(required = false) String buyerCd,
-                                       @RequestParam(required = false) String buyerNm,
-                                       @RequestParam(required = false) String businessType) {
+    public ResponseEntity getBuyer(@RequestParam(required = false) String buyerCd,
+                                   @RequestParam(required = false) String buyerNm,
+                                   @RequestParam(required = false) String businessType) {
         Buyer buyerByCd = buyerService.findBuyerByFilter(buyerCd, buyerNm, businessType);
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyerByCd)), HttpStatus.OK);
     }
 
+    // 바이어와 바이어아이템을 함께 조회
+    @GetMapping("/search/items")
+    public ResponseEntity getBuyerWithItems(@RequestParam(required = false) String buyerCd,
+                                            @RequestParam(required = false) String buyerNm) {
+        Buyer buyer = buyerService.findBuyerWithItems(buyerCd, buyerNm);
+
+        Dto.BuyerResponseWithItemDto response =
+                buyerMapper.buyerItemsToBuyerResponseWithItems(buyer);
+
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(response), HttpStatus.OK);
+    }
+
+    // 페이지네이션으로 바이어 전체조회 또는 사업유형으로 전채조회.
     @GetMapping
     public ResponseEntity getBuyers(@RequestParam @Positive int page,
                                     @RequestParam @Positive int size,
