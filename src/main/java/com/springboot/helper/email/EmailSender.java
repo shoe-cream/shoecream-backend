@@ -1,9 +1,9 @@
 package com.springboot.helper.email;
 
 import org.springframework.mail.MailSendException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class EmailSender {
     private final EmailSendable emailSendable;
 
