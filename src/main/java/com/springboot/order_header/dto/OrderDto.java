@@ -67,6 +67,7 @@ public class OrderDto {
         private String buyerCode;
         private String itemCode;
         private OrderHeaders.OrderStatus status;
+        private Long orderId;
 
         @DateTimeFormat(pattern = "yyyyMMdd")
         private LocalDate searchStartDate = LocalDate.of(1900, 1, 1);  // 기본값

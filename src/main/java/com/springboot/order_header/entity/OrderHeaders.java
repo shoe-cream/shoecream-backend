@@ -49,10 +49,6 @@ public class OrderHeaders {
     @JsonBackReference
     private Buyer buyer;
 
-    @OneToMany(mappedBy = "orderHeaders")
-    @JsonManagedReference
-    private List<SaleHistory> saleHistory = new ArrayList<>();
-
     public enum OrderStatus {
         REQUEST_TEMP("견적요청"),
         PURCHASE_REQUEST("발주요청"),
