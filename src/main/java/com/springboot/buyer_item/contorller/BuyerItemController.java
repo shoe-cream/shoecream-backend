@@ -37,7 +37,7 @@ public class BuyerItemController {
     }
 
     // 특정 바이어아이템 조회
-    @GetMapping("/{buyerItem-Id}")
+    @GetMapping("/{buyerItemId}")
     public ResponseEntity findBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId) {
         BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId);
 
@@ -45,17 +45,15 @@ public class BuyerItemController {
                 new SingleResponseDto<>(buyerItemMapper.buyerItemToBuyerResponseDto(buyerItem)), HttpStatus.OK);
     }
 
+    // 수정 필요!!
     // 페이지네이션으로 바이어아이템 전체조회 또는 특정 조건을 사용자가 입력해 전체 조회
     @GetMapping
     public ResponseEntity getBuyerItems(@RequestParam(required = false) String buyerCd,
-                                        @RequestParam(required = false) String buyerNm,
-                                        @RequestParam(required = false) String itemNm,
-                                        @RequestParam(required = false) String itemCd,
                                         @RequestParam @Positive int page,
                                         @RequestParam @Positive int size) {
 
-        // 바이어 코드, 이름, 아이템 이름, 아이템 코드, 날짜 범위로 조회
-        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, buyerNm, itemNm, itemCd);
+
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());
@@ -64,8 +62,8 @@ public class BuyerItemController {
                 new MultiResponseDto<>(buyerItemResponseDtos, buyerItemPage), HttpStatus.OK);
     }
 
-    @PatchMapping("/{buyerItem-Id}")
-    public ResponseEntity updateBuyerItem(@PathVariable @Positive long buyerItemId,
+    @PatchMapping("/{buyerItemId}")
+    public ResponseEntity updateBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId,
                                           @RequestBody Dto.BuyerItemPatchDto patchDto) {
         patchDto.setBuyerItemId(buyerItemId);
         BuyerItem buyerItem = buyerItemMapper.buyerItemPatchDtoToBuyer(patchDto);
@@ -75,8 +73,8 @@ public class BuyerItemController {
 
     }
 
-    @DeleteMapping("/{buyerItem-Id}")
-    public ResponseEntity deleteBuyerItem(@PathVariable @Positive long buyerItemId) {
+    @DeleteMapping("/{buyerItemId}")
+    public ResponseEntity deleteBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId) {
         buyerItemService.deleteBuyerItem(buyerItemId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

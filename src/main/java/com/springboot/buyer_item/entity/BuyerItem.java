@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,7 +22,7 @@ public class BuyerItem {
     private long buyerItemId;
 
     @Column(nullable = false)
-    private String unitPrice;
+    private BigDecimal unitPrice;
 
     @Column
     private LocalDateTime startDate;
@@ -35,7 +36,6 @@ public class BuyerItem {
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    @JsonBackReference
     private Item item;
 
     public void addBuyer(Buyer buyer) {
