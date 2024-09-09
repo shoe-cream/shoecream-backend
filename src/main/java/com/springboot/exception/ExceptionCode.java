@@ -14,6 +14,8 @@ public enum ExceptionCode {
     CONDITION_NOT_FIT(404, "해당 조건에 맞는 바이어는 없습니다."),
     AT_LEAST_ONE_CONDITION(404, "적어도 하나의 검색 조건을 입력해야 합니다."),
     BUYERITEM_NOT_FOUND(409, "바이어아이템을 찾을수 없습니다."),
+    MANUFACTURE_NOT_FOUND(409, "제조사를 찾을수 없습니다"),
+    MANUFACTURE_EXIST(409, "이미 등록된 제조사입니다."),
     ORDER_NOT_FOUND(404,"Order Not Found"),
     ITEM_NOT_FOUND(404,"Item Not Found" ),
     MEMBER_EXISTS(409,"Member Already Exists" ),
