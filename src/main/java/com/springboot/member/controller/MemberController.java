@@ -61,13 +61,14 @@ public class MemberController {
 
 
         Member createdMember = memberService.createMember(member);
-        URI location = UriCreator.createUri("/api/members", createdMember.getMemberId());
+        URI location = UriCreator.createUri("/members", createdMember.getMemberId());
 
         return ResponseEntity.created(location).build();
     }
 
-    @GetMapping("/myinfo")
-    public ResponseEntity getMember(Authentication authentication) {
+    @GetMapping("/myInfo")
+    public ResponseEntity getMember(
+            Authentication authentication) {
 
         String email = (String) authentication.getPrincipal();
         Member member = memberService.findVerifiedMember(email);
