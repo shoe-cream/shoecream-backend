@@ -66,20 +66,19 @@ public class MemberController {
         return ResponseEntity.created(location).build();
     }
 
-//    @GetMapping("/{member-id}")
-//    public ResponseEntity getMember(
-//            @PathVariable("member-id") @Positive long memberId, Authentication authentication) {
-//
-//        String email = authentication.getName();
-//        Member member = memberService.findMember(memberId, email);
-//
-//        if (!member.getEmail().equals(email)) {
-//            return new ResponseEntity<>(HttpStatus.FORBIDDEN); // 이메일 불일치 시 권한 없음 상태 반환
-//        }
-//
-//        return new ResponseEntity<>(
-//                new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
-//    }
+    @GetMapping("/myinfo")
+    public ResponseEntity getMember(Authentication authentication) {
+
+        String email = (String) authentication.getPrincipal();
+        Member member = memberService.findVerifiedMember(email);
+
+        if (!member.getEmail().equals(email)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN); // 이메일 불일치 시 권한 없음 상태 반환
+        }
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
+    }
 
     @PatchMapping("/{member-id}")
     public ResponseEntity patchMember(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.Patch requestBody,
@@ -115,7 +114,7 @@ public class MemberController {
         }
 
         return new ResponseEntity<>(
-                new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
+                new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
     }
 
     @PatchMapping("/{member-id}/password")
