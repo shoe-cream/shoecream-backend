@@ -39,6 +39,7 @@ public class OrderDto {
     @Getter
     public static class Response {
         private Long orderId;
+        private String employeeId;
         private String buyerCD;
         private String buyerNm;
         private LocalDateTime createdAt;

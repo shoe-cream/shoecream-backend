@@ -18,6 +18,7 @@ public interface OrderMapper {
    default OrderDto.Response orderToOrderResponseDto(OrderHeaders order) {
       OrderDto.Response.ResponseBuilder response = OrderDto.Response.builder();
       response.orderId(order.getOrderId());
+      response.employeeId(order.getMember().getEmployeeId());
       response.buyerCD(order.getBuyer().getBuyerCd());
       response.buyerNm(order.getBuyer().getBuyerNm());
       response.createdAt(order.getCreatedAt());
@@ -31,11 +32,4 @@ public interface OrderMapper {
 
    List<OrderDto.Response> ordersToOrderResponseDtos (List<OrderHeaders> orderHeaders);
 
-   default SaleHistory orderToSaleHistory(OrderHeaders orderHeader) {
-      SaleHistory saleHistory = new SaleHistory();
-      saleHistory.setCreatedAt(LocalDateTime.now());
-      saleHistory.setOrderHeaders(orderHeader);
-
-      return saleHistory;
-   }
 }

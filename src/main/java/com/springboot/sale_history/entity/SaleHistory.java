@@ -18,7 +18,7 @@ public class SaleHistory {
     private long saleHistoryId;
 
     @Column
-    private long employeeId;
+    private String employeeId;
 
     @Column
     private LocalDateTime createdAt = LocalDateTime.now();
