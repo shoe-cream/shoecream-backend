@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         LoginDto loginDto = objectMapper.readValue(request.getInputStream(), LoginDto.class);
 
         UsernamePasswordAuthenticationToken authenticationToken
-                = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
+                = new UsernamePasswordAuthenticationToken(loginDto.getEmployeeId(), loginDto.getPassword());
 
         return authenticationManager.authenticate(authenticationToken);
 
@@ -61,7 +61,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     protected String delegateAccessToken(Member member){
         Map<String,Object> claims = new HashMap<>();
-        claims.put("username", member.getEmail());
+        claims.put("username", member.getEmployeeId());
         claims.put("roles", member.getRoles());
 
         String subject = member.getEmail();
