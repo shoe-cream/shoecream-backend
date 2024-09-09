@@ -9,6 +9,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.springboot.validator.NotSpace;
 
@@ -25,7 +26,7 @@ public class MemberDto {
         @NotBlank
         private String password;
 
-        @NotBlank
+        @NotNull
         private long employeeId;
 
         @NotBlank

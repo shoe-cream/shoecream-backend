@@ -115,4 +115,11 @@ public class BuyerService {
             throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
         }
     }
+
+
+    public Buyer findVerifiedBuyer(String buyerCD) {
+        return buyerRepository.findByBuyerCd(buyerCD)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+    }
+
 }

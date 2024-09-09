@@ -28,5 +28,20 @@ public interface MemberMapper {
     }
 
 
+    MemberDto.Response memberToMemberResponse(Member member);
+
+
+    default MemberDto.Response memberToMemberResponseMyPage(Member member){
+        MemberDto.Response response = new MemberDto.Response();
+        response.setMemberId(member.getMemberId());
+        response.setName(member.getName());
+        response.setEmail(member.getEmail());
+        response.setProfileUrl(member.getProfileUrl());
+        response.setMemberStatus(member.getMemberStatus());
+        return response;
+    }
+
+
+
 
 }

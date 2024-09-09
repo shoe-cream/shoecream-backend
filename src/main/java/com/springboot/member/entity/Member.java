@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 public class Member {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long memberId;
@@ -31,10 +32,10 @@ public class Member {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, length = 15)
+    @Column(nullable = true, length = 15)
     private String tel;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String address;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -64,5 +65,7 @@ public class Member {
         }
     }
 
-
+    public Member(String email) {
+        this.email = email;
+    }
 }
