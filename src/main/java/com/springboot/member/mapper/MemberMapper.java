@@ -37,7 +37,11 @@ public interface MemberMapper {
         response.setName(member.getName());
         response.setEmail(member.getEmail());
         response.setProfileUrl(member.getProfileUrl());
-        response.setMemberStatus(member.getMemberStatus());
+        if(member.getMemberStatus() == null) {
+            response.setMemberStatus(Member.MemberStatus.MEMBER_ACTIVE);
+        } else {
+            response.setMemberStatus(member.getMemberStatus());
+        }
         return response;
     }
 
