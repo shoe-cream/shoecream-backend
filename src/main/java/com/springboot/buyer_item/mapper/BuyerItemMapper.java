@@ -51,5 +51,20 @@ public interface BuyerItemMapper {
     }
 
     // 수정 필요
-    List<Dto.BuyerItemResponseDto> buyerItemsToBuyerItemResponseDtos(List<BuyerItem> buyerItems) ;
+    default List<Dto.BuyerItemResponseDto> buyerItemsToBuyerItemResponseDtos(List<BuyerItem> buyerItems) {
+        return buyerItems
+                .stream()
+                .map(buyerItem -> Dto.BuyerItemResponseDto
+                        .builder()
+                        .itemNm(buyerItem.getItem().getItemNm())
+                        .itemCd(buyerItem.getItem().getItemCd())
+                        .buyerNm(buyerItem.getBuyer().getBuyerNm())
+                        .unit(buyerItem.getItem().getUnit())
+                        .unitPrice(buyerItem.getUnitPrice())
+                        .startDate(buyerItem.getStartDate())
+                        .endDate(buyerItem.getEndDate())
+                        .itemStatus(buyerItem.getItem().getItemStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

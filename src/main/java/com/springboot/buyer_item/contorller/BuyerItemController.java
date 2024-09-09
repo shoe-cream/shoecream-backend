@@ -49,14 +49,11 @@ public class BuyerItemController {
     // 페이지네이션으로 바이어아이템 전체조회 또는 특정 조건을 사용자가 입력해 전체 조회
     @GetMapping
     public ResponseEntity getBuyerItems(@RequestParam(required = false) String buyerCd,
-                                        @RequestParam(required = false) String buyerNm,
-                                        @RequestParam(required = false) String itemNm,
-                                        @RequestParam(required = false) String itemCd,
                                         @RequestParam @Positive int page,
                                         @RequestParam @Positive int size) {
 
 
-        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, buyerNm, itemNm, itemCd);
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());

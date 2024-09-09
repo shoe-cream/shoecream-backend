@@ -2,9 +2,7 @@ package com.springboot.buyer_item.dto;
 
 import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.item.entity.Item;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
@@ -50,7 +48,9 @@ public class Dto {
 
     @Getter
     @Setter
+    @AllArgsConstructor
     @NoArgsConstructor
+    @Builder
     public static class BuyerItemResponseDto {
         private String buyerNm;
         private String itemCd;      // 기본 아이템 코드

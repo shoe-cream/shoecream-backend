@@ -63,12 +63,16 @@ public class BuyerItemService {
 //        }
 //    }
 
-    public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd, String buyerNm,
-                                          String itemNm, String itemCd) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("buyerCd").descending());
+    public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("buyer.buyerCd").descending());
 
-        // 조건에 맞는 BuyerItems 조회
-        return buyerItemRepository.findAllByBuyer_BuyerCdOrBuyer_BuyerNmOrItem_ItemCdOrItem_ItemNm(buyerCd, buyerNm, itemNm, itemCd, pageable);
+        if (buyerCd == null || buyerCd.isEmpty()) {
+            // buyerCd가 없으면 전체 데이터를 조회
+            return buyerItemRepository.findAll(pageable);
+        } else {
+            // buyerCd가 있으면 해당 바이어 코드에 맞는 데이터 조회
+            return buyerItemRepository.findAllByBuyer_BuyerCd(buyerCd, pageable);
+        }
     }
 
     // 수정 관련 한번더 확인
