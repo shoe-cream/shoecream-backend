@@ -61,7 +61,7 @@ public class MemberController {
 
 
         Member createdMember = memberService.createMember(member);
-        URI location = UriCreator.createUri("/api/members", createdMember.getMemberId());
+        URI location = UriCreator.createUri("/members", createdMember.getMemberId());
 
         return ResponseEntity.created(location).build();
     }
