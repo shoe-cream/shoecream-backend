@@ -2,8 +2,10 @@ package com.springboot.order_header.service;
 
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
+import com.springboot.order_header.dto.OrderDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.repository.OrderHeadersRepository;
+import com.springboot.order_header.repository.OrderQueryRepositoryCustom;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
 import org.springframework.data.domain.Page;
@@ -20,10 +22,12 @@ import java.util.Optional;
 public class OrderService {
     private final OrderHeadersRepository orderHeadersRepository;
     private final OrderItemsRepository orderItemsRepository;
+    private final OrderQueryRepositoryCustom orderQueryRepository;
 
-    public OrderService(OrderHeadersRepository orderHeadersRepository, OrderItemsRepository orderItemsRepository) {
+    public OrderService(OrderHeadersRepository orderHeadersRepository, OrderItemsRepository orderItemsRepository, OrderQueryRepositoryCustom orderQueryRepository) {
         this.orderHeadersRepository = orderHeadersRepository;
         this.orderItemsRepository = orderItemsRepository;
+        this.orderQueryRepository = orderQueryRepository;
     }
 
     public OrderHeaders createOrder(OrderHeaders orderHeaders) {
@@ -68,18 +72,9 @@ public class OrderService {
         return findVerifiedOrder(orderId);
     }
 
-    public Page<OrderHeaders> findOrders (int page, int size, String status, LocalDate startDate, LocalDate endDate) {
-
+    public Page<OrderHeaders> findOrders(int page, int size, OrderDto.OrderSearchRequest orderSearchRequest) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        LocalDateTime searchStartDate = startDate.atStartOfDay();
-        LocalDateTime searchEndDate = endDate.atTime(23, 59, 59);
-
-        if(status.equalsIgnoreCase("ALL")) {
-            return orderHeadersRepository.findByRequestDateBetween(searchStartDate, searchEndDate,pageable);
-        } else {
-            OrderHeaders.OrderStatus orderStatus = OrderHeaders.OrderStatus.valueOf(status.toUpperCase());
-            return orderHeadersRepository.findByRequestDateBetweenAndOrderStatus(searchStartDate, searchEndDate, orderStatus, pageable);
-        }
+        return orderQueryRepository.findByRequestDateBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCD(orderSearchRequest, pageable);
     }
 
     public OrderHeaders findVerifiedOrder(Long orderId) {
