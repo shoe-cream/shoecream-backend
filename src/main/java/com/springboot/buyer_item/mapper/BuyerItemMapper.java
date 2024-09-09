@@ -26,9 +26,9 @@ public interface BuyerItemMapper {
         BuyerItem buyerItem = new BuyerItem();
         buyerItem.setBuyer(buyer);
         buyerItem.setItem(item);
-        buyerItem.setUnitPrice(buyerItem.getUnitPrice());
-        buyerItem.setStartDate(buyerItem.getStartDate());
-        buyerItem.setEndDate(buyerItem.getEndDate());
+        buyerItem.setUnitPrice(postDto.getUnitPrice());
+        buyerItem.setStartDate(postDto.getStartDate());
+        buyerItem.setEndDate(postDto.getEndDate());
 
         return buyerItem;
     }
@@ -43,9 +43,13 @@ public interface BuyerItemMapper {
         responseDto.setItemCd(buyerItem.getItem().getItemCd());
         responseDto.setItemStatus(buyerItem.getItem().getItemStatus());
         responseDto.setUnit(buyerItem.getItem().getUnit());
+        responseDto.setUnitPrice(buyerItem.getUnitPrice());
+        responseDto.setStartDate(buyerItem.getStartDate());
+        responseDto.setEndDate(buyerItem.getEndDate());
 
         return responseDto;
     }
 
+    // 수정 필요
     List<Dto.BuyerItemResponseDto> buyerItemsToBuyerItemResponseDtos(List<BuyerItem> buyerItems) ;
 }
