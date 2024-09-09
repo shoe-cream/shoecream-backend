@@ -2,11 +2,11 @@ package com.springboot.order_header.dto;
 
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_item.entity.OrderItems;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,6 +56,23 @@ public class OrderDto {
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private String unit;
+    }
+
+    @Getter
+    @Setter
+    @RequiredArgsConstructor
+    @AllArgsConstructor
+    public static class OrderSearchRequest {
+        private String buyerCode;
+        private String itemCode;
+        private OrderHeaders.OrderStatus status;
+
+        @DateTimeFormat(pattern = "yyyyMMdd")
+        private LocalDate searchStartDate = LocalDate.of(1900, 1, 1);  // 기본값
+
+        @DateTimeFormat(pattern = "yyyyMMdd")
+        private LocalDate searchEndDate = LocalDate.of(9999, 12, 31); // 기본값
+
     }
 }
 

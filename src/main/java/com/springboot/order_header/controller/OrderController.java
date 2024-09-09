@@ -117,19 +117,20 @@ public class OrderController {
         return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)),HttpStatus.OK);
     }
 
-    //status, 기간 으로 filtering
     @GetMapping
-    public ResponseEntity getOrders(@RequestParam(required = false) String status,
-                                    @RequestParam(required = false, defaultValue = "19000101") @DateTimeFormat(pattern = "yyyyMMdd") LocalDate searchStartDate,
-                                    @RequestParam(required = false, defaultValue = "99991231") @DateTimeFormat(pattern = "yyyyMMdd") LocalDate searchEndDate,
-                                    @Positive @RequestParam int page,
-                                    @Positive @RequestParam int size) {
+    public ResponseEntity<?> getOrders(
+            @RequestParam(required = false) String buyerCode,
+            @RequestParam(required = false) String itemCode,
+            @RequestParam(required = false) OrderHeaders.OrderStatus status,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchStartDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchEndDate,
+            @Positive @RequestParam int page,
+            @Positive @RequestParam int size) {
 
-
-        Page<OrderHeaders> orderPages = orderService.findOrders(page-1, size, status, searchStartDate, searchEndDate);
+        OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCode, itemCode, status, searchStartDate, searchEndDate);
+        Page<OrderHeaders> orderPages = orderService.findOrders(page - 1, size, orderSearchRequest);
         List<OrderHeaders> orderLists = orderPages.getContent();
-        return new ResponseEntity(new MultiResponseDto<>(orderMapper
-                .ordersToOrderResponseDtos(orderLists), orderPages),HttpStatus.OK);
+        return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);
     }
 
     @GetMapping("/orders/{order-id}/history")
