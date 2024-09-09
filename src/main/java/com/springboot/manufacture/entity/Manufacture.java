@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +21,20 @@ public class Manufacture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long mfId;
 
-    @Column
+    @Column(nullable = false)
     private String region;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false, unique = true)
+    private String mfCd;
+
+    @Column(nullable = false)
+    private String mfNm;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
     private ManufactureStatus manufactureStatus = ManufactureStatus.ACTIVE;

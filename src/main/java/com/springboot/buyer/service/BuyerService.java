@@ -22,7 +22,6 @@ import java.util.Optional;
 @Transactional
 public class BuyerService {
     private final BuyerRepository buyerRepository;
-    private final BuyerItemRepository buyerItemRepository;
 
     public void createBuyer(Buyer buyer) {
         verifyExistTel(buyer.getTel());
@@ -62,9 +61,6 @@ public class BuyerService {
 
         Buyer buyer = buyerRepository.findByBuyerCdOrBuyerNm(buyerCd, buyerNm)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
-
-        List<BuyerItem> buyerItems = buyerItemRepository.findAllByBuyerCd(buyerCd);
-        buyer.setBuyerItems(buyerItems);
 
         return buyer;
     }
