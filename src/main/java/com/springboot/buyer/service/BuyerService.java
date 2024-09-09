@@ -2,6 +2,8 @@ package com.springboot.buyer.service;
 
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.repository.BuyerRepository;
+import com.springboot.buyer_item.entity.BuyerItem;
+import com.springboot.buyer_item.repository.BuyerItemRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,11 +22,12 @@ import java.util.Optional;
 @Transactional
 public class BuyerService {
     private final BuyerRepository buyerRepository;
+    private final BuyerItemRepository buyerItemRepository;
 
     public void createBuyer(Buyer buyer) {
         verifyExistTel(buyer.getTel());
         verifyExistEmail(buyer.getEmail());
-        verifyExistBuyerCd(buyer.getBuyerCd());
+        verifyBuyerCdExists(buyer.getBuyerCd());
         buyerRepository.save(buyer);
     }
 
@@ -40,6 +44,7 @@ public class BuyerService {
         }
     }
 
+    // 페이지네이션으로 필터링을통해 전체조회 ok 필터링 없이 전체를 조회 ok.
     public Page<Buyer> findBuyers(int page, int size, String businessType) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("buyerId").descending());
 
@@ -48,6 +53,20 @@ public class BuyerService {
         } else {
             return buyerRepository.findAll(pageable);
         }
+    }
+
+    public Buyer findBuyerWithItems(String buyerCd, String buyerNm) {
+        if ((buyerCd == null || buyerCd.isEmpty()) && (buyerNm == null || buyerNm.isEmpty())) {
+            throw new BusinessLogicException(ExceptionCode.CONDITION_NOT_FIT);
+        }
+
+        Buyer buyer = buyerRepository.findByBuyerCdOrBuyerNm(buyerCd, buyerNm)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+
+        List<BuyerItem> buyerItems = buyerItemRepository.findAllByBuyerCd(buyerCd);
+        buyer.setBuyerItems(buyerItems);
+
+        return buyer;
     }
 
     public Buyer updateBuyer(Buyer buyer) {
@@ -76,7 +95,7 @@ public class BuyerService {
         buyerRepository.save(buyer);
     }
 
-    private void verifyExistBuyerCd(String buyerCd) {
+    private void verifyBuyerCdExists(String buyerCd) {
         Optional<Buyer> buyer = buyerRepository.findByBuyerCd(buyerCd);
         if(buyer.isPresent()) {
             throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
@@ -96,5 +115,4 @@ public class BuyerService {
             throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
         }
     }
-
 }
