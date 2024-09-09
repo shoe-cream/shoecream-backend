@@ -49,7 +49,7 @@ public class Member {
     private List<OrderHeaders> orderHeaders = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = true)
     private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
 
     public enum MemberStatus {
