@@ -21,7 +21,7 @@ public class Member {
     private long memberId;
 
     @Column(nullable = false, updatable = false, unique = true)
-    private long employeeId;
+    private String employeeId;
 
     @Column(nullable = false, updatable = false, unique = true)
     private String email;

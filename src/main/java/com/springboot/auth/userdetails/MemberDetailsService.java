@@ -27,7 +27,7 @@ public class MemberDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Member> optionalMember = memberRepository.findByEmail(username);
+        Optional<Member> optionalMember = memberRepository.findByEmployeeId(username);
         Member findMember = optionalMember.orElseThrow(()->
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
         return new MemberDetails(findMember);
@@ -35,6 +35,7 @@ public class MemberDetailsService implements UserDetailsService {
     private final class MemberDetails extends Member implements UserDetails{
         public MemberDetails(Member member) {
             setMemberId(member.getMemberId());
+            setEmployeeId(member.getEmployeeId());
             setEmail(member.getEmail());
             setPassword(member.getPassword());
             setRoles(member.getRoles());
@@ -48,7 +49,7 @@ public class MemberDetailsService implements UserDetailsService {
 
         @Override
         public String getUsername() {
-            return this.getEmail();
+            return this.getEmployeeId();
         }
 
         @Override
