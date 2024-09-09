@@ -1,11 +1,14 @@
 package com.springboot.item.dto;
 
+import com.springboot.item.entity.Item;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Dto {
     @Getter
@@ -21,7 +24,6 @@ public class Dto {
         @NotBlank(message = "아이템의 단위는 필수입니다.")
         private String unit;
 
-        @NotBlank(message = "아이템의 단가는 필수입니다.")
         private BigDecimal unitPrice;
 
         private int size;
@@ -31,5 +33,31 @@ public class Dto {
 
         @NotBlank(message = "아이템의 카테코리는 필수입니다.")
         private String category;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ItemPatchDto {
+        private String itemNm;
+        private String unit;
+        private BigDecimal unitPrice;
+        private Item.ItemStatus itemStatus;
+        private LocalDateTime modifiedAt;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ItemResponseDto {
+        private String itemCd;
+        private String itemNm;
+        private String category;
+        private String unit;
+        private BigDecimal unitPrice;
+        private String color;
+        private int size;
+        private Item.ItemStatus itemStatus;
+        private LocalDateTime createdAt;
     }
 }

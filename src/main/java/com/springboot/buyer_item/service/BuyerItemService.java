@@ -7,6 +7,8 @@ import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.repository.BuyerItemRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
+import com.springboot.item.entity.Item;
+import com.springboot.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,13 +26,16 @@ import java.util.Optional;
 public class BuyerItemService {
     private final BuyerItemRepository buyerItemRepository;
     private final BuyerRepository buyerRepository;
-    private final BuyerMapper buyerMapper;
+    private final ItemRepository itemRepository;
 
     public void createBuyerItem(BuyerItem buyerItem) {
         // 기본 아이템 정보 가져오기 (Item 테이블에서 가져옴)
-        Buyer buyer = buyerRepository.findByBuyerCd(buyerItem.getBuyerCd())
+        Item item = itemRepository.findById(buyerItem.getItem().getItemId())
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+        Buyer buyer = buyerRepository.findById(buyerItem.getBuyer().getBuyerId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
         buyerItem.addBuyer(buyer);
+        buyerItem.addItem(item);
         buyerItemRepository.save(buyerItem);
     }
 
@@ -63,7 +68,7 @@ public class BuyerItemService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("buyerCd").descending());
 
         // 조건에 맞는 BuyerItems 조회
-        return buyerItemRepository.findAllByFilters(buyerCd, buyerNm, itemNm, itemCd, pageable);
+        return buyerItemRepository.findAllByBuyer_BuyerCdOrBuyer_BuyerNmOrItem_ItemCdOrItem_ItemNm(buyerCd, buyerNm, itemNm, itemCd, pageable);
     }
 
     // 수정 관련 한번더 확인
@@ -71,14 +76,12 @@ public class BuyerItemService {
         BuyerItem findedBuyerItem = buyerItemRepository.findById(buyerItem.getBuyerItemId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYERITEM_NOT_FOUND));
 
-        Optional.ofNullable(buyerItem.getItemNm())
-                .ifPresent(itemNm -> findedBuyerItem.setItemNm(itemNm));
-        Optional.ofNullable(buyerItem.getUnit())
-                .ifPresent(unit -> findedBuyerItem.setUnit(unit));
-        Optional.ofNullable(buyerItem.getUnitPrice())
-                .ifPresent(unitPrice -> findedBuyerItem.setUnitPrice(unitPrice));
-        Optional.ofNullable(buyerItem.getItemStatus())
-                .ifPresent(itemStatus -> findedBuyerItem.setItemStatus(itemStatus));
+        Optional.ofNullable(buyerItem.getItem().getItemNm())
+                .ifPresent(itemNm -> findedBuyerItem.getItem().setItemNm(itemNm));
+        Optional.ofNullable(buyerItem.getItem().getUnit())
+                .ifPresent(unit -> findedBuyerItem.getItem().setUnit(unit));
+        Optional.ofNullable(buyerItem.getItem().getItemStatus())
+                .ifPresent(itemStatus -> findedBuyerItem.getItem().setItemStatus(itemStatus));
 
         return buyerItemRepository.save(findedBuyerItem);
     }
@@ -87,7 +90,7 @@ public class BuyerItemService {
         Optional<BuyerItem> findBuyer = buyerItemRepository.findById(buyerItemId);
         BuyerItem buyer = findBuyer
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
-        buyer.setItemStatus(BuyerItem.ItemStatus.DELETED);
+//        buyer.setItemStatus(BuyerItem.ItemStatus.DELETED)
         buyerItemRepository.save(buyer);
     }
 }
