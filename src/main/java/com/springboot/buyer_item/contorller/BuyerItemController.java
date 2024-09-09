@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/buyer-item")
+@RequestMapping("/buyer-items")
 @RequiredArgsConstructor
 @Valid
 @Transactional
@@ -37,7 +37,7 @@ public class BuyerItemController {
     }
 
     // 특정 바이어아이템 조회
-    @GetMapping("/{buyerItemId}")
+    @GetMapping("/{buyerItem-Id}")
     public ResponseEntity findBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId) {
         BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId);
 
@@ -64,7 +64,7 @@ public class BuyerItemController {
                 new MultiResponseDto<>(buyerItemResponseDtos, buyerItemPage), HttpStatus.OK);
     }
 
-    @PatchMapping("/{buyerItem-id}")
+    @PatchMapping("/{buyerItem-Id}")
     public ResponseEntity updateBuyerItem(@PathVariable @Positive long buyerItemId,
                                           @RequestBody Dto.BuyerItemPatchDto patchDto) {
         patchDto.setBuyerItemId(buyerItemId);
@@ -75,7 +75,7 @@ public class BuyerItemController {
 
     }
 
-    @DeleteMapping("/{buyer-id}")
+    @DeleteMapping("/{buyerItem-Id}")
     public ResponseEntity deleteBuyerItem(@PathVariable @Positive long buyerItemId) {
         buyerItemService.deleteBuyerItem(buyerItemId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -18,7 +18,30 @@ public class Dto {
         @Email
         private String email;
 
-//        @NotBlank
-//        private String brandNm;
+        @NotBlank
+        private String mfNm;
+
+        @NotBlank
+        private String mfCd;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ManufacturePatchDto {
+        private long mfId;
+        private String region;
+        private String email;
+        private String mfNm;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ManufactureResponseDto {
+        private String region;
+        private String email;
+        private String mfNm;
+        private String mfCd;
     }
 }

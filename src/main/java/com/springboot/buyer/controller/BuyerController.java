@@ -21,7 +21,7 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
-@RequestMapping("/buyer")
+@RequestMapping("/buyers")
 @RequiredArgsConstructor
 @Validated
 @Transactional
