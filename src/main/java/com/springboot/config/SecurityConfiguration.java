@@ -61,6 +61,7 @@ public class SecurityConfiguration {
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
                         .antMatchers(HttpMethod.POST, "/members").hasRole("ADMIN")
+                        .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .antMatchers(HttpMethod.PATCH, "/members/**").hasRole("USER")
                         .antMatchers(HttpMethod.GET, "/members").hasRole("ADMIN")
                         .antMatchers(HttpMethod.GET, "/members/**").hasAnyRole("USER", "ADMIN")
@@ -76,7 +77,7 @@ public class SecurityConfiguration {
                         .antMatchers(HttpMethod.DELETE, "/buyer").hasAnyRole("USER", "ADMIN")
                         .anyRequest().permitAll()
                 );
-                //.oauth2Login(withDefaults());
+
         return http.build();
     }
     @Bean
