@@ -12,8 +12,6 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class ItemPostDto {
-        private long itemId;
-
         @NotBlank(message = "아이템 코드는 필수입니다.")
         private String itemCd;
 

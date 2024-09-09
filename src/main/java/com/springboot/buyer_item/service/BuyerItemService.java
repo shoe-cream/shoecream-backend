@@ -80,7 +80,7 @@ public class BuyerItemService {
         Optional.ofNullable(buyerItem.getItemStatus())
                 .ifPresent(itemStatus -> findedBuyerItem.setItemStatus(itemStatus));
 
-        return findedBuyerItem;
+        return buyerItemRepository.save(findedBuyerItem);
     }
 
     public void deleteBuyerItem(long buyerItemId) {
