@@ -60,7 +60,7 @@ public class SecurityConfiguration {
                 .apply(new CustomFilterConfigurer())
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
-                        .antMatchers(HttpMethod.POST, "/members").permitAll()
+                        .antMatchers(HttpMethod.POST, "/members").hasRole("ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/members/**").hasRole("USER")
                         .antMatchers(HttpMethod.GET, "/members").hasRole("ADMIN")
                         .antMatchers(HttpMethod.GET, "/members/**").hasAnyRole("USER", "ADMIN")
@@ -69,6 +69,7 @@ public class SecurityConfiguration {
                         .antMatchers(HttpMethod.POST, "/orders").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/orders").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST, "/buyer").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/buyer").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/buyer").hasAnyRole("USER", "ADMIN")

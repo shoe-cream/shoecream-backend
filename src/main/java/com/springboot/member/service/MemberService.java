@@ -53,6 +53,12 @@ public class MemberService {
         return savedMember;
     }
 
+    public Member findMember(long memberId) {
+        // TODO should business logic
+        //throw new BusinessLogicException(ExceptionCode.NOT_IMPLEMENTATION);
+        return findVerifiedMember(memberId);
+    }
+
     public Member updateMember(Member member, String email) {
         Member findMember = findVerifiedMember(email);
         Optional.ofNullable(member.getName())
