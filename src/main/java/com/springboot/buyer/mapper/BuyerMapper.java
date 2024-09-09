@@ -5,6 +5,7 @@ import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.dto.Dto.BuyerItemResponseDto;
 
+import com.springboot.item.entity.Item;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -26,16 +27,16 @@ public interface BuyerMapper {
 
         List<BuyerItemResponseDto> itemResponseDtos = buyer.getBuyerItems()
                 .stream()
-                .filter(item -> item.getItemStatus() != BuyerItem.ItemStatus.DELETED)
+                .filter(item -> item.getItem().getItemStatus() != Item.ItemStatus.NOT_FOR_SALE)
                 .map(item -> {
                     BuyerItemResponseDto itemDto = new BuyerItemResponseDto();
-                    itemDto.setBuyerNm(item.getBuyerNm());
-                    itemDto.setItemCd(item.getItemCd());
-                    itemDto.setItemNm(item.getItemNm());
-                    itemDto.setUnit(item.getUnit());
+                    itemDto.setBuyerNm(item.getBuyer().getBuyerNm());
+                    itemDto.setItemCd(item.getItem().getItemCd());
+                    itemDto.setItemNm(item.getItem().getItemNm());
+                    itemDto.setUnit(item.getItem().getUnit());
                     itemDto.setStartDate(item.getStartDate());
                     itemDto.setEndDate(item.getEndDate());
-                    itemDto.setItemStatus(item.getItemStatus());
+                    itemDto.setItemStatus(item.getItem().getItemStatus());
                     return itemDto;
                 })
                 .collect(Collectors.toList());

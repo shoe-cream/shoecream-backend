@@ -1,6 +1,7 @@
 package com.springboot.buyer_item.dto;
 
 import com.springboot.buyer_item.entity.BuyerItem;
+import com.springboot.item.entity.Item;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,31 +17,16 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class BuyerItemPostDto {
-        @NotBlank(message = "아이템 코드는 필수입니다.")
-        private String buyerNm;
+        private long buyerId;
 
-        @NotBlank(message = "바이어 코드는 필수입니다.")
-        private String buyerCd;  // 바이어 코드 추가
-
-        @NotBlank(message = "아이템 이름은 필수입니다.")
-        private String itemNm;
-
-//        private String itemCd;
-
-//        private String category;
-
-        @NotBlank(message = "단위는 필수입니다.")
-        private String unit;
+        private long itemId;
 
         @DecimalMin(value = "0.01", message = "단가는 0보다 커야 합니다.")
         private BigDecimal unitPrice;
 
-        private LocalDateTime startDate = LocalDateTime.now();
+        private LocalDateTime startDate;
 
-        private LocalDateTime endDate = LocalDateTime.now();
-
-//        담장자
-//        private String member;
+        private LocalDateTime endDate;
     }
 
     @Getter
@@ -73,6 +59,6 @@ public class Dto {
         private BigDecimal unitPrice; // 바이어 맞춤 단가
         private LocalDateTime startDate;
         private LocalDateTime endDate;
-        private BuyerItem.ItemStatus itemStatus;
+        private Item.ItemStatus itemStatus;
     }
 }
