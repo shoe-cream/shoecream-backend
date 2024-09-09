@@ -1,7 +1,6 @@
 package com.springboot.buyer_item.service;
 
 import com.springboot.buyer.entity.Buyer;
-import com.springboot.buyer.mapper.BuyerMapper;
 import com.springboot.buyer.repository.BuyerRepository;
 import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.repository.BuyerItemRepository;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -66,7 +64,7 @@ public class BuyerItemService {
     public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("buyer.buyerCd").descending());
 
-        if (buyerCd == null || buyerCd.isEmpty()) {
+        if(buyerCd == null || buyerCd.isEmpty()) {
             // buyerCd가 없으면 전체 데이터를 조회
             return buyerItemRepository.findAll(pageable);
         } else {
