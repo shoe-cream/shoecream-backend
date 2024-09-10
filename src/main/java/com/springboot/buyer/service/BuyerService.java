@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,6 +90,8 @@ public class BuyerService {
                 .ifPresent(tel -> findBuyer.setTel(tel));
         Optional.ofNullable(buyer.getBusinessType())
                 .ifPresent(businessType -> findBuyer.setBusinessType(businessType));
+
+        findBuyer.setModifiedAt(LocalDateTime.now());
 
         return buyerRepository.save(findBuyer);
     }

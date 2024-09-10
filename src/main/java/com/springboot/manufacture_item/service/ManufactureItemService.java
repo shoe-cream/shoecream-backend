@@ -1,11 +1,11 @@
-package com.springboot.item_manufacture.service;
+package com.springboot.manufacture_item.service;
 
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
 import com.springboot.item.repository.ItemRepository;
-import com.springboot.item_manufacture.entity.ItemManufacture;
-import com.springboot.item_manufacture.repository.ItemMfRepository;
+import com.springboot.manufacture_item.entity.ItemManufacture;
+import com.springboot.manufacture_item.repository.ManufactureItemRepository;
 import com.springboot.manufacture.entity.Manufacture;
 import com.springboot.manufacture.repository.ManufactureRepository;
 import com.springboot.manufacture_history.entity.ManuFactureHistory;
@@ -23,13 +23,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ItemManufactureService {
-    private final ItemMfRepository itemMfRepository;
+public class ManufactureItemService {
+    private final ManufactureItemRepository itemMfRepository;
     private final ItemRepository itemRepository;
     private final ManufactureRepository manufactureRepository;
     private final ManufactureHistoryRepository manuFactureHistoryRepository;
@@ -78,11 +79,33 @@ public class ItemManufactureService {
             return itemMfRepository.findByManufacture_MfCd(mfCd, pageable);
     }
 
+    public ItemManufacture updateItemMf(ItemManufacture itemManufacture, Authentication authentication){
+        extractMemberFromAuthentication(authentication);
+
+        ItemManufacture findItemMf = itemMfRepository.findById(itemManufacture.getMfItemId())
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
+
+        Optional.ofNullable(itemManufacture.getUnitPrice())
+                .ifPresent(unitPrice -> findItemMf.setUnitPrice(unitPrice));
+        Optional.ofNullable(itemManufacture.getQty())
+                .ifPresent(qty -> findItemMf.setQty(qty));
+
+        findItemMf.setModifiedAt(LocalDateTime.now());
+
+        return itemMfRepository.save(findItemMf);
+    }
+
+    private ItemManufacture verifyItemMf(long mfItemId) {
+        ItemManufacture itemManufacture = itemMfRepository.findById(mfItemId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
+
+        return itemManufacture;
+    }
+
     private Member verifiedMember(Authentication authentication) {
         String user = (String) authentication.getPrincipal();
         return memberService.findVerifiedEmployee(user);
     }
-
 
     public Page<ManuFactureHistory> findHistories (int page, int size, Long mfItemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);

@@ -1,6 +1,6 @@
 package com.springboot.manufacture_history.mapper;
 
-import com.springboot.item_manufacture.entity.ItemManufacture;
+import com.springboot.manufacture_item.entity.ItemManufacture;
 import com.springboot.manufacture_history.dto.ManufactureHistoryResponseDto;
 import com.springboot.manufacture_history.entity.ManuFactureHistory;
 import com.springboot.member.entity.Member;

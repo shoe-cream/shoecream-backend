@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 public class Dto {
     @Getter
@@ -33,6 +34,7 @@ public class Dto {
         private String region;
         private String email;
         private String mfNm;
+        private LocalDateTime modifiedAt;
     }
 
     @Getter

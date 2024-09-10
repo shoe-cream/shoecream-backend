@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -97,6 +98,8 @@ public class BuyerItemService {
                 .ifPresent(unit -> findedBuyerItem.getItem().setUnit(unit));
         Optional.ofNullable(buyerItem.getItem().getItemStatus())
                 .ifPresent(itemStatus -> findedBuyerItem.getItem().setItemStatus(itemStatus));
+
+        findedBuyerItem.setModifiedAt(LocalDateTime.now());
 
         return buyerItemRepository.save(findedBuyerItem);
     }

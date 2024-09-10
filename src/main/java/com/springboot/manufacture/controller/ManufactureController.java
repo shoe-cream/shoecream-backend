@@ -37,6 +37,7 @@ public class ManufactureController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // 제조사 정보 조회
     @GetMapping("/{mfId}")
     public ResponseEntity getManufacture(@PathVariable @Positive long mfId, Authentication authentication) {
         Manufacture manufacture = manufactureService.getManufacture(mfId, authentication);
@@ -44,6 +45,7 @@ public class ManufactureController {
                 new SingleResponseDto<>(manufactureMapper.manufactureToResponseDto(manufacture)), HttpStatus.OK);
     }
 
+    // 제조사 전체 조회 최신순(선택사항)
     @GetMapping
     public ResponseEntity getManufactures(@RequestParam(defaultValue = "createdAt") String sortBy,
                                           @RequestParam @Positive int page,
@@ -58,6 +60,7 @@ public class ManufactureController {
 
     }
 
+    // 제조사 수정
     @PatchMapping("/{mfId}")
     public ResponseEntity updateManufacture(@PathVariable @Positive long mfId,
                                             @RequestBody Dto.ManufacturePatchDto patchDto,
@@ -70,13 +73,14 @@ public class ManufactureController {
                 new SingleResponseDto<>(manufactureMapper.manufactureToResponseDto(manufacture)), HttpStatus.OK);
     }
 
+    // 제조사 삭제
     @DeleteMapping("/{mfId}")
     public ResponseEntity deleteManufacture(@PathVariable @Positive long mfId, Authentication authentication) {
         manufactureService.deleteManufacture(mfId, authentication);
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-
+    // 공급 기록 조회
     @GetMapping("/{mfId}/histories")
     public ResponseEntity getManufactureHistory(@Positive @PathVariable("mfId") Long mfId,
                                                 @Positive @RequestParam int page,

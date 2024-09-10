@@ -36,7 +36,7 @@ public class ManuFactureHistory {
     private BigDecimal unitPrice;
 
     @Column(nullable = false)
-    private Long qty;
+    private int qty;
 
     @Column(nullable = false)
     private LocalDateTime receiveDate;

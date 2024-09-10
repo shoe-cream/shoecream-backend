@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -71,6 +72,8 @@ public class ManufactureService {
         Optional.ofNullable(manufacture.getMfNm())
                 .ifPresent(mfNm -> findManufacture.setMfNm(mfNm));
 
+        findManufacture.setModifiedAt(LocalDateTime.now());
+
         return manufactureRepository.save(findManufacture);
     }
 
@@ -85,10 +88,8 @@ public class ManufactureService {
         manufactureRepository.save(manufacture);
     }
 
-    private Manufacture verifyManufacture(long mfId, Authentication authentication) {
-       extractMemberFromAuthentication(authentication);
-
-       Manufacture manufacture = manufactureRepository.findById(mfId)
+    private Manufacture verifyManufacture(long mfId) {
+        Manufacture manufacture = manufactureRepository.findById(mfId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
 
         return manufacture;

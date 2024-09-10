@@ -41,7 +41,7 @@ public class BuyerItemController {
     // 특정 바이어아이템 조회
     @GetMapping("/{buyerItemId}")
     public ResponseEntity findBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId, Authentication authentication) {
-        BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId);
+        BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId, authentication);
 
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerItemMapper.buyerItemToBuyerResponseDto(buyerItem)), HttpStatus.OK);

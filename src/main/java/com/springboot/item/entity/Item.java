@@ -2,7 +2,7 @@ package com.springboot.item.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.springboot.buyer_item.entity.BuyerItem;
-import com.springboot.item_manufacture.entity.ItemManufacture;
+import com.springboot.manufacture_item.entity.ItemManufacture;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
