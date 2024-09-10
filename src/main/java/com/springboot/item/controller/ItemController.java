@@ -67,4 +67,19 @@ public class ItemController {
         return new ResponseEntity<>(
                 new SingleResponseDto<>(itemMapper.itemToResponseDto(item)), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity deleteItem(@PathVariable("itemId") long itemId,
+                                     Authentication authentication) {
+        itemService.deleteItem(itemId, authentication);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping
+    public ResponseEntity deleteItems(@RequestBody Dto.ItemDeleteRequestDto itemDeleteRequestDto) {
+        List<Long> itemIds = itemDeleteRequestDto.getItemId();
+        itemService.deleteItems(itemIds);  // 서비스에 아이템 ID 리스트 전달
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

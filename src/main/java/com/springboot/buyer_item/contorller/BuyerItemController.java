@@ -84,7 +84,5 @@ public class BuyerItemController {
         buyerItemService.deleteBuyerItem(buyerItemId, authentication);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 }
 

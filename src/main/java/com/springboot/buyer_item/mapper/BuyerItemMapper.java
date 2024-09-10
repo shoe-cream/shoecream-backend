@@ -54,6 +54,7 @@ public interface BuyerItemMapper {
     default List<Dto.BuyerItemResponseDto> buyerItemsToBuyerItemResponseDtos(List<BuyerItem> buyerItems) {
         return buyerItems
                 .stream()
+                .filter(buyerItem -> buyerItem.getItem().getItemStatus() != Item.ItemStatus.NOT_FOR_SALE)
                 .map(buyerItem -> Dto.BuyerItemResponseDto
                         .builder()
                         .itemNm(buyerItem.getItem().getItemNm())
