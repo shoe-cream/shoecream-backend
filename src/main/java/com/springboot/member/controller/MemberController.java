@@ -39,7 +39,7 @@ public class MemberController {
     }
 
 
-    @GetMapping("/myInfo")
+    @GetMapping("/my-info")
     public ResponseEntity getMember(
             Authentication authentication) {
 
