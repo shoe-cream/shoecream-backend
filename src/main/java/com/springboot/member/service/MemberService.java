@@ -4,10 +4,7 @@ import com.springboot.auth.utils.JwtAuthorityUtils;
 import com.springboot.email.service.EmailService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
-import com.springboot.helper.event.MemberRegistrationApplicationEvent;
-import com.springboot.member.entity.EmployeeId;
 import com.springboot.member.entity.Member;
-import com.springboot.member.repository.EmployeeIdRepository;
 import com.springboot.member.repository.MemberRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
@@ -17,8 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,50 +24,20 @@ import static com.springboot.member.entity.Member.MemberStatus.MEMBER_QUIT;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final EmployeeIdRepository employeeIdRepository;
     private final ApplicationEventPublisher publisher;
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthorityUtils authorityUtils;
     private final EmailService emailService;
 
 
-
-
-    public MemberService(MemberRepository memberRepository, EmployeeIdRepository employeeIdRepository, ApplicationEventPublisher publisher, PasswordEncoder passwordEncoder, JwtAuthorityUtils authorityUtils, EmailService emailService) {
+    public MemberService(MemberRepository memberRepository, ApplicationEventPublisher publisher, PasswordEncoder passwordEncoder, JwtAuthorityUtils authorityUtils, EmailService emailService) {
         this.memberRepository = memberRepository;
-        this.employeeIdRepository = employeeIdRepository;
         this.publisher = publisher;
         this.passwordEncoder = passwordEncoder;
         this.authorityUtils = authorityUtils;
         this.emailService = emailService;
     }
 
-    public Member createMember(Member member) {
-        if (isTeamLeader()) {
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-                throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED); // 권한 없음 예외 처리
-            }
-        }
-
-        String randomPassword = generateRandomPassword();
-        member.setPassword(passwordEncoder.encode(randomPassword)); // 비밀번호 암호화 후 저장
-        List<String> roles = authorityUtils.createRoles(member.getEmail());
-        member.setRoles(roles);
-
-
-        Member savedMember = memberRepository.save(member);
-
-
-        emailService.sendPasswordEmail(member.getEmail(), randomPassword);
-
-
-        publisher.publishEvent(new MemberRegistrationApplicationEvent(this, savedMember));
-
-        return savedMember;
-    }
 
     public Member findMember(long memberId) {
 
@@ -98,19 +63,21 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Member findVerifiedMember(String email){
+    public Member findVerifiedMember(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         Member findMember = optionalMember.orElseThrow(() ->
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
         return findMember;
     }
+
     public Member findVerifiedMember(long memberId) {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
         return optionalMember.orElseThrow(() ->
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
+
     @Transactional(readOnly = true)
-    public Member findVerifiedEmployee(String employeeId){
+    public Member findVerifiedEmployee(String employeeId) {
         Optional<Member> optionalMember = memberRepository.findByEmployeeId(employeeId);
         Member findMember = optionalMember.orElseThrow(() ->
                 new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
@@ -141,9 +108,9 @@ public class MemberService {
         memberRepository.save(findMember);
     }
 
-    public void verifyPassword(long memberId, String password, String newPassword){
+    public void verifyPassword(long memberId, String password, String newPassword) {
         Member member = findVerifiedMember(memberId);
-        if(!passwordEncoder.matches(password, member.getPassword())){
+        if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new BusinessLogicException(ExceptionCode.CONFIRM_PASSWORD_MISMATCH);
         }
     }
@@ -160,6 +127,7 @@ public class MemberService {
 
         return memberRepository.save(findMember);
     }
+
     public boolean existsByEmployeeId(String employeeId) {
         return memberRepository.existsByEmployeeId(employeeId);
     }
@@ -167,9 +135,24 @@ public class MemberService {
     private String generateRandomPassword() {
         return UUID.randomUUID().toString().substring(0, 8); // 8자리 비밀번호 생성
     }
-
-    public boolean isTeamLeader() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    public Member uploadProfile(String email, String profileUrl) {
+        Member member = findVerifiedMember(email);
+        member.setProfileUrl(profileUrl);
+        return memberRepository.save(member);
     }
+
+    // 프로필 사진 수정
+    public Member updateProfile(String email, String newProfileUrl) {
+        Member member = findVerifiedMember(email);
+        member.setProfileUrl(newProfileUrl);
+        return memberRepository.save(member);
+    }
+
+    // 프로필 사진 삭제 (기본 이미지로 변경)
+    public Member deleteProfile(String email) {
+        Member member = findVerifiedMember(email);
+        member.setProfileUrl("https://img.hankyung.com/photo/202208/BF.30820179.1.jpg"); // 기본 이미지 URL
+        return memberRepository.save(member);
+    }
+
 }

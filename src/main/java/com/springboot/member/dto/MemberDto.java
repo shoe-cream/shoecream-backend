@@ -1,6 +1,5 @@
 package com.springboot.member.dto;
 
-import com.springboot.member.entity.EmployeeId;
 import com.springboot.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,32 +19,23 @@ public class MemberDto {
     @Getter
     @AllArgsConstructor
     public static class Post {
-        @NotBlank
-        @Email
-        private String email;
 
-        @NotBlank
-        private String password;
-
-//        @NotNull
         private String employeeId;
+        private String role;
 
-        @NotBlank
-        private String name;
-
-        @NotBlank
-        private String authCode;
     }
 
     @Getter
     @Setter
-    @AllArgsConstructor
-    public static class PatchProfile {
-        private long memberId;
-        @NotBlank
-        private String profileUrl;
+    public static class Upload {
+        private String profileUrl;  // 업로드할 프로필 사진 URL
     }
 
+    @Getter
+    @Setter
+    public static class Update {
+        private String profileUrl;  // 업데이트할 새 프로필 사진 URL
+    }
 
     @Getter
     @AllArgsConstructor
