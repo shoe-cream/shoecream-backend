@@ -44,15 +44,16 @@ public class MemberService {
         return findVerifiedMember(memberId);
     }
 
-    public Member updateMember(Member member, String email) {
-        Member findMember = findVerifiedMember(email);
+    public Member updateMember(Member member, String employeeId) {
+        Member findMember = findVerifiedEmployee(employeeId);
         Optional.ofNullable(member.getName())
                 .ifPresent(name -> findMember.setName(name));
-
-
+        Optional.ofNullable(member.getTel())
+                .ifPresent(tel -> findMember.setTel(tel));
+        Optional.ofNullable(member.getAddress())
+                .ifPresent(address -> findMember.setAddress(address));
         Optional.ofNullable(member.getMemberStatus())
-                .ifPresent(memberStatus -> findMember.setMemberStatus(memberStatus));
-
+                .ifPresent(findMember::setMemberStatus);
 
         return memberRepository.save(findMember);
     }
@@ -142,8 +143,8 @@ public class MemberService {
     }
 
     // 프로필 사진 수정
-    public Member updateProfile(String email, String newProfileUrl) {
-        Member member = findVerifiedMember(email);
+    public Member updateProfile(String employeeId, String newProfileUrl) {
+        Member member = findVerifiedEmployee(employeeId);
         member.setProfileUrl(newProfileUrl);
         return memberRepository.save(member);
     }
@@ -155,14 +156,14 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public Member updateRole(long memberId, String newRole) {
-        Member member = findVerifiedMember(memberId);
-
-        // 새로운 역할 설정 (기존 역할 리스트에 추가 or 덮어쓰기)
-        member.getRoles().clear();  // 기존 역할 제거 (덮어쓰는 경우)
-        member.getRoles().add(newRole);
-
-        return memberRepository.save(member);
-    }
+//    public Member updateRole(long memberId, String newRole) {
+//        Member member = findVerifiedMember(memberId);
+//
+//        // 새로운 역할 설정 (기존 역할 리스트에 추가 or 덮어쓰기)
+//        member.getRoles().clear();  // 기존 역할 제거 (덮어쓰는 경우)
+//        member.getRoles().add(newRole);
+//
+//        return memberRepository.save(member);
+//    }
 
 }

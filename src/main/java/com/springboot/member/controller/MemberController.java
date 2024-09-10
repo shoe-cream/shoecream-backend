@@ -58,9 +58,9 @@ public class MemberController {
     public ResponseEntity patchMember(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.Patch requestBody,
                                       Authentication authentication) {
         requestBody.setMemberId(memberId);
-        String email = authentication.getName();
+        String employeeId = authentication.getName();
 
-        Member member = memberService.updateMember(mapper.memberPatchToMember(requestBody), email);
+        Member member = memberService.updateMember(mapper.memberPatchToMember(requestBody), employeeId);
 
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
 
@@ -80,9 +80,9 @@ public class MemberController {
     @GetMapping("/member-email")
     public ResponseEntity getMemberEmail(Authentication authentication) {
 
-        String email = authentication.getName();
+        String employeeId = authentication.getName();
 
-        Member member = memberService.findVerifiedMember(email);
+        Member member = memberService.findVerifiedEmployee(employeeId);
         if (member == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 회원을 찾을 수 없을 때
         }
@@ -116,23 +116,25 @@ public class MemberController {
 
     @PostMapping("/profile")
     public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.UploadProfile profileUploadDto, Authentication authentication) {
-        String email = authentication.getName();
-        Member updatedMember = memberService.uploadProfile(email, profileUploadDto.getProfileUrl());
+        String employeeId = authentication.getName();
+        Member updatedMember = memberService.uploadProfile(employeeId, profileUploadDto.getProfileUrl());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUploadToMember(profileUploadDto)), HttpStatus.OK);
     }
 
     // 프로필 사진 수정
     @PatchMapping("/profile")
     public ResponseEntity<?> updateProfile(@Valid @RequestBody MemberDto.Update profileUpdateDto, Authentication authentication) {
-        String email = authentication.getName();
-        Member updatedMember = memberService.updateProfile(email, profileUpdateDto.getProfileUrl());
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUpdateToMember(profileUpdateDto)), HttpStatus.OK);
+        String employeeId = (String) authentication.getName();
+
+        Member updatedMember = memberService.updateProfile(employeeId, profileUpdateDto.getProfileUrl());
+
+        return new ResponseEntity<>(new SingleResponseDto<>(updatedMember), HttpStatus.OK);
     }
 
     // 프로필 사진 삭제
     @DeleteMapping("/profile")
     public ResponseEntity<?> deleteProfile(Authentication authentication) {
-        String email = authentication.getName();
+        String email = (String) authentication.getName();
         Member updatedMember = memberService.deleteProfile(email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // 삭제 성공 시 응답은 내용이 없으므로 204 No Content
     }

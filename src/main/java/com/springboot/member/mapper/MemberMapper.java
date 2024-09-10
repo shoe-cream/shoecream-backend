@@ -19,6 +19,7 @@ public interface MemberMapper {
         return member;
     }
 
+
     Member memberPatchToMember(MemberDto.Patch requestBody);
 
     @Mapping(source = "profileUrl", target = "profileUrl")
