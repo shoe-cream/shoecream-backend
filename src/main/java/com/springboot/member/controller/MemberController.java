@@ -65,15 +65,15 @@ public class MemberController {
 //        return ResponseEntity.created(location).build();
 //    }
 
-    @GetMapping("/myInfo")
+    @GetMapping("/myinfo")
     public ResponseEntity getMember(
             Authentication authentication) {
 
         String empolyeeId = (String) authentication.getPrincipal();
         Member member = memberService.findVerifiedEmployee(empolyeeId);
 
-        if (!member.getEmail().equals(empolyeeId)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN); // 이메일 불일치 시 권한 없음 상태 반환
+        if (!member.getEmployeeId().equals(empolyeeId)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN); // 사원번호 불일치 시 권한 없음 상태 반환
         }
 
         return new ResponseEntity<>(
