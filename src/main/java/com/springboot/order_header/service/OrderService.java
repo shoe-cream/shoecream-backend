@@ -5,6 +5,7 @@ import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
 import com.springboot.order_header.dto.OrderDto;
+import com.springboot.order_header.dto.SaleResponseDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.repository.OrderHeadersRepository;
 import com.springboot.order_header.repository.OrderQueryRepositoryCustom;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -32,14 +34,16 @@ public class OrderService {
     private final SaleHistoryRepository saleHistoryRepository;
     private final SaleHistoryMapper saleHistoryMapper;
     private final MemberService memberService;
+    private final SaleReport saleReport;
 
-    public OrderService(OrderHeadersRepository orderHeadersRepository, OrderItemsRepository orderItemsRepository, OrderQueryRepositoryCustom orderQueryRepository, SaleHistoryRepository saleHistoryRepository, SaleHistoryMapper saleHistoryMapper, MemberService memberService) {
+    public OrderService(OrderHeadersRepository orderHeadersRepository, OrderItemsRepository orderItemsRepository, OrderQueryRepositoryCustom orderQueryRepository, SaleHistoryRepository saleHistoryRepository, SaleHistoryMapper saleHistoryMapper, MemberService memberService, SaleReport saleResponseMapper) {
         this.orderHeadersRepository = orderHeadersRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.orderQueryRepository = orderQueryRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.saleHistoryMapper = saleHistoryMapper;
         this.memberService = memberService;
+        this.saleReport = saleResponseMapper;
     }
 
     // 주문 등록
@@ -62,11 +66,16 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
         }
 
-        //승인 이후에는 주문취소로 변경할 수 없다.
+        //승인 이후에는 주문 취소로 변경할 수 없다.
         List<OrderHeaders.OrderStatus> notApproveStatus =
                 Arrays.asList(OrderHeaders.OrderStatus.PURCHASE_REQUEST, OrderHeaders.OrderStatus.REQUEST_TEMP);
 
         if(!notApproveStatus.contains(findOrder.getOrderStatus()) && orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
+            throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
+        }
+
+        //취소상태에서 주문상태를 변경할 수 없다
+        if(orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
@@ -88,7 +97,6 @@ public class OrderService {
         if (!findItem.getOrderHeaders().getOrderId().equals(orderId)) {
             throw new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND_IN_ORDER);
         }
-
         Optional.ofNullable(orderItems.getQuantity()).ifPresent(findItem::setQuantity);
         Optional.ofNullable(orderItems.getUnitPrice()).ifPresent(findItem::setUnitPrice);
         Optional.ofNullable(orderItems.getStartDate()).ifPresent(findItem::setStartDate);
@@ -126,7 +134,7 @@ public class OrderService {
         return saleHistoryRepository.findByOrderId(orderId, pageable);
     }
 
-
+    //orderId 검증
     public OrderHeaders findVerifiedOrder(Long orderId) {
         Optional<OrderHeaders> findOrder = orderHeadersRepository.findById(orderId);
         return findOrder.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
@@ -144,4 +152,15 @@ public class OrderService {
         String user = (String) authentication.getPrincipal();
         return memberService.findVerifiedEmployee(user);
     }
+
+    // 판매 report (마진률)
+    public List<SaleResponseDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
+        return saleReport.getSaleReport(startDate, endDate);
+    }
+
+    // 아이템 재고 계산
+    public SaleResponseDto.InventoryDto getStock(String itemCd) {
+        return saleReport.getInventory(itemCd);
+    }
+
 }

@@ -5,6 +5,7 @@ import com.springboot.buyer.service.BuyerService;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
 import com.springboot.order_header.dto.OrderDto;
+import com.springboot.order_header.dto.SaleResponseDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.mapper.OrderMapper;
 import com.springboot.order_header.service.OrderService;
@@ -89,9 +90,9 @@ public class OrderController {
     //팀장 승인
     @PatchMapping("/{order-id}/approve")
     public ResponseEntity approveStatus(@Positive @PathVariable("order-id") Long orderId, Authentication authentication) {
-        //팀장권한확인
+
         OrderHeaders updatedOrder = orderService.updateStatus(orderId, OrderHeaders.OrderStatus.APPROVED, authentication);
-    //    saleHistoryRepository.save(orderMapper.orderToSaleHistory(updatedOrder));
+
         return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
     }
 
@@ -130,8 +131,15 @@ public class OrderController {
         return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);
     }
 
+/*    @DeleteMapping("/{order-id}")
+    public ResponseEntity deleteOrder(@Positive @PathVariable("order-id") Long orderId) {
+        //취소될때 갯수 취소.
+        orderService.cancleOrder(orderId);
+        return ResponseEntity.noContent().build();
+    }*/
+
     //SaleHistory 조회
-    @GetMapping("{order-id}/histories")
+    @GetMapping("/{order-id}/histories")
     public ResponseEntity getOrderHistory(@Positive @PathVariable("order-id") Long orderId,
                                           @Positive @RequestParam int page,
                                           @Positive @RequestParam int size) {
@@ -139,5 +147,18 @@ public class OrderController {
         List<SaleHistory> historyLists = historyPages.getContent();
 
         return new ResponseEntity<>(new MultiResponseDto<>(saleHistoryMapper.saleHistoriesToSaleHistoriesResponseDtos(historyLists),historyPages), HttpStatus.OK);
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity totalSales (@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+        List<SaleResponseDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
+    }
+
+    @GetMapping("/inventory")
+    public ResponseEntity getStock (@RequestParam String itemCd) {
+        SaleResponseDto.InventoryDto dto = orderService.getStock(itemCd);
+        return new ResponseEntity(dto, HttpStatus.OK);
     }
 }

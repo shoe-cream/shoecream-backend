@@ -56,6 +56,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
             builder.and(orderItems.itemCD.eq(orderSearchRequest.getItemCode()));
         }
 
+        //주문번호 필터
         if (orderSearchRequest.getOrderId() != null) {
             builder.and(orderHeaders.orderId.eq(orderSearchRequest.getOrderId()));
         }
