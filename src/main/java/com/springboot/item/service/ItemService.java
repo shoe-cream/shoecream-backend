@@ -69,6 +69,17 @@ public class ItemService {
         return itemRepository.save(findItem);
     }
 
+    public void deleteItem(String itemCd, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
+        Item item = itemRepository.findByItemCd(itemCd)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+
+        item.setItemStatus(Item.ItemStatus.NOT_FOR_SALE);
+
+        itemRepository.save(item);
+    }
+
     private Item findVerifiedItem(String itemCd) {
         Optional<Item> item = itemRepository.findByItemCd(itemCd);
 

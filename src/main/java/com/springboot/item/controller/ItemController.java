@@ -67,4 +67,12 @@ public class ItemController {
         return new ResponseEntity<>(
                 new SingleResponseDto<>(itemMapper.itemToResponseDto(item)), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{itemCd}")
+    public ResponseEntity deleteItem(@PathVariable("itemCd") String itemCd,
+                                     Authentication authentication) {
+        itemService.deleteItem(itemCd, authentication);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
