@@ -47,6 +47,8 @@ public class Dto {
         private LocalDateTime startDate = LocalDateTime.now();
 
         private LocalDateTime endDate = LocalDateTime.now();
+
+        private LocalDateTime modifiedAt;
     }
 
     @Getter

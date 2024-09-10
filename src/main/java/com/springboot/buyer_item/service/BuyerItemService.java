@@ -8,14 +8,19 @@ import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
 import com.springboot.item.repository.ItemRepository;
+import com.springboot.member.entity.Member;
+import com.springboot.member.repository.MemberRepository;
+import com.springboot.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -25,9 +30,12 @@ public class BuyerItemService {
     private final BuyerItemRepository buyerItemRepository;
     private final BuyerRepository buyerRepository;
     private final ItemRepository itemRepository;
+    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public void createBuyerItem(BuyerItem buyerItem) {
+    public void createBuyerItem(BuyerItem buyerItem, Authentication authentication) {
         // 기본 아이템 정보 가져오기 (Item 테이블에서 가져옴)
+        extractMemberFromAuthentication(authentication);
         Item item = itemRepository.findById(buyerItem.getItem().getItemId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
         Buyer buyer = buyerRepository.findById(buyerItem.getBuyer().getBuyerId())
@@ -37,7 +45,9 @@ public class BuyerItemService {
         buyerItemRepository.save(buyerItem);
     }
 
-    public BuyerItem findBuyerItem(long buyerItemId) {
+    public BuyerItem findBuyerItem(long buyerItemId, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Optional<BuyerItem> buyerIt = buyerItemRepository.findById(buyerItemId);
 
         BuyerItem buyerItem = buyerIt
@@ -61,7 +71,9 @@ public class BuyerItemService {
 //        }
 //    }
 
-    public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd) {
+    public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("buyer.buyerCd").descending());
 
         if(buyerCd == null || buyerCd.isEmpty()) {
@@ -74,7 +86,9 @@ public class BuyerItemService {
     }
 
     // 수정 관련 한번더 확인
-    public BuyerItem updateBuyerItem(BuyerItem buyerItem) {
+    public BuyerItem updateBuyerItem(BuyerItem buyerItem, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         BuyerItem findedBuyerItem = buyerItemRepository.findById(buyerItem.getBuyerItemId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYERITEM_NOT_FOUND));
 
@@ -85,14 +99,31 @@ public class BuyerItemService {
         Optional.ofNullable(buyerItem.getItem().getItemStatus())
                 .ifPresent(itemStatus -> findedBuyerItem.getItem().setItemStatus(itemStatus));
 
+        findedBuyerItem.setModifiedAt(LocalDateTime.now());
+
         return buyerItemRepository.save(findedBuyerItem);
     }
 
-    public void deleteBuyerItem(long buyerItemId) {
+    public void deleteBuyerItem(long buyerItemId, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Optional<BuyerItem> findBuyer = buyerItemRepository.findById(buyerItemId);
         BuyerItem buyer = findBuyer
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
 //        buyer.setItemStatus(BuyerItem.ItemStatus.DELETED)
         buyerItemRepository.save(buyer);
+    }
+
+    private Member verifiedMember(Authentication authentication) {
+
+        String user = (String) authentication.getPrincipal();
+        return memberService.findVerifiedEmployee(user);
+    }
+
+    private Member extractMemberFromAuthentication(Authentication authentication) {
+        String username = (String) authentication.getPrincipal();
+
+        return memberRepository.findByEmployeeId(username)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 }

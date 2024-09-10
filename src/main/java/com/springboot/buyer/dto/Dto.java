@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Dto {
@@ -48,6 +49,8 @@ public class Dto {
         private String businessType;
 
         private String email;
+
+        private LocalDateTime modifiedAt;
     }
 
     @Getter

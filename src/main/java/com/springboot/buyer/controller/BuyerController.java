@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -31,8 +32,8 @@ public class BuyerController {
     private final BuyerItemMapper buyerItemMapper;
 
     @PostMapping
-    public ResponseEntity postBuyer(@Valid @RequestBody Dto.BuyerPostDto postDto) {
-        buyerService.createBuyer(buyerMapper.buyerPostDtoToBuyer(postDto));
+    public ResponseEntity postBuyer(@Valid @RequestBody Dto.BuyerPostDto postDto, Authentication authentication) {
+        buyerService.createBuyer(buyerMapper.buyerPostDtoToBuyer(postDto), authentication);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -40,8 +41,9 @@ public class BuyerController {
     @GetMapping("/search")
     public ResponseEntity getBuyer(@RequestParam(required = false) String buyerCd,
                                    @RequestParam(required = false) String buyerNm,
-                                   @RequestParam(required = false) String businessType) {
-        Buyer buyerByCd = buyerService.findBuyerByFilter(buyerCd, buyerNm, businessType);
+                                   @RequestParam(required = false) String businessType,
+                                   Authentication authentication) {
+        Buyer buyerByCd = buyerService.findBuyerByFilter(buyerCd, buyerNm, businessType, authentication);
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyerByCd)), HttpStatus.OK);
     }
@@ -64,8 +66,9 @@ public class BuyerController {
     @GetMapping
     public ResponseEntity getBuyers(@RequestParam @Positive int page,
                                     @RequestParam @Positive int size,
-                                    @RequestParam(required = false) String businessType) {
-        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, businessType);
+                                    @RequestParam(required = false) String businessType,
+                                    Authentication authentication) {
+        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, businessType, authentication);
         List<Buyer> buyers = buyerPage.getContent();
 
         return new ResponseEntity<>(
@@ -74,16 +77,18 @@ public class BuyerController {
 
     @PatchMapping("/{buyer-id}")
     public ResponseEntity patchBuyer(@PathVariable("buyer-id") @Positive long buyerId,
-                                     @RequestBody @Valid Dto.BuyerPatchDto patchDto) {
+                                     @RequestBody @Valid Dto.BuyerPatchDto patchDto,
+                                     Authentication authentication) {
         patchDto.setBuyerId(buyerId);
-        Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDtoToBuyer(patchDto));
+        Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDtoToBuyer(patchDto), authentication);
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyer)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{buyer-id}")
-    public ResponseEntity deleteBuyer(@PathVariable("buyer-id") @Positive long buyerId) {
-        buyerService.deleteBuyer(buyerId);
+    public ResponseEntity deleteBuyer(@PathVariable("buyer-id") @Positive long buyerId,
+                                      Authentication authentication) {
+        buyerService.deleteBuyer(buyerId, authentication);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

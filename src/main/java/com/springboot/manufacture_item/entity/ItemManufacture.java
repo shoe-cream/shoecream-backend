@@ -1,7 +1,6 @@
-package com.springboot.item_manufacture.entity;
+package com.springboot.manufacture_item.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.springboot.buyer.entity.Buyer;
 import com.springboot.item.entity.Item;
 import com.springboot.manufacture.entity.Manufacture;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -26,9 +24,13 @@ public class ItemManufacture {
     private BigDecimal unitPrice;
 
     @Column
-    private Long qty;
+    private Integer qty;
 
+    @Column
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column
+    private LocalDateTime modifiedAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "mf_id")

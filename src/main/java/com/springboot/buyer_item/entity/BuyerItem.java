@@ -30,6 +30,9 @@ public class BuyerItem {
     @Column
     private LocalDateTime endDate;
 
+    @Column
+    private LocalDateTime modifiedAt = LocalDateTime.now();
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "buyer_id")
     private Buyer buyer;
