@@ -1,6 +1,8 @@
 package com.springboot.member.mapper;
 
+import com.springboot.exception.BusinessLogicException;
 import com.springboot.member.dto.MemberDto;
+import com.springboot.member.entity.EmployeeId;
 import com.springboot.member.entity.Member;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -13,7 +15,7 @@ public interface MemberMapper {
         member.setEmail(requestBody.getEmail());
         member.setPassword(requestBody.getPassword());
         member.setName(requestBody.getName());
-        member.setEmployeeId(requestBody.getEmployeeId());
+//        member.setEmployeeId(requestBody.getEmployeeId().getEmployeeId());
         return member;
     }
 

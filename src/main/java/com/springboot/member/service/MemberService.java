@@ -5,7 +5,9 @@ import com.springboot.email.service.EmailService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.helper.event.MemberRegistrationApplicationEvent;
+import com.springboot.member.entity.EmployeeId;
 import com.springboot.member.entity.Member;
+import com.springboot.member.repository.EmployeeIdRepository;
 import com.springboot.member.repository.MemberRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
@@ -27,6 +29,7 @@ import static com.springboot.member.entity.Member.MemberStatus.MEMBER_QUIT;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final EmployeeIdRepository employeeIdRepository;
     private final ApplicationEventPublisher publisher;
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthorityUtils authorityUtils;
@@ -34,8 +37,10 @@ public class MemberService {
 
 
 
-    public MemberService(MemberRepository memberRepository, ApplicationEventPublisher publisher, PasswordEncoder passwordEncoder, JwtAuthorityUtils authorityUtils, EmailService emailService) {
+
+    public MemberService(MemberRepository memberRepository, EmployeeIdRepository employeeIdRepository, ApplicationEventPublisher publisher, PasswordEncoder passwordEncoder, JwtAuthorityUtils authorityUtils, EmailService emailService) {
         this.memberRepository = memberRepository;
+        this.employeeIdRepository = employeeIdRepository;
         this.publisher = publisher;
         this.passwordEncoder = passwordEncoder;
         this.authorityUtils = authorityUtils;

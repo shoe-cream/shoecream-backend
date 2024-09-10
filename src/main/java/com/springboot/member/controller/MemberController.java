@@ -43,14 +43,14 @@ public class MemberController {
         this.employeeIdRepository = employeeIdRepository;
     }
 
-    @PostMapping
-    public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody) {
-        // 사번 존재 여부 확인
-        boolean isEmployeeIdExists = employeeIdRepository.existsByEmployeeId(requestBody.getEmployeeId());
-
-        if (!isEmployeeIdExists) {
-            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
-        }
+//    @PostMapping
+//    public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody) {
+//        // 사번 존재 여부 확인
+//        boolean isEmployeeIdExists = employeeIdRepository.existsByEmployeeId(requestBody.getEmployeeId());
+//
+//        if (!isEmployeeIdExists) {
+//            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+//        }
 
         // Member 객체 생성
 //        Member member = new Member();
@@ -63,16 +63,16 @@ public class MemberController {
 //        // 응답 URI 생성
 //        URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
 //        return ResponseEntity.created(location).build();
-    }
+//    }
 
     @GetMapping("/myInfo")
     public ResponseEntity getMember(
             Authentication authentication) {
 
-        String email = (String) authentication.getPrincipal();
-        Member member = memberService.findVerifiedMember(email);
+        String empolyeeId = (String) authentication.getPrincipal();
+        Member member = memberService.findVerifiedEmployee(empolyeeId);
 
-        if (!member.getEmail().equals(email)) {
+        if (!member.getEmail().equals(empolyeeId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN); // 이메일 불일치 시 권한 없음 상태 반환
         }
 
