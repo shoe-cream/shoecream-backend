@@ -155,4 +155,14 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
+    public Member updateRole(long memberId, String newRole) {
+        Member member = findVerifiedMember(memberId);
+
+        // 새로운 역할 설정 (기존 역할 리스트에 추가 or 덮어쓰기)
+        member.getRoles().clear();  // 기존 역할 제거 (덮어쓰는 경우)
+        member.getRoles().add(newRole);
+
+        return memberRepository.save(member);
+    }
+
 }
