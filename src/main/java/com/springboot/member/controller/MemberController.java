@@ -39,7 +39,7 @@ public class MemberController {
     }
 
 
-    @GetMapping("/myInfo")
+    @GetMapping("/my-info")
     public ResponseEntity getMember(
             Authentication authentication) {
 
@@ -115,7 +115,7 @@ public class MemberController {
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.Upload profileUploadDto, Authentication authentication) {
+    public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.UploadProfile profileUploadDto, Authentication authentication) {
         String email = authentication.getName();
         Member updatedMember = memberService.uploadProfile(email, profileUploadDto.getProfileUrl());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUploadToMember(profileUploadDto)), HttpStatus.OK);
@@ -136,4 +136,22 @@ public class MemberController {
         Member updatedMember = memberService.deleteProfile(email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // 삭제 성공 시 응답은 내용이 없으므로 204 No Content
     }
+
+    @PatchMapping("/role/members/{member-id}")
+    public ResponseEntity<?> updateRole(
+            @PathVariable("member-id") @Positive long memberId,
+            @Valid @RequestBody MemberDto.UpdateRole updateRoleDto,
+            Authentication authentication) {
+        // 권한 수정
+        Member updatedMember = memberService.updateRole(memberId, updateRoleDto.getRole());
+
+        // 수정된 역할 반환
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(mapper.memberToRoleResponse(updatedMember)), HttpStatus.OK);
+    }
+
+
+
+
+
 }
