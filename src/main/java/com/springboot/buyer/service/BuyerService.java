@@ -6,11 +6,14 @@ import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.repository.BuyerItemRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
+import com.springboot.member.entity.Member;
+import com.springboot.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +25,10 @@ import java.util.Optional;
 @Transactional
 public class BuyerService {
     private final BuyerRepository buyerRepository;
+    private final MemberRepository memberRepository;
 
-    public void createBuyer(Buyer buyer) {
+    public void createBuyer(Buyer buyer, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
         verifyExistTel(buyer.getTel());
         verifyExistEmail(buyer.getEmail());
         verifyBuyerCdExists(buyer.getBuyerCd());
@@ -31,7 +36,8 @@ public class BuyerService {
     }
 
     // 바이어의 이름, 코드, 타입중 하나로 검색
-    public Buyer findBuyerByFilter(String buyerCd, String buyerNm, String businessType) {
+    public Buyer findBuyerByFilter(String buyerCd, String buyerNm, String businessType, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
         if((buyerCd != null && !buyerCd.isEmpty()) ||
             buyerNm != null && !buyerNm.isEmpty() ||
             businessType != null && !businessType.isEmpty()) {
@@ -44,7 +50,9 @@ public class BuyerService {
     }
 
     // 페이지네이션으로 필터링을통해 전체조회 ok 필터링 없이 전체를 조회 ok.
-    public Page<Buyer> findBuyers(int page, int size, String businessType) {
+    public Page<Buyer> findBuyers(int page, int size, String businessType, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("buyerId").descending());
 
         if (businessType != null && !businessType.isEmpty()) {
@@ -65,7 +73,9 @@ public class BuyerService {
         return buyer;
     }
 
-    public Buyer updateBuyer(Buyer buyer) {
+    public Buyer updateBuyer(Buyer buyer, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Buyer findBuyer = buyerRepository.findById(buyer.getBuyerId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
 
@@ -83,7 +93,9 @@ public class BuyerService {
         return buyerRepository.save(findBuyer);
     }
 
-    public void deleteBuyer(long buyerId) {
+    public void deleteBuyer(long buyerId, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Optional<Buyer> findBuyer = buyerRepository.findById(buyerId);
         Buyer buyer = findBuyer
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
@@ -112,10 +124,16 @@ public class BuyerService {
         }
     }
 
-
     public Buyer findVerifiedBuyer(String buyerCD) {
         return buyerRepository.findByBuyerCd(buyerCD)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+    }
+
+    private Member extractMemberFromAuthentication(Authentication authentication) {
+        String username = (String) authentication.getPrincipal();
+
+        return memberRepository.findByEmployeeId(username)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
 }

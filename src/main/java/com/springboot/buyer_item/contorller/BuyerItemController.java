@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,15 +31,16 @@ public class BuyerItemController {
     private final BuyerItemMapper buyerItemMapper;
 
     @PostMapping
-    public ResponseEntity postBuyerItem(@RequestBody @Valid Dto.BuyerItemPostDto postDto) {
-        buyerItemService.createBuyerItem(buyerItemMapper.buyerItemPostDtoToBuyerItem(postDto));
+    public ResponseEntity postBuyerItem(@RequestBody @Valid Dto.BuyerItemPostDto postDto, Authentication authentication) {
+
+        buyerItemService.createBuyerItem(buyerItemMapper.buyerItemPostDtoToBuyerItem(postDto), authentication);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 특정 바이어아이템 조회
     @GetMapping("/{buyerItemId}")
-    public ResponseEntity findBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId) {
+    public ResponseEntity findBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId, Authentication authentication) {
         BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId);
 
         return new ResponseEntity<>(
@@ -50,10 +52,11 @@ public class BuyerItemController {
     @GetMapping
     public ResponseEntity getBuyerItems(@RequestParam(required = false) String buyerCd,
                                         @RequestParam @Positive int page,
-                                        @RequestParam @Positive int size) {
+                                        @RequestParam @Positive int size,
+                                        Authentication authentication) {
 
 
-        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd);
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, authentication);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());
@@ -64,9 +67,11 @@ public class BuyerItemController {
 
     @PatchMapping("/{buyerItemId}")
     public ResponseEntity updateBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId,
-                                          @RequestBody Dto.BuyerItemPatchDto patchDto) {
+                                          @RequestBody Dto.BuyerItemPatchDto patchDto,
+                                          Authentication authentication) {
         patchDto.setBuyerItemId(buyerItemId);
-        BuyerItem buyerItem = buyerItemMapper.buyerItemPatchDtoToBuyer(patchDto);
+        BuyerItem buyerItem =
+                buyerItemService.updateBuyerItem(buyerItemMapper.buyerItemPatchDtoToBuyer(patchDto), authentication);
 
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerItemMapper.buyerItemToBuyerResponseDto(buyerItem)), HttpStatus.OK);
@@ -74,9 +79,12 @@ public class BuyerItemController {
     }
 
     @DeleteMapping("/{buyerItemId}")
-    public ResponseEntity deleteBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId) {
-        buyerItemService.deleteBuyerItem(buyerItemId);
+    public ResponseEntity deleteBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId,
+                                          Authentication authentication) {
+        buyerItemService.deleteBuyerItem(buyerItemId, authentication);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 }
 
