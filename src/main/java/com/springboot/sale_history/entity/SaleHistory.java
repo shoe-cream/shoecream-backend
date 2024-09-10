@@ -1,12 +1,18 @@
 package com.springboot.sale_history.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.springboot.order_header.entity.OrderHeaders;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Getter
@@ -17,13 +23,33 @@ public class SaleHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long saleHistoryId;
 
-    @Column
-    private long employeeId;
+    @Column(nullable = false)
+    private Long orderId;
+
+    @Column(nullable = false)
+    private String employeeId;
 
     @Column
+    private String personInCharge;
+
+    @Column(nullable = false)
+    private String buyerCd;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private OrderHeaders orderHeaders;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
+    private OrderHeaders.OrderStatus orderStatus;
+
+    @Column
+    private LocalDateTime orderDate;
+
+    @Column
+    private LocalDateTime requestDate;
+
+    @OneToMany(mappedBy = "saleHistory", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<SaleHistoryItems> saleHistoryItems = new ArrayList<>();
+
 }

@@ -4,6 +4,8 @@ import com.springboot.manufacture.dto.Dto;
 import com.springboot.manufacture.entity.Manufacture;
 import com.springboot.manufacture.mapper.ManufactureMapper;
 import com.springboot.manufacture.service.ManufactureService;
+import com.springboot.manufacture_history.entity.ManuFactureHistory;
+import com.springboot.manufacture_history.mapper.ManufactureHistoryMapper;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.List;
 public class ManufactureController {
     private final ManufactureService manufactureService;
     private final ManufactureMapper manufactureMapper;
+    private final ManufactureHistoryMapper manufactureHistoryMapper;
 
     @PostMapping
     public ResponseEntity createManufacture(@Valid @RequestBody Dto.ManufacturePostDto postDto) {
@@ -69,5 +72,17 @@ public class ManufactureController {
         manufactureService.deleteManufacture(mfId);
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{mfId}/histories")
+    public ResponseEntity getManufactureHistory(@Positive @PathVariable("mfId") Long mfId,
+                                                @Positive @RequestParam int page,
+                                                @Positive @RequestParam int size) {
+        Page<ManuFactureHistory> historyPages = manufactureService.findManufactureHistories(page - 1, size, mfId);
+        List<ManuFactureHistory> historyLists = historyPages.getContent();
+
+        return new ResponseEntity<>(
+                new MultiResponseDto<>(
+                        manufactureHistoryMapper.mfHistoriesToMfHistoriesResponseDtos(historyLists),historyPages), HttpStatus.OK);
     }
 }

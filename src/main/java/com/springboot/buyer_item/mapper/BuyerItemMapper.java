@@ -26,9 +26,9 @@ public interface BuyerItemMapper {
         BuyerItem buyerItem = new BuyerItem();
         buyerItem.setBuyer(buyer);
         buyerItem.setItem(item);
-        buyerItem.setUnitPrice(buyerItem.getUnitPrice());
-        buyerItem.setStartDate(buyerItem.getStartDate());
-        buyerItem.setEndDate(buyerItem.getEndDate());
+        buyerItem.setUnitPrice(postDto.getUnitPrice());
+        buyerItem.setStartDate(postDto.getStartDate());
+        buyerItem.setEndDate(postDto.getEndDate());
 
         return buyerItem;
     }
@@ -43,9 +43,28 @@ public interface BuyerItemMapper {
         responseDto.setItemCd(buyerItem.getItem().getItemCd());
         responseDto.setItemStatus(buyerItem.getItem().getItemStatus());
         responseDto.setUnit(buyerItem.getItem().getUnit());
+        responseDto.setUnitPrice(buyerItem.getUnitPrice());
+        responseDto.setStartDate(buyerItem.getStartDate());
+        responseDto.setEndDate(buyerItem.getEndDate());
 
         return responseDto;
     }
 
-    List<Dto.BuyerItemResponseDto> buyerItemsToBuyerItemResponseDtos(List<BuyerItem> buyerItems) ;
+    // 수정 필요
+    default List<Dto.BuyerItemResponseDto> buyerItemsToBuyerItemResponseDtos(List<BuyerItem> buyerItems) {
+        return buyerItems
+                .stream()
+                .map(buyerItem -> Dto.BuyerItemResponseDto
+                        .builder()
+                        .itemNm(buyerItem.getItem().getItemNm())
+                        .itemCd(buyerItem.getItem().getItemCd())
+                        .buyerNm(buyerItem.getBuyer().getBuyerNm())
+                        .unit(buyerItem.getItem().getUnit())
+                        .unitPrice(buyerItem.getUnitPrice())
+                        .startDate(buyerItem.getStartDate())
+                        .endDate(buyerItem.getEndDate())
+                        .itemStatus(buyerItem.getItem().getItemStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }
