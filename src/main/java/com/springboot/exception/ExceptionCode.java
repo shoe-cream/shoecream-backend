@@ -22,8 +22,9 @@ public enum ExceptionCode {
     EMAIL_NOT_AUTH(409, "Email not Auth"),
     CANNOT_CHANGE_MEMBER_STATUS(403, "MemberStatus cannot change" ),
     CONFIRM_TYPE(400, "Please Confirm Type" ),
-    UNAUTHORIZED(401, "Unauthorized Access");
-
+    UNAUTHORIZED(401, "Unauthorized Access"),
+    CANNOT_CHANGE_ORDER_STATUS(403,"not change status" ),
+    ITEM_NOT_FOUND_IN_ORDER(404, "The item does not belong to order");
     @Getter
     private int status;
     @Getter

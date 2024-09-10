@@ -114,7 +114,7 @@ public class MemberController {
         }
 
         return new ResponseEntity<>(
-                new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
+                new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
     }
 
     @PatchMapping("/{member-id}/password")

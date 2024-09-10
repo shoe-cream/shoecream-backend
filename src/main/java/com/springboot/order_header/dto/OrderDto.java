@@ -39,6 +39,7 @@ public class OrderDto {
     @Getter
     public static class Response {
         private Long orderId;
+        private String employeeId;
         private String buyerCD;
         private String buyerNm;
         private LocalDateTime createdAt;
@@ -66,6 +67,7 @@ public class OrderDto {
         private String buyerCode;
         private String itemCode;
         private OrderHeaders.OrderStatus status;
+        private Long orderId;
 
         @DateTimeFormat(pattern = "yyyyMMdd")
         private LocalDate searchStartDate = LocalDate.of(1900, 1, 1);  // 기본값

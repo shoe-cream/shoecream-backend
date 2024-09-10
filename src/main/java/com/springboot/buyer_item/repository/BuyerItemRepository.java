@@ -13,16 +13,8 @@ import java.util.List;
 
 public interface BuyerItemRepository extends JpaRepository<BuyerItem, Long> {
     Page<BuyerItem> findAll(Pageable pageable);
-    List<BuyerItem> findAllByBuyerCd(String buyerCd);
+    Page<BuyerItem> findAllByBuyer_BuyerCd(String buyerCd, Pageable pageable);
 
-    @Query("SELECT b FROM BuyerItem b WHERE " +
-            "(:buyerCd IS NULL OR b.buyerCd = :buyerCd) AND " +
-            "(:buyerNm IS NULL OR b.buyerNm = :buyerNm) AND " +
-            "(:itemNm IS NULL OR b.itemNm = :itemNm) AND " +
-            "(:itemCd IS NULL OR b.itemCd = :itemCd)")
-    Page<BuyerItem> findAllByFilters(@Param("buyerCd") String buyerCd,
-                                     @Param("buyerNm") String buyerNm,
-                                     @Param("itemNm") String itemNm,
-                                     @Param("itemCd") String itemCd,
-                                     Pageable pageable);
+//    @Query("SELECT bi FROM BuyerItem bi JOIN FETCH bi.buyer JOIN FETCH bi.item WHERE bi.buyer.buyerCd = :buyerCd")
+//    List<BuyerItem> findAllByBuyerCd(@Param("buyerCd") String buyerCd);
 }

@@ -71,6 +71,8 @@ public class SecurityConfiguration {
                         .antMatchers(HttpMethod.PATCH, "/orders").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.PATCH, "/orders/*/approve").hasRole("ADMIN")
+                        .antMatchers(HttpMethod.PATCH,"/orders/*/reject").hasRole("ADMIN")
                         .antMatchers(HttpMethod.POST, "/buyer").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/buyer").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/buyer").hasAnyRole("USER", "ADMIN")
@@ -90,7 +92,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
-        configuration.addAllowedOrigin("http://localhost:8080");
+        configuration.addAllowedOrigin("http://localhost:3000");
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Refresh"));
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");

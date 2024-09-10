@@ -25,8 +25,8 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
     }
 
     @Override
-    public Page<OrderHeaders> findByRequestDateBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCD(OrderDto.OrderSearchRequest orderSearchRequest,
-                                                                                                         Pageable pageable) {
+    public Page<OrderHeaders> findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCDAndOrderId(OrderDto.OrderSearchRequest orderSearchRequest,
+                                                                                                                 Pageable pageable) {
 
         QOrderHeaders orderHeaders = QOrderHeaders.orderHeaders;
         QBuyer buyer = QBuyer.buyer;
@@ -56,6 +56,9 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
             builder.and(orderItems.itemCD.eq(orderSearchRequest.getItemCode()));
         }
 
+        if (orderSearchRequest.getOrderId() != null) {
+            builder.and(orderHeaders.orderId.eq(orderSearchRequest.getOrderId()));
+        }
 
         List<OrderHeaders> results = queryFactory
                 .selectFrom(orderHeaders)

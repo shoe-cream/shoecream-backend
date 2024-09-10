@@ -15,21 +15,30 @@ import java.time.LocalDateTime;
 public class ManuFactureHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long mfHistoryId;
+    private Long mfHistoryId;
 
-    @Column
-    private long mfId;
+    @Column(nullable = false)
+    private Long mfItemId;
 
-    @Column
+    @Column(nullable = false)
+    private Long mfId;
+
+    @Column(nullable = false)
+    private String mfCd;
+
+    @Column(nullable = false)
+    private String author;
+
+    @Column(nullable = false)
     private String itemCd;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    @Column
-    private int qty;
+    @Column(nullable = false)
+    private Long qty;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime receiveDate;
 
     @Column

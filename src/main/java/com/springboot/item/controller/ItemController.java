@@ -2,24 +2,27 @@ package com.springboot.item.controller;
 
 
 import com.springboot.item.dto.Dto;
+import com.springboot.item.entity.Item;
 import com.springboot.item.mapper.ItemMapper;
 import com.springboot.item.service.ItemService;
+import com.springboot.response.MultiResponseDto;
+import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @Transactional
-@RequestMapping("/item")
+@RequestMapping("/items")
 @Validated
 public class ItemController {
     private final ItemMapper itemMapper;
@@ -27,7 +30,38 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity createItem(@Valid @RequestBody Dto.ItemPostDto postDto) {
-        itemMapper.itemPostDtoToItem(postDto);
+        itemService.createItem(itemMapper.itemPostDtoToItem(postDto));
+
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/{itemCd}")
+    public ResponseEntity getItem(@PathVariable("itemCd") String itemCd) {
+        Item item = itemService.findItem(itemCd);
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(itemMapper.itemToResponseDto(item)), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity getItems(@RequestParam(required = false) String itemNm,
+                                   @RequestParam @Positive int page,
+                                   @RequestParam @Positive int size) {
+        Page<Item> itemPage = itemService.findItems(itemNm, page-1, size);
+        List<Dto.ItemResponseDto> itemResponseDtos =
+                itemMapper.itemToResponseDtos(itemPage.getContent());
+
+        return new ResponseEntity<>(
+                new MultiResponseDto<>(itemResponseDtos, itemPage), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{itemCd}")
+    public ResponseEntity updateItem(@PathVariable("itemCd") String itemCd,
+                                     @RequestBody Dto.ItemPatchDto patchDto) {
+        patchDto.setItemNm(itemCd);
+        Item item = itemService.updateItem(itemMapper.itemPatchToItem(patchDto));
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(itemMapper.itemToResponseDto(item)), HttpStatus.OK);
     }
 }
