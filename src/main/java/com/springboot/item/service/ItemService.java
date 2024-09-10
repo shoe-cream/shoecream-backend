@@ -4,14 +4,16 @@ import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
 import com.springboot.item.repository.ItemRepository;
+import com.springboot.member.entity.Member;
+import com.springboot.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -21,16 +23,23 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemRepository itemRepository;
+    private final MemberRepository memberRepository;
 
-    public void createItem(Item item) {
+    public void createItem(Item item, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         itemRepository.save(item);
     }
 
-    public Item findItem(String itemCd) {
+    public Item findItem(String itemCd, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         return findVerifiedItem(itemCd);
     }
 
-    public Page<Item> findItems(String itemNm, int page, int size) {
+    public Page<Item> findItems(String itemNm, int page, int size, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         if(itemNm == null || itemNm.isEmpty()) {
@@ -41,7 +50,9 @@ public class ItemService {
 
     }
 
-    public Item updateItem(Item item) {
+    public Item updateItem(Item item, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
         Item findItem = findVerifiedItem(item.getItemCd());
 
         Optional.ofNullable(item.getItemNm())
@@ -64,5 +75,10 @@ public class ItemService {
         return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
     }
 
+    private Member extractMemberFromAuthentication(Authentication authentication) {
+        String username = (String) authentication.getPrincipal();
 
+        return memberRepository.findByEmployeeId(username)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+    }
 }
