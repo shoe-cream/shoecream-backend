@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,7 +26,9 @@ public class ItemManufacture {
     private BigDecimal unitPrice;
 
     @Column
-    private int qty;
+    private Long qty;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "mf_id")
