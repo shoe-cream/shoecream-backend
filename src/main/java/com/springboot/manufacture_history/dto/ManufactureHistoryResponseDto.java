@@ -17,6 +17,6 @@ public class ManufactureHistoryResponseDto {
     private LocalDateTime receiveDate;
     private String itemCd;
     private BigDecimal unitPrice;
-    private Long qty;
+    private int qty;
     private LocalDateTime createdAt;
 }

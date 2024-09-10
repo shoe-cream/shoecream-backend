@@ -1,7 +1,7 @@
 package com.springboot.manufacture.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.springboot.item_manufacture.entity.ItemManufacture;
+import com.springboot.manufacture_item.entity.ItemManufacture;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +35,9 @@ public class Manufacture {
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column
+    private LocalDateTime modifiedAt = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
     private ManufactureStatus manufactureStatus = ManufactureStatus.ACTIVE;

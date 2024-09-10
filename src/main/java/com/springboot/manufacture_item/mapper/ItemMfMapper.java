@@ -1,12 +1,11 @@
-package com.springboot.item_manufacture.mapper;
+package com.springboot.manufacture_item.mapper;
 
 import com.springboot.item.entity.Item;
-import com.springboot.item_manufacture.dto.Dto;
-import com.springboot.item_manufacture.entity.ItemManufacture;
+import com.springboot.manufacture_item.dto.Dto;
+import com.springboot.manufacture_item.entity.ItemManufacture;
 import com.springboot.manufacture.entity.Manufacture;
 import org.mapstruct.Mapper;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,5 +56,14 @@ public interface ItemMfMapper {
                         .qty(itemManufacture.getQty())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    default ItemManufacture itemMfPatchDtoToItemMf(Dto.ItemMfPatchDto patchDto) {
+        ItemManufacture itemManufacture = new ItemManufacture();
+        itemManufacture.setMfItemId(patchDto.getMfItemId());
+        itemManufacture.setUnitPrice(patchDto.getUnitPrice());
+        itemManufacture.setQty(patchDto.getQty());
+
+        return itemManufacture;
     }
 }

@@ -34,6 +34,7 @@ public interface BuyerMapper {
                     itemDto.setItemCd(item.getItem().getItemCd());
                     itemDto.setItemNm(item.getItem().getItemNm());
                     itemDto.setUnit(item.getItem().getUnit());
+                    itemDto.setUnitPrice(item.getUnitPrice());
                     itemDto.setStartDate(item.getStartDate());
                     itemDto.setEndDate(item.getEndDate());
                     itemDto.setItemStatus(item.getItem().getItemStatus());
