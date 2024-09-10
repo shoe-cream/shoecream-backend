@@ -28,9 +28,6 @@ public interface MemberMapper {
     Member profileUpdateToMember(MemberDto.Update profileUpdateDto);
 
 
-    @Mapping(source = "role", target = "member_roles.roles")
-
-    Member roleUpdateToMember(MemberDto.UpdateRole updateRoleDto);
 
     // Role 응답 DTO 매핑
     MemberDto.RoleResponse memberToRoleResponse(Member member);
