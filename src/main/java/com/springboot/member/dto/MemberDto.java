@@ -27,7 +27,7 @@ public class MemberDto {
 
     @Getter
     @Setter
-    public static class Upload {
+    public static class UploadProfile {
         private String profileUrl;  // 업로드할 프로필 사진 URL
     }
 
@@ -36,7 +36,17 @@ public class MemberDto {
     public static class Update {
         private String profileUrl;  // 업데이트할 새 프로필 사진 URL
     }
+    @Getter
+    @Setter
+    public static class UpdateRole {
+        private String role;  // 수정할 역할
+    }
 
+    @Getter
+    @Setter
+    public static class RoleResponse {
+        private String role;  // 현재 역할 반환
+    }
     @Getter
     @AllArgsConstructor
     public static class Patch {

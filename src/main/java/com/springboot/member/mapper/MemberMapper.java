@@ -22,10 +22,16 @@ public interface MemberMapper {
     Member memberPatchToMember(MemberDto.Patch requestBody);
 
     @Mapping(source = "profileUrl", target = "profileUrl")
-    Member profileUploadToMember(MemberDto.Upload profileUploadDto);
+    Member profileUploadToMember(MemberDto.UploadProfile profileUploadDto);
 
     @Mapping(source = "profileUrl", target = "profileUrl")
     Member profileUpdateToMember(MemberDto.Update profileUpdateDto);
+
+    @Mapping(source = "role", target = "roles")
+    Member roleUpdateToMember(MemberDto.UpdateRole updateRoleDto);
+
+    // Role 응답 DTO 매핑
+    MemberDto.RoleResponse memberToRoleResponse(Member member);
 
     default Member memberPatchPasswordToMember(MemberDto.PatchPassword requestBody){
         Member member = new Member();
