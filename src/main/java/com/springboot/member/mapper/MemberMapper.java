@@ -2,25 +2,30 @@ package com.springboot.member.mapper;
 
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.member.dto.MemberDto;
-import com.springboot.member.entity.EmployeeId;
 import com.springboot.member.entity.Member;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MemberMapper {
 
     default Member memberPostToMember(MemberDto.Post requestBody){
         Member member = new Member();
-        member.setEmail(requestBody.getEmail());
-        member.setPassword(requestBody.getPassword());
-        member.setName(requestBody.getName());
-//        member.setEmployeeId(requestBody.getEmployeeId().getEmployeeId());
+        member.setEmployeeId(requestBody.getEmployeeId());
+        member.setRoles(List.of(requestBody.getRole()));
         return member;
     }
 
     Member memberPatchToMember(MemberDto.Patch requestBody);
 
+    @Mapping(source = "profileUrl", target = "profileUrl")
+    Member profileUploadToMember(MemberDto.Upload profileUploadDto);
+
+    @Mapping(source = "profileUrl", target = "profileUrl")
+    Member profileUpdateToMember(MemberDto.Update profileUpdateDto);
 
     default Member memberPatchPasswordToMember(MemberDto.PatchPassword requestBody){
         Member member = new Member();

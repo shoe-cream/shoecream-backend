@@ -7,10 +7,8 @@ import com.springboot.exception.ExceptionCode;
 import com.springboot.member.dto.MemberDto;
 import com.springboot.member.entity.Member;
 import com.springboot.member.mapper.MemberMapper;
-import com.springboot.member.repository.EmployeeIdRepository;
 import com.springboot.member.service.MemberService;
 import com.springboot.response.SingleResponseDto;
-import com.springboot.utils.UriCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.net.URI;
 
 @RestController
 @Slf4j
@@ -33,37 +30,14 @@ public class MemberController {
     private final MemberMapper mapper;
     private final AuthService authService;
     private final EmailService emailService;
-    private final EmployeeIdRepository employeeIdRepository;
 
-    public MemberController(MemberService memberService, MemberMapper mapper, AuthService authService, EmailService emailService, EmployeeIdRepository employeeIdRepository) {
+    public MemberController(MemberService memberService, MemberMapper mapper, AuthService authService, EmailService emailService) {
         this.memberService = memberService;
         this.mapper = mapper;
         this.authService = authService;
         this.emailService = emailService;
-        this.employeeIdRepository = employeeIdRepository;
     }
 
-//    @PostMapping
-//    public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody) {
-//        // 사번 존재 여부 확인
-//        boolean isEmployeeIdExists = employeeIdRepository.existsByEmployeeId(requestBody.getEmployeeId());
-//
-//        if (!isEmployeeIdExists) {
-//            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
-//        }
-
-        // Member 객체 생성
-//        Member member = new Member();
-//        member.setEmail(requestBody.getEmail());
-//        member.setEmployeeId(requestBody.getEmployeeId().getEmployeeId());
-//
-//        // 멤버 생성 및 저장
-//        Member createdMember = memberService.createMember(member);
-//
-//        // 응답 URI 생성
-//        URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
-//        return ResponseEntity.created(location).build();
-//    }
 
     @GetMapping("/myInfo")
     public ResponseEntity getMember(
@@ -72,7 +46,7 @@ public class MemberController {
         String empolyeeId = (String) authentication.getPrincipal();
         Member member = memberService.findVerifiedEmployee(empolyeeId);
 
-        if (!member.getEmail().equals(empolyeeId)) {
+        if (!member.getEmployeeId().equals(empolyeeId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN); // 이메일 불일치 시 권한 없음 상태 반환
         }
 
@@ -140,4 +114,26 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/profile")
+    public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.Upload profileUploadDto, Authentication authentication) {
+        String email = authentication.getName();
+        Member updatedMember = memberService.uploadProfile(email, profileUploadDto.getProfileUrl());
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUploadToMember(profileUploadDto)), HttpStatus.OK);
+    }
+
+    // 프로필 사진 수정
+    @PatchMapping("/profile")
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody MemberDto.Update profileUpdateDto, Authentication authentication) {
+        String email = authentication.getName();
+        Member updatedMember = memberService.updateProfile(email, profileUpdateDto.getProfileUrl());
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUpdateToMember(profileUpdateDto)), HttpStatus.OK);
+    }
+
+    // 프로필 사진 삭제
+    @DeleteMapping("/profile")
+    public ResponseEntity<?> deleteProfile(Authentication authentication) {
+        String email = authentication.getName();
+        Member updatedMember = memberService.deleteProfile(email);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // 삭제 성공 시 응답은 내용이 없으므로 204 No Content
+    }
 }
