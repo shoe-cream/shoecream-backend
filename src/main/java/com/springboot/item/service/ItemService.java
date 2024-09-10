@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,12 +32,14 @@ public class ItemService {
         itemRepository.save(item);
     }
 
+    @Transactional(readOnly = true)
     public Item findItem(String itemCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         return findVerifiedItem(itemCd);
     }
 
+    @Transactional(readOnly = true)
     public Page<Item> findItems(String itemNm, int page, int size, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -69,15 +72,25 @@ public class ItemService {
         return itemRepository.save(findItem);
     }
 
-    public void deleteItem(String itemCd, Authentication authentication) {
+    public void deleteItem(long itemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Item item = itemRepository.findByItemCd(itemCd)
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
 
         item.setItemStatus(Item.ItemStatus.NOT_FOR_SALE);
 
         itemRepository.save(item);
+    }
+
+    public void deleteItems(List<Long> itemIds) {
+        // 각 ID에 대해 아이템 조회 후 상태 변경 (삭제 처리)
+        List<Item> items = itemRepository.findByItemIdIn(itemIds);
+
+        for (Item item : items) {
+            item.setItemStatus(Item.ItemStatus.NOT_FOR_SALE);  // 상태를 판매중지로 변경
+        }
+        itemRepository.saveAll(items);
     }
 
     private Item findVerifiedItem(String itemCd) {
@@ -92,4 +105,6 @@ public class ItemService {
         return memberRepository.findByEmployeeId(username)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
+
+
 }

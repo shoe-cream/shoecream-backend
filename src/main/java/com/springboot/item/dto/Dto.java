@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Dto {
     @Getter
@@ -60,4 +61,14 @@ public class Dto {
         private Item.ItemStatus itemStatus;
         private LocalDateTime createdAt;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ItemDeleteRequestDto {
+        private List<Long> itemId;
+
+    }
+
+
 }
