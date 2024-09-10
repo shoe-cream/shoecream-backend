@@ -51,6 +51,7 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class ItemResponseDto {
+        private long itemId;
         private String itemCd;
         private String itemNm;
         private String category;
