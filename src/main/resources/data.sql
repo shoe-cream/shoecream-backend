@@ -22,8 +22,15 @@ VALUES ('EMP006', 'hjh@company.com', '황진혁', '{bcrypt}$2a$10$ZuxK7vHU5jpTbe
 --권한 추가
 INSERT INTO MEMBER_ROLES(MEMBER_MEMBER_ID, ROLES) VALUES
 ('1', 'ADMIN'),
-('1', 'USER'),
-('2', 'USER'),
+('1', 'ADMIN'),
+('2', 'ADMIN'),
 ('3', 'USER'),
 ('4', 'USER'),
 ('5', 'USER');
+
+--사번 추가
+INSERT INTO employee_id (employee_id, status) VALUES ('EMP007', 'AVAILABLE');
+INSERT INTO employee_id (employee_id, status) VALUES ('EMP008', 'ASSIGNED');
+INSERT INTO employee_id (employee_id, status) VALUES ('EMP009', 'AVAILABLE');
+INSERT INTO employee_id (employee_id, status) VALUES ('EMP010', 'AVAILABLE');
+INSERT INTO employee_id (employee_id, status) VALUES ('EMP011', 'ASSIGNED');

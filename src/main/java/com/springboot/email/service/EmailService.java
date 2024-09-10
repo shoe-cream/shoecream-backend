@@ -5,6 +5,7 @@ import com.springboot.exception.ExceptionCode;
 import com.springboot.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -33,22 +34,15 @@ public class EmailService {
     private static final String EMAIL_PREFIX = "email:";
     private static final String RESET_PREFIX = "reset:";
 
-    public void sendVerificationEmail(String email) {
-        String authCode = generateAuthCode();
-        redisTemplate.opsForValue().set(EMAIL_PREFIX + email, authCode, Duration.ofMinutes(10)); // 10분 동안 유효
-
-        String subject = "회원 가입 인증 이메일입니다.";
+    public void sendPasswordEmail(String email, String randomPassword) {
+        String subject = "임시 비밀번호 안내 이메일입니다.";
         Context context = new Context();
-        context.setVariable("code", authCode);
+        context.setVariable("password", randomPassword);
         String content = templateEngine.process("verificationEmail", context);
         sendEmail(email, subject, content);
     }
 
-    private String generateAuthCode() {
-        Random random = new Random();
-        int code = 100000 + random.nextInt(900000); // 6자리 숫자
-        return String.valueOf(code);
-    }
+
 
     private void sendEmail(String toEmail, String subject, String content) {
         MimeMessage message = mailSender.createMimeMessage();
@@ -76,18 +70,11 @@ public class EmailService {
         }
     }
 
-    public boolean verifyAuthCode(String email, String authCode) {
-        String storedCode = redisTemplate.opsForValue().get(EMAIL_PREFIX + email);
-        return authCode.equals(storedCode);
-    }
 
-    public boolean verifyFinalAuthCode(String email, String authCode) {
-        String storedCode = redisTemplate.opsForValue().get(EMAIL_PREFIX + email);
-        redisTemplate.delete(EMAIL_PREFIX + email);
-        return authCode.equals(storedCode);
-    }
 
     public String getEmailByResetToken(String resetToken) {
         return redisTemplate.opsForValue().get(RESET_PREFIX + resetToken);
     }
+
+
 }

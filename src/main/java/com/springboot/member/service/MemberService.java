@@ -8,6 +8,9 @@ import com.springboot.helper.event.MemberRegistrationApplicationEvent;
 import com.springboot.member.entity.Member;
 import com.springboot.member.repository.MemberRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.springboot.member.entity.Member.MemberStatus.MEMBER_ACTIVE;
 import static com.springboot.member.entity.Member.MemberStatus.MEMBER_QUIT;
@@ -39,23 +43,34 @@ public class MemberService {
     }
 
     public Member createMember(Member member) {
-        verifyExistsEmail(member.getEmail());
+        if (isTeamLeader()) {
 
-        String encryptedPassword = passwordEncoder.encode(member.getPassword());
-        member.setPassword(encryptedPassword);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+            if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED); // 권한 없음 예외 처리
+            }
+        }
+
+        String randomPassword = generateRandomPassword();
+        member.setPassword(passwordEncoder.encode(randomPassword)); // 비밀번호 암호화 후 저장
         List<String> roles = authorityUtils.createRoles(member.getEmail());
         member.setRoles(roles);
 
 
         Member savedMember = memberRepository.save(member);
+
+
+        emailService.sendPasswordEmail(member.getEmail(), randomPassword);
+
+
         publisher.publishEvent(new MemberRegistrationApplicationEvent(this, savedMember));
+
         return savedMember;
     }
 
     public Member findMember(long memberId) {
-        // TODO should business logic
-        //throw new BusinessLogicException(ExceptionCode.NOT_IMPLEMENTATION);
+
         return findVerifiedMember(memberId);
     }
 
@@ -139,5 +154,17 @@ public class MemberService {
                 .ifPresent(password -> findMember.setPassword(passwordEncoder.encode(member.getPassword())));
 
         return memberRepository.save(findMember);
+    }
+    public boolean existsByEmployeeId(String employeeId) {
+        return memberRepository.existsByEmployeeId(employeeId);
+    }
+
+    private String generateRandomPassword() {
+        return UUID.randomUUID().toString().substring(0, 8); // 8자리 비밀번호 생성
+    }
+
+    public boolean isTeamLeader() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 }

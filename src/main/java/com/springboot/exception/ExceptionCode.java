@@ -21,7 +21,8 @@ public enum ExceptionCode {
     MEMBER_EXISTS(409,"Member Already Exists" ),
     EMAIL_NOT_AUTH(409, "Email not Auth"),
     CANNOT_CHANGE_MEMBER_STATUS(403, "MemberStatus cannot change" ),
-    CONFIRM_TYPE(400, "Please Confirm Type" );
+    CONFIRM_TYPE(400, "Please Confirm Type" ),
+    UNAUTHORIZED(401, "Unauthorized Access");
 
     @Getter
     private int status;
