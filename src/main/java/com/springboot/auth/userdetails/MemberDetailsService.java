@@ -47,8 +47,6 @@ public class MemberDetailsService implements UserDetailsService {
             return authorityUtils.createAuthorities(this.getRoles());
         }
 
-
-
         
         @Override
         public String getUsername() {

@@ -27,7 +27,7 @@ public class MemberDto {
         @NotBlank
         private String password;
 
-        @NotNull
+//        @NotNull
         private String employeeId;
 
         @NotBlank

@@ -20,9 +20,7 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long memberId;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id", referencedColumnName = "employeeId")
-    private EmployeeId employeeId;
+    private String employeeId;
 
     @Column(nullable = false, updatable = false, unique = true)
     private String email;
