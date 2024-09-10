@@ -22,7 +22,7 @@ public interface MemberMapper {
     Member memberPatchToMember(MemberDto.Patch requestBody);
 
     @Mapping(source = "profileUrl", target = "profileUrl")
-    Member profileUploadToMember(MemberDto.Upload profileUploadDto);
+    Member profileUploadToMember(MemberDto.UploadProfile profileUploadDto);
 
     @Mapping(source = "profileUrl", target = "profileUrl")
     Member profileUpdateToMember(MemberDto.Update profileUpdateDto);

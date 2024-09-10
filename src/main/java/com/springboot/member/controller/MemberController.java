@@ -115,7 +115,7 @@ public class MemberController {
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.Upload profileUploadDto, Authentication authentication) {
+    public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.UploadProfile profileUploadDto, Authentication authentication) {
         String email = authentication.getName();
         Member updatedMember = memberService.uploadProfile(email, profileUploadDto.getProfileUrl());
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUploadToMember(profileUploadDto)), HttpStatus.OK);
