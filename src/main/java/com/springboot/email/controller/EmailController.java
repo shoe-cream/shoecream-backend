@@ -23,26 +23,6 @@ public class EmailController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/send-verification")
-    public String sendVerificationEmail(@RequestBody EmailRequestDto requestDto) {
-        memberService.verifyExistsEmail(requestDto.getEmail());
-        emailService.sendVerificationEmail(requestDto.getEmail());
-        return "Verification email sent.";
-    }
-
-    @PostMapping("/verify")
-    public ResponseEntity verifyAuthCode(@RequestBody EmailAuthDto request) {
-        if (bypassCode.equals(request.getCode())) {
-            return ResponseEntity.ok("Bypass code accepted, verification successful!");
-        }
-        boolean isValid = emailService.verifyAuthCode(request.getEmail(), request.getCode());
-        if (isValid) {
-            return ResponseEntity.ok("인증번호 검증 성공");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증번호 불일치");
-        }
-    }
-
 
     @PostMapping("/validate-email")
     public String validateEmail(@RequestBody EmailCheckDto emailDto) {

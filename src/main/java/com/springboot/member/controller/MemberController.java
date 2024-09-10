@@ -7,6 +7,7 @@ import com.springboot.exception.ExceptionCode;
 import com.springboot.member.dto.MemberDto;
 import com.springboot.member.entity.Member;
 import com.springboot.member.mapper.MemberMapper;
+import com.springboot.member.repository.EmployeeIdRepository;
 import com.springboot.member.service.MemberService;
 import com.springboot.response.SingleResponseDto;
 import com.springboot.utils.UriCreator;
@@ -32,38 +33,36 @@ public class MemberController {
     private final MemberMapper mapper;
     private final AuthService authService;
     private final EmailService emailService;
+    private final EmployeeIdRepository employeeIdRepository;
 
-    public MemberController(MemberService memberService, MemberMapper mapper, AuthService authService, EmailService emailService) {
+    public MemberController(MemberService memberService, MemberMapper mapper, AuthService authService, EmailService emailService, EmployeeIdRepository employeeIdRepository) {
         this.memberService = memberService;
         this.mapper = mapper;
         this.authService = authService;
         this.emailService = emailService;
+        this.employeeIdRepository = employeeIdRepository;
     }
 
     @PostMapping
     public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody) {
-        String bypassCode = "1234";
+        // 사번 존재 여부 확인
+        boolean isEmployeeIdExists = employeeIdRepository.existsByEmployeeId(requestBody.getEmployeeId());
 
-        if (bypassCode.equals(requestBody.getAuthCode())) {
-            Member member = mapper.memberPostToMember(requestBody);
-            Member createdMember = memberService.createMember(member);
-            URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
-            return ResponseEntity.created(location).build();
+        if (!isEmployeeIdExists) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
         }
 
-        boolean isEmailVerified = emailService.verifyFinalAuthCode(requestBody.getEmail(), requestBody.getAuthCode());
-
-        if (!isEmailVerified) {
-            throw new BusinessLogicException(ExceptionCode.EMAIL_NOT_AUTH);
-        }
-
-        Member member = mapper.memberPostToMember(requestBody);
-
-
-        Member createdMember = memberService.createMember(member);
-        URI location = UriCreator.createUri("/members", createdMember.getMemberId());
-
-        return ResponseEntity.created(location).build();
+        // Member 객체 생성
+//        Member member = new Member();
+//        member.setEmail(requestBody.getEmail());
+//        member.setEmployeeId(requestBody.getEmployeeId().getEmployeeId());
+//
+//        // 멤버 생성 및 저장
+//        Member createdMember = memberService.createMember(member);
+//
+//        // 응답 URI 생성
+//        URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
+//        return ResponseEntity.created(location).build();
     }
 
     @GetMapping("/myInfo")
@@ -130,5 +129,15 @@ public class MemberController {
 
     }
 
+    @GetMapping("/check-employee/{employeeId}")
+    public ResponseEntity checkEmployeeId(@PathVariable String employeeId) {
+        boolean exists = memberService.existsByEmployeeId(employeeId);
+
+        if (!exists) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

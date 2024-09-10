@@ -20,8 +20,9 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long memberId;
 
-    @Column(nullable = false, updatable = false, unique = true)
-    private String employeeId;
+    @ManyToOne
+    @JoinColumn(name = "employee_id", referencedColumnName = "employeeId")
+    private EmployeeId employeeId;
 
     @Column(nullable = false, updatable = false, unique = true)
     private String email;
@@ -51,6 +52,8 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = true)
     private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
+
+
 
     public enum MemberStatus {
         MEMBER_ACTIVE("활동중"),

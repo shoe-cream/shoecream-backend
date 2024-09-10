@@ -1,5 +1,6 @@
 package com.springboot.member.dto;
 
+import com.springboot.member.entity.EmployeeId;
 import com.springboot.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
