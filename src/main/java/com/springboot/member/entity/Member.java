@@ -20,6 +20,7 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long memberId;
 
+    @Column(nullable = false, updatable = false, unique = true)
     private String employeeId;
 
     @Column(nullable = false, updatable = false, unique = true)
