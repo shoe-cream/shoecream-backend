@@ -29,7 +29,7 @@ public class SaleHistoryItems {
     private String itemCD;
 
     @Column(nullable = false)
-    private Long quantity;
+    private Integer quantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;

@@ -26,7 +26,7 @@ public class OrderItems {
     private LocalDateTime endDate;
 
     @Column(nullable = false)
-    private Long quantity;
+    private Integer quantity;
 
     @Column(nullable = false, length = 50)
     private String itemCD;

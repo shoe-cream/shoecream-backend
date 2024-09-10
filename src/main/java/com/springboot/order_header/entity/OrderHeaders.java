@@ -29,7 +29,7 @@ public class OrderHeaders {
     private LocalDateTime requestDate;
 
     @Column(updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now(); //주문일자
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
