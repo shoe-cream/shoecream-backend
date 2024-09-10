@@ -131,7 +131,7 @@ public class OrderController {
     }
 
     //SaleHistory 조회
-    @GetMapping("{order-id}/history")
+    @GetMapping("{order-id}/histories")
     public ResponseEntity getOrderHistory(@Positive @PathVariable("order-id") Long orderId,
                                           @Positive @RequestParam int page,
                                           @Positive @RequestParam int size) {
