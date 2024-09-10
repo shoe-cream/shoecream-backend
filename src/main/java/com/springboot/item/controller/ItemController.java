@@ -45,11 +45,10 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity getItems(@RequestParam(required = false) String itemNm,
-                                   @RequestParam @Positive int page,
+    public ResponseEntity getItems(@RequestParam @Positive int page,
                                    @RequestParam @Positive int size,
                                    Authentication authentication) {
-        Page<Item> itemPage = itemService.findItems(itemNm, page-1, size, authentication);
+        Page<Item> itemPage = itemService.findItems(page-1, size, authentication);
         List<Dto.ItemResponseDto> itemResponseDtos =
                 itemMapper.itemToResponseDtos(itemPage.getContent());
 

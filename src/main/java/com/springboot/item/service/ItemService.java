@@ -7,10 +7,7 @@ import com.springboot.item.repository.ItemRepository;
 import com.springboot.member.entity.Member;
 import com.springboot.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -40,17 +38,13 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Item> findItems(String itemNm, int page, int size, Authentication authentication) {
+    public Page<Item> findItems(int page, int size, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("itemId").descending());
 
-        if(itemNm == null || itemNm.isEmpty()) {
-            return itemRepository.findAll(pageable);
-        }else {
-            return itemRepository.findByItemNm(itemNm, pageable);
-        }
-
+        Page<Item> items = itemRepository.findByItemStatusNot(Item.ItemStatus.NOT_FOR_SALE, pageable);
+        return items;
     }
 
     public Item updateItem(Item item, Authentication authentication) {
@@ -105,6 +99,4 @@ public class ItemService {
         return memberRepository.findByEmployeeId(username)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
-
-
 }
