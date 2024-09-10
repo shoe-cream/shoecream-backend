@@ -45,8 +45,8 @@ public class ItemMfController {
     }
 
     @GetMapping("/{mfItemId}")
-    public ResponseEntity getItemMf(@PathVariable("mfItemId") @Positive long mfItemId) {
-        ItemManufacture itemMf = itemManufactureService.findItemMf(mfItemId);
+    public ResponseEntity getItemMf(@PathVariable("mfItemId") @Positive long mfItemId, Authentication authentication) {
+        ItemManufacture itemMf = itemManufactureService.findItemMf(mfItemId, authentication);
 
         return new ResponseEntity<>(
                 new SingleResponseDto<>(itemMfMapper.itemMfToItemMfResponseDto(itemMf)), HttpStatus.OK);
@@ -56,8 +56,9 @@ public class ItemMfController {
     public ResponseEntity getItemMfs(@RequestParam(required = false) String mfCd,
                                      @RequestParam(required = false) String itemCd,
                                      @Positive int page,
-                                     @Positive int size) {
-        Page<ItemManufacture> itemManufacturePage = itemManufactureService.findItemMfs(page - 1, size, itemCd, mfCd);
+                                     @Positive int size,
+                                     Authentication authentication) {
+        Page<ItemManufacture> itemManufacturePage = itemManufactureService.findItemMfs(page - 1, size, itemCd, mfCd, authentication);
         List<ItemManufacture> itemManufactures = itemManufacturePage.getContent();
 
         return new ResponseEntity<>(
@@ -68,8 +69,9 @@ public class ItemMfController {
     @GetMapping("/{mfItemId}/histories")
     public ResponseEntity getHistory(@Positive @PathVariable("mfItemId") Long mfItemId,
                                      @Positive @RequestParam int page,
-                                     @Positive @RequestParam int size) {
-        Page<ManuFactureHistory> historyPages = itemManufactureService.findHistories(page - 1, size, mfItemId);
+                                     @Positive @RequestParam int size,
+                                     Authentication authentication) {
+        Page<ManuFactureHistory> historyPages = itemManufactureService.findHistories(page - 1, size, mfItemId, authentication);
         List<ManuFactureHistory> historyLists = historyPages.getContent();
 
         return new ResponseEntity<>(
