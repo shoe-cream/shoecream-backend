@@ -3,6 +3,7 @@ package com.springboot.email.config;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -13,6 +14,7 @@ import java.util.Properties;
  * - EmailSendable 인터페이스의 구현 클래스를 Bean object로 등록한다.
  * - JavaMailSender 인터페이스의 구현 클래스를 Bean object로 등록한다.
  */
+@Configuration
 public class EmailConfiguration {
     /*
      * application-local.yml 파일에서 구글 SMTP 설정 정보를 읽어들여서 아래의 필드 변수에 값으로 추가한다.
