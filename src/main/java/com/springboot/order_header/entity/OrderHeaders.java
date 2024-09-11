@@ -25,6 +25,9 @@ public class OrderHeaders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
+    @Column(updatable = false)
+    private String orderCd;
+
     @Column(nullable = false)
     private LocalDateTime requestDate;
 
