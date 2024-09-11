@@ -30,10 +30,18 @@ public class BuyerItemController {
     private final BuyerItemService buyerItemService;
     private final BuyerItemMapper buyerItemMapper;
 
-    @PostMapping
-    public ResponseEntity postBuyerItem(@RequestBody @Valid Dto.BuyerItemPostDto postDto, Authentication authentication) {
+//    @PostMapping
+//    public ResponseEntity postBuyerItem(@RequestBody @Valid Dto.BuyerItemPostDto postDto, Authentication authentication) {
+//
+//        buyerItemService.createBuyerItem(buyerItemMapper.buyerItemPostDtoToBuyerItem(postDto), authentication);
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
-        buyerItemService.createBuyerItem(buyerItemMapper.buyerItemPostDtoToBuyerItem(postDto), authentication);
+    @PostMapping
+    public ResponseEntity postBuyerItem(@RequestBody @Valid List<Dto.BuyerItemPostDto> postDto, Authentication authentication) {
+
+        buyerItemService.createBuyerItem(buyerItemMapper.postDtosToBuyerItems(postDto), authentication);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,16 +35,15 @@ public class BuyerItemService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
 
-    public void createBuyerItem(BuyerItem buyerItem, Authentication authentication) {
+    public void createBuyerItem(List<BuyerItem> buyerItems, Authentication authentication) {
         // 기본 아이템 정보 가져오기 (Item 테이블에서 가져옴)
         extractMemberFromAuthentication(authentication);
-        Item item = itemRepository.findById(buyerItem.getItem().getItemId())
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
-        Buyer buyer = buyerRepository.findById(buyerItem.getBuyer().getBuyerId())
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
-        buyerItem.addBuyer(buyer);
-        buyerItem.addItem(item);
-        buyerItemRepository.save(buyerItem);
+
+        buyerItems.stream().forEach(buyerItem -> {
+            buyerItem.addItem(findVerifiedItem(buyerItem.getItem().getItemId()));
+            buyerItem.addBuyer(findVerifiedBuyer(buyerItem.getBuyer().getBuyerId()));
+            buyerItemRepository.save(buyerItem);
+        });
     }
 
     public BuyerItem findBuyerItem(long buyerItemId, Authentication authentication) {
@@ -125,5 +126,15 @@ public class BuyerItemService {
 
         return memberRepository.findByEmployeeId(username)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+    }
+
+    private Item findVerifiedItem(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+    }
+
+    private Buyer findVerifiedBuyer (Long buyerId) {
+        return  buyerRepository.findById(buyerId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
     }
 }

@@ -28,12 +28,15 @@ public class BuyerService {
     private final BuyerRepository buyerRepository;
     private final MemberRepository memberRepository;
 
-    public void createBuyer(Buyer buyer, Authentication authentication) {
+    public void createBuyer(List<Buyer> buyers, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
-        verifyExistTel(buyer.getTel());
-        verifyExistEmail(buyer.getEmail());
-        verifyBuyerCdExists(buyer.getBuyerCd());
-        buyerRepository.save(buyer);
+
+        buyers.stream().forEach(buyer -> {
+            verifyExistTel(buyer.getTel());
+            verifyExistEmail(buyer.getEmail());
+            verifyBuyerCdExists(buyer.getBuyerCd());
+            buyerRepository.save(buyer);
+        });
     }
 
     // 바이어의 이름, 코드, 타입중 하나로 검색

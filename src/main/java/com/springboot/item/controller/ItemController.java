@@ -30,8 +30,8 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ResponseEntity createItem(@Valid @RequestBody Dto.ItemPostDto postDto, Authentication authentication) {
-        itemService.createItem(itemMapper.itemPostDtoToItem(postDto), authentication);
+    public ResponseEntity createItem(@Valid @RequestBody List<Dto.ItemPostDto> postDtos, Authentication authentication) {
+        itemService.createItem(itemMapper.itemPostDtosToItems(postDtos), authentication);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
