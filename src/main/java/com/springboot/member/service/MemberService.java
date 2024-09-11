@@ -61,6 +61,7 @@ public class MemberService {
 
     public boolean isEmailDuplicate(String email) {
         return !memberRepository.existsByEmail(email);
+        //있으면 불가능 없으면 가능
     }
 
     @Transactional(readOnly = true)

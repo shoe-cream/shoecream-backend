@@ -25,7 +25,6 @@ import javax.validation.constraints.Positive;
 @RequestMapping("/members")
 public class MemberController {
 
-    private final static String MEMBER_DEFAULT_URL = "/members";
     private final MemberService memberService;
     private final MemberMapper mapper;
     private final AuthService authService;
@@ -38,82 +37,73 @@ public class MemberController {
         this.emailService = emailService;
     }
 
-
+    // 현재 로그인된 사용자의 정보를 조회
     @GetMapping("/my-info")
-    public ResponseEntity getMember(
-            Authentication authentication) {
+    public ResponseEntity<?> getMember(Authentication authentication) {
+        String employeeId = (String) authentication.getPrincipal();
+        Member member = memberService.findVerifiedEmployee(employeeId);
 
-        String empolyeeId = (String) authentication.getPrincipal();
-        Member member = memberService.findVerifiedEmployee(empolyeeId);
-
-        if (!member.getEmployeeId().equals(empolyeeId)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN); // 이메일 불일치 시 권한 없음 상태 반환
+        // 사용자 인증 정보와 조회된 정보가 일치하지 않을 경우 권한 없음 상태 반환
+        if (!member.getEmployeeId().equals(employeeId)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        return new ResponseEntity<>(
-                new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
     }
 
+    // 멤버 정보 업데이트
     @PatchMapping("/{member-id}")
-    public ResponseEntity patchMember(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.Patch requestBody,
-                                      Authentication authentication) {
+    public ResponseEntity<?> patchMember(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.Patch requestBody,
+                                         Authentication authentication) {
         requestBody.setMemberId(memberId);
         String employeeId = authentication.getName();
 
         Member member = memberService.updateMember(mapper.memberPatchToMember(requestBody), employeeId);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
+    }
+
+    // 이메일 중복 여부 체크
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmailDuplicate(@RequestBody MemberDto.EmailCheckDto requestBody) {
+        boolean isDuplicate = memberService.isEmailDuplicate(requestBody.getEmail());
+        String message = isDuplicate ? "emailExist" : "emailAvailable";
+        return new ResponseEntity<>(new SingleResponseDto<>(new MemberDto.Check(isDuplicate, message)), HttpStatus.OK);
+    }
+
+    // 로그인된 사용자의 사번으로 멤버 정보 조회
+    @GetMapping("/member-employeeId")
+    public ResponseEntity<?> getMemberByEmployeeId(Authentication authentication) {
+        String employeeId = authentication.getName();
+        Member member = memberService.findVerifiedEmployee(employeeId);
 
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
-
     }
 
-    @GetMapping("/check-email")
-    public ResponseEntity checkEmailDuplicate(@RequestBody MemberDto.EmailCheckDto requestBody) {
-// 이메일 중복여부
-        boolean isDuplicate = memberService.isEmailDuplicate(requestBody.getEmail());
-
-        MemberDto.Check responseDto = new MemberDto.Check(isDuplicate);
-
-        return new ResponseEntity<>(
-                new SingleResponseDto<>(responseDto), HttpStatus.OK);
-    }
-
-    @GetMapping("/member-email")
-    public ResponseEntity getMemberEmail(Authentication authentication) {
-
+    // 비밀번호 변경
+    @PatchMapping("/{member-id}/password")
+    public ResponseEntity<?> patchMemberPassword(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.PatchPassword requestBody,
+                                                 Authentication authentication) {
+        requestBody.setMemberId(memberId);
         String employeeId = authentication.getName();
 
-        Member member = memberService.findVerifiedEmployee(employeeId);
-        if (member == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 회원을 찾을 수 없을 때
-        }
-
-        return new ResponseEntity<>(
-                new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
-    }
-
-    @PatchMapping("/{member-id}/password")
-    public ResponseEntity patchMemberPassword(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.PatchPassword requestBody,
-                                              Authentication authentication) {
-        requestBody.setMemberId(memberId);
-        String email = authentication.getName();
+        // 비밀번호 검증 및 변경 처리
         memberService.verifyPassword(memberId, requestBody.getPassword(), requestBody.getNewPassword());
-        Member member = memberService.updatePassword(mapper.memberPatchPasswordToMember(requestBody), email);
-        return  new ResponseEntity<>(
-                new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
-
+        Member member = memberService.updatePassword(mapper.memberPatchPasswordToMember(requestBody), employeeId);
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
     }
 
+    // 직원 ID 중복 여부 체크
     @GetMapping("/check-employee/{employeeId}")
-    public ResponseEntity checkEmployeeId(@PathVariable String employeeId) {
+    public ResponseEntity<?> checkEmployeeId(@PathVariable String employeeId) {
         boolean exists = memberService.existsByEmployeeId(employeeId);
 
         if (!exists) {
             throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
         }
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // 프로필 사진 업로드
     @PostMapping("/profile")
     public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.UploadProfile profileUploadDto, Authentication authentication) {
         String employeeId = authentication.getName();
@@ -125,35 +115,17 @@ public class MemberController {
     @PatchMapping("/profile")
     public ResponseEntity<?> updateProfile(@Valid @RequestBody MemberDto.Update profileUpdateDto, Authentication authentication) {
         String employeeId = (String) authentication.getName();
-
         Member updatedMember = memberService.updateProfile(employeeId, profileUpdateDto.getProfileUrl());
-
         return new ResponseEntity<>(new SingleResponseDto<>(updatedMember), HttpStatus.OK);
     }
 
     // 프로필 사진 삭제
     @DeleteMapping("/profile")
     public ResponseEntity<?> deleteProfile(Authentication authentication) {
-        String email = (String) authentication.getName();
-        Member updatedMember = memberService.deleteProfile(email);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // 삭제 성공 시 응답은 내용이 없으므로 204 No Content
+        String employeeId = (String) authentication.getName();
+        memberService.deleteProfile(employeeId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);  // 삭제 성공 시 204 응답 반환
     }
 
-//    @PatchMapping("/role/members/{member-id}")
-//    public ResponseEntity<?> updateRole(
-//            @PathVariable("member-id") @Positive long memberId,
-//            @Valid @RequestBody MemberDto.UpdateRole updateRoleDto,
-//            Authentication authentication) {
-//        // 권한 수정
-//        Member updatedMember = memberService.updateRole(memberId, updateRoleDto.getRole());
-//
-//        // 수정된 역할 반환
-//        return new ResponseEntity<>(
-//                new SingleResponseDto<>(mapper.memberToRoleResponse(updatedMember)), HttpStatus.OK);
-//    }
-
-
-
-
-
 }
+
