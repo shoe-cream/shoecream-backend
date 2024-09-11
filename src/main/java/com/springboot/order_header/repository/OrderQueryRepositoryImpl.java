@@ -25,7 +25,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
     }
 
     @Override
-    public Page<OrderHeaders> findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCDAndOrderId(OrderDto.OrderSearchRequest orderSearchRequest,
+    public Page<OrderHeaders> findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderId(OrderDto.OrderSearchRequest orderSearchRequest,
                                                                                                                  Pageable pageable) {
 
         QOrderHeaders orderHeaders = QOrderHeaders.orderHeaders;
@@ -47,13 +47,13 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
         }
 
         // BuyerCode 필터
-        if (orderSearchRequest.getBuyerCode() != null && !orderSearchRequest.getBuyerCode().trim().isEmpty()) {
-            builder.and(buyer.buyerCd.eq(orderSearchRequest.getBuyerCode()));
+        if (orderSearchRequest.getBuyerCd() != null && !orderSearchRequest.getBuyerCd().trim().isEmpty()) {
+            builder.and(buyer.buyerCd.eq(orderSearchRequest.getBuyerCd()));
         }
 
         // ItemCode 필터
-        if (orderSearchRequest.getItemCode() != null && !orderSearchRequest.getItemCode().trim().isEmpty()) {
-            builder.and(orderItems.itemCD.eq(orderSearchRequest.getItemCode()));
+        if (orderSearchRequest.getItemCd() != null && !orderSearchRequest.getItemCd().trim().isEmpty()) {
+            builder.and(orderItems.itemCd.eq(orderSearchRequest.getItemCd()));
         }
 
         //주문번호 필터

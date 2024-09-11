@@ -50,7 +50,7 @@ public class OrderController {
     public ResponseEntity postOrder(@Valid @RequestBody OrderDto.Post orderPostDto, Authentication authentication) {
 
         OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(orderPostDto);
-        Buyer buyer = buyerService.findVerifiedBuyer(orderPostDto.getBuyerCD());
+        Buyer buyer = buyerService.findVerifiedBuyer(orderPostDto.getBuyerCd());
         orderHeaders.setBuyer(buyer);
 
         List<OrderItems> orderItemsList = orderMapper.orderItemDtosToOrderItems(orderPostDto.getOrderItems());

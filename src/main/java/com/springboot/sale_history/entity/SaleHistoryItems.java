@@ -26,10 +26,10 @@ public class SaleHistoryItems {
     private SaleHistory saleHistory;
 
     @Column(nullable = false)
-    private String itemCD;
+    private String itemCd;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private Integer qty;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
@@ -44,8 +44,8 @@ public class SaleHistoryItems {
     private LocalDateTime endDate;
 
     public SaleHistoryItems(OrderItems orderItems) {
-        this.itemCD = orderItems.getItemCD();
-        this.quantity = orderItems.getQuantity();
+        this.itemCd = orderItems.getItemCd();
+        this.qty = orderItems.getQty();
         this.unitPrice = orderItems.getUnitPrice();
         this.unit = orderItems.getUnit();
         this.startDate = orderItems.getStartDate();

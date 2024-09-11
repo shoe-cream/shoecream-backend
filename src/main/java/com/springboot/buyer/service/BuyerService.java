@@ -127,8 +127,8 @@ public class BuyerService {
         }
     }
 
-    public Buyer findVerifiedBuyer(String buyerCD) {
-        return buyerRepository.findByBuyerCd(buyerCD)
+    public Buyer findVerifiedBuyer(String buyerCd) {
+        return buyerRepository.findByBuyerCd(buyerCd)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
     }
 

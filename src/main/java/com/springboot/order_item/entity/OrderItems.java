@@ -26,10 +26,10 @@ public class OrderItems {
     private LocalDateTime endDate;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private Integer qty;
 
     @Column(nullable = false, length = 50)
-    private String itemCD;
+    private String itemCd;
 
     @Column(nullable = false)
     private String unit;

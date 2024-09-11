@@ -18,21 +18,21 @@ public interface OrderItemsRepository extends JpaRepository <OrderItems, Long> {
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);
 
-    @Query("SELECT SUM(oi.quantity) FROM OrderItems oi " +
-            "WHERE oi.itemCD = :itemCd AND oi.orderHeaders.requestDate BETWEEN :startDateTime AND :endDateTime")
-    Integer findTotalOrderedByItemCD(
+    @Query("SELECT SUM(oi.qty) FROM OrderItems oi " +
+            "WHERE oi.itemCd = :itemCd AND oi.orderHeaders.requestDate BETWEEN :startDateTime AND :endDateTime")
+    Integer findTotalOrderedByItemCd(
             @Param("itemCd") String itemCd,
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);
 
-    @Query("SELECT SUM(oi.quantity) FROM OrderItems oi " +
+    @Query("SELECT SUM(oi.qty) FROM OrderItems oi " +
             "JOIN oi.orderHeaders oh " +
-            "WHERE oi.itemCD = :itemCd AND oh.orderStatus IN ('APPROVED', 'SHIPPED', 'PRODUCT_PASS')")
+            "WHERE oi.itemCd = :itemCd AND oh.orderStatus IN ('APPROVED', 'SHIPPED', 'PRODUCT_PASS')")
     Integer findTotalOrderedByItemCdAfterApproval(@Param("itemCd") String itemCd);
 
-    @Query("SELECT SUM(oi.unitPrice * oi.quantity) FROM OrderItems oi " +
+    @Query("SELECT SUM(oi.unitPrice * oi.qty) FROM OrderItems oi " +
             "JOIN oi.orderHeaders oh " +
-            "WHERE oi.itemCD = :itemCd " +
+            "WHERE oi.itemCd = :itemCd " +
             "AND oh.createdAt BETWEEN :startDate AND :endDate " +
             "AND oh.orderStatus IN ('APPROVED', 'SHIPPED', 'PRODUCT_PASS')")
     BigDecimal findTotalOrderPriceByItemCdAndOrderDateBetween(

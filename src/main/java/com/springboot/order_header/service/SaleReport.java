@@ -43,16 +43,16 @@ public class SaleReport {
         //List<ItemManufacture> manufacturesInRange = manufactureItemRepository.findByCreatedAtBetween(startDateTime, endDateTime);
 
         return new ArrayList<>(ordersInRange.stream()
-                .collect(Collectors.toMap(OrderItems::getItemCD, orderItem -> {
+                .collect(Collectors.toMap(OrderItems::getItemCd, orderItem -> {
                     SaleResponseDto.SaleReportDto reportDto = new SaleResponseDto.SaleReportDto();
-                    reportDto.setItemCd(orderItem.getItemCD());
-                    reportDto.setTotalOrdered(orderItemsRepository.findTotalOrderedByItemCD(orderItem.getItemCD(), startDateTime, endDateTime));
-                    reportDto.setTotalManufactured(manufactureItemRepository.findTotalManufacturedByItemCdAndDateRange(orderItem.getItemCD(), startDateTime, endDateTime));
-                    reportDto.setTotalOrderedPrice(getOrderTotalPrice(orderItem.getItemCD(), startDateTime, endDateTime));
-                    reportDto.setTotalMfPrice(getManufactureTotalPrice(orderItem.getItemCD(), startDateTime, endDateTime));
+                    reportDto.setItemCd(orderItem.getItemCd());
+                    reportDto.setTotalOrdered(orderItemsRepository.findTotalOrderedByItemCd(orderItem.getItemCd(), startDateTime, endDateTime));
+                    reportDto.setTotalManufactured(manufactureItemRepository.findTotalManufacturedByItemCdAndDateRange(orderItem.getItemCd(), startDateTime, endDateTime));
+                    reportDto.setTotalOrderedPrice(getOrderTotalPrice(orderItem.getItemCd(), startDateTime, endDateTime));
+                    reportDto.setTotalMfPrice(getManufactureTotalPrice(orderItem.getItemCd(), startDateTime, endDateTime));
                     reportDto.setMarginRate(calculateMarginRate(
-                            getOrderTotalPrice(orderItem.getItemCD(), startDateTime, endDateTime),
-                            getManufactureTotalPrice(orderItem.getItemCD(), startDateTime, endDateTime)
+                            getOrderTotalPrice(orderItem.getItemCd(), startDateTime, endDateTime),
+                            getManufactureTotalPrice(orderItem.getItemCd(), startDateTime, endDateTime)
                     ));
 
                     return reportDto;
@@ -66,8 +66,8 @@ public class SaleReport {
         SaleResponseDto.InventoryDto.InventoryDtoBuilder response = SaleResponseDto.InventoryDto.builder();
         response.itemId(item.getItemId());
         response.itemName(item.getItemNm());
-        response.totalOrder(getOrderQuantity(itemCd));
-        response.totalSupply(getManufacturedQuantity(itemCd));
+        response.totalOrder(getOrderQty(itemCd));
+        response.totalSupply(getManufacturedQty(itemCd));
         response.totalStock(calculateInventory(itemCd));
         return response.build();
     }
@@ -96,20 +96,20 @@ public class SaleReport {
 
     //재고 계산
     private Integer calculateInventory(String itemCd) {
-        Integer totalManufactured = getManufacturedQuantity(itemCd);
-        Integer totalOrdered = getOrderQuantity(itemCd);
+        Integer totalManufactured = getManufacturedQty(itemCd);
+        Integer totalOrdered = getOrderQty(itemCd);
         Integer cal = totalManufactured - totalOrdered;
         return cal != null ? cal : 0;
     }
 
     //재고 계산을 위한 공급량
-    private Integer getManufacturedQuantity(String itemCd) {
+    private Integer getManufacturedQty(String itemCd) {
         Integer totalManufactured = manufactureItemRepository.findTotalManufacturedByItemCd(itemCd);
         return totalManufactured != null ? totalManufactured : 0;
     }
 
     //재고 계산을 위한 주문량 (승인 이후 상태의 주문량만 계산)
-    private Integer getOrderQuantity(String itemCd) {
+    private Integer getOrderQty(String itemCd) {
         Integer totalOrdered = orderItemsRepository.findTotalOrderedByItemCdAfterApproval(itemCd);
         return totalOrdered != null ? totalOrdered : 0;
     }
