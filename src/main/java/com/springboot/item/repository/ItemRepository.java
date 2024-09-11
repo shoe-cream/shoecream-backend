@@ -14,4 +14,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByItemIdIn(List<Long> ids);
     Page<Item> findByItemStatusNot(Item.ItemStatus itemStatus, Pageable pageable);
     List<Item> findAll();
+    boolean existsByItemCd(String itemCd);
+    boolean existsByItemNm(String itemNm);
+    Optional<Item> findByItemId(Long itemId);
 }

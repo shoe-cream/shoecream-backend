@@ -12,6 +12,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
    OrderHeaders orderPostDtoToOrder(OrderDto.Post orderPostDto);
+   List<OrderHeaders> postDtosToOrders(List<OrderDto.Post> orderPostDtos);
    OrderHeaders orderPatchDtoToOrder(OrderDto.OrderPatch orderPatchDto);
    OrderItems itemPatchDtoToOrderItem(OrderDto.ItemPatch itemPatchDto);
 

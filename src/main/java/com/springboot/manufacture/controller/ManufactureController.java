@@ -32,8 +32,8 @@ public class ManufactureController {
     private final ManufactureHistoryMapper manufactureHistoryMapper;
 
     @PostMapping
-    public ResponseEntity createManufacture(@Valid @RequestBody Dto.ManufacturePostDto postDto, Authentication authentication) {
-        manufactureService.createManufacture(manufactureMapper.postDtoToManufacture(postDto), authentication);
+    public ResponseEntity createManufacture(@Valid @RequestBody List<Dto.ManufacturePostDto> postDto, Authentication authentication) {
+        manufactureService.createManufacture(manufactureMapper.postDtosToManuFactrues(postDto), authentication);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

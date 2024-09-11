@@ -26,6 +26,8 @@ public interface ItemMfMapper {
         return itemManufacture;
     }
 
+    List<ItemManufacture> postDtosToItemManufactures(List<Dto.ItemMfPostDto> postDtos);
+
     default Dto.ItemMfResponseDto itemMfToItemMfResponseDto(ItemManufacture itemManufacture) {
         Dto.ItemMfResponseDto responseDto = new Dto.ItemMfResponseDto();
 

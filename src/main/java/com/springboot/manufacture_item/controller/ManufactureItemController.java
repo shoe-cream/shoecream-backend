@@ -31,16 +31,14 @@ import java.util.List;
 public class ManufactureItemController {
     private final ItemMfMapper itemMfMapper;
     private final ManufactureItemService manufactureItemService;
-    private final static String MANUFACTURE_ITEM_DEFAULT_URL = "/manufacture-items";
     private final ManufactureHistoryMapper manufactureHistoryMapper;
 
     // 공급사 등록(공급 단가)
     @PostMapping
-    public ResponseEntity createItemMf(@Valid @RequestBody Dto.ItemMfPostDto postDto, Authentication authentication) {
-        ItemManufacture itemManufacture = manufactureItemService.createItemMf(itemMfMapper.itemMfPostDtoToItemMf(postDto), authentication);
+    public ResponseEntity createItemMf(@Valid @RequestBody List<Dto.ItemMfPostDto> postDtos, Authentication authentication) {
+        manufactureItemService.createItemMf(itemMfMapper.postDtosToItemManufactures(postDtos), authentication);
 
-        URI location = UriCreator.createUri(MANUFACTURE_ITEM_DEFAULT_URL,itemManufacture.getMfItemId());
-        return ResponseEntity.created(location).build();
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
     // 제조사 공급단가 조회

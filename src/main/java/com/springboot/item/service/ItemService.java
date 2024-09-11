@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -26,7 +25,11 @@ public class ItemService {
 
     public void createItem(List<Item> items, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
-        items.stream().forEach(item -> itemRepository.save(item));
+        items.stream().forEach(item -> {
+            verifiedExistsItemCd(item.getItemCd());
+            verifiedExists(item.getItemNm());
+            itemRepository.save(item);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -97,5 +100,25 @@ public class ItemService {
 
         return memberRepository.findByEmployeeId(username)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+    }
+
+    // item code 중복 검사
+    private void verifiedExistsItemCd(String itemCd) {
+        if(itemRepository.existsByItemCd(itemCd)) {
+            throw new BusinessLogicException(ExceptionCode.ITEM_CD_ALREADY_EXISTS);
+        }
+    }
+
+    // item name 중복 검사
+    private void verifiedExists(String itemNm) {
+        if(itemRepository.existsByItemNm(itemNm)) {
+            throw new BusinessLogicException(ExceptionCode.ITEM_NAME_ALREADY_EXISTS);
+        }
+    }
+
+    public Item findVerifiedItemId(Long itemId) {
+        Optional<Item> item = itemRepository.findByItemId(itemId);
+
+        return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
     }
 }

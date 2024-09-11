@@ -7,6 +7,7 @@ import com.springboot.item.mapper.ItemMapper;
 import com.springboot.item.service.ItemService;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
+import com.springboot.utils.UriCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -32,7 +34,6 @@ public class ItemController {
     @PostMapping
     public ResponseEntity createItem(@Valid @RequestBody List<Dto.ItemPostDto> postDtos, Authentication authentication) {
         itemService.createItem(itemMapper.itemPostDtosToItems(postDtos), authentication);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
