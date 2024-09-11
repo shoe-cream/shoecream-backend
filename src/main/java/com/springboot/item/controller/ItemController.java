@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,15 +59,21 @@ public class ItemController {
                 new MultiResponseDto<>(itemResponseDtos, itemPage), HttpStatus.OK);
     }
 
-    @PatchMapping("/{itemCd}")
-    public ResponseEntity updateItem(@PathVariable("itemCd") String itemCd,
-                                     @RequestBody Dto.ItemPatchDto patchDto,
+    @PatchMapping
+    public ResponseEntity updateItem(@Valid @RequestBody List<Dto.ItemPatchDto> patchDtos,
                                      Authentication authentication) {
-        patchDto.setItemNm(itemCd);
-        Item item = itemService.updateItem(itemMapper.itemPatchToItem(patchDto), authentication);
+        List<Item> patches = itemMapper.itemPatchDtosToItems(patchDtos);
+        List<Item> existingItems = itemService.findVerifiedItems(patchDtos.stream()
+                .map(Dto.ItemPatchDto::getItemId).collect(Collectors.toList()));
+
+        List<Item> updateList = new ArrayList<>();
+        for(int i = 0; i < patchDtos.size(); i++) {
+            Item item = itemService.updateItem(existingItems.get(i),patches.get(i), authentication);
+            updateList.add(item);
+        }
 
         return new ResponseEntity<>(
-                new SingleResponseDto<>(itemMapper.itemToResponseDto(item)), HttpStatus.OK);
+                new SingleResponseDto<>(itemMapper.itemToResponseDtos(updateList)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{itemId}")
