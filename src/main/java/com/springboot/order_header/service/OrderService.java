@@ -22,9 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -52,6 +51,10 @@ public class OrderService {
         Member member = verifiedMember(authentication);
         orderHeaders.setMember(member);
 
+        // 주문 코드 생성 후 설정
+        String orderCd = createOrderCd();
+        orderHeaders.setOrderCd(orderCd);
+
         // 재고량이 없을 때 예외처리
         boolean isStock = orderHeaders.getOrderItems()
                 .stream()
@@ -62,7 +65,7 @@ public class OrderService {
         }
 
         // DB에 저장
-        OrderHeaders orderHeader =  orderHeadersRepository.save(orderHeaders);
+        OrderHeaders orderHeader = orderHeadersRepository.save(orderHeaders);
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeader, member));
 
         return orderHeader;
@@ -75,7 +78,7 @@ public class OrderService {
         OrderHeaders findOrder = findVerifiedOrder(orderHeaders.getOrderId());
 
         //승인. 반려 상태로는 변경 못한다. (팀장만 가능 , updateStatus 메서드로 승인)
-        if(orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.APPROVED || orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.REJECTED) {
+        if (orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.APPROVED || orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.REJECTED) {
             throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
         }
 
@@ -83,12 +86,12 @@ public class OrderService {
         List<OrderHeaders.OrderStatus> notApproveStatus =
                 Arrays.asList(OrderHeaders.OrderStatus.PURCHASE_REQUEST, OrderHeaders.OrderStatus.REQUEST_TEMP);
 
-        if(!notApproveStatus.contains(findOrder.getOrderStatus()) && orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
+        if (!notApproveStatus.contains(findOrder.getOrderStatus()) && orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
         //취소상태에서 주문상태를 변경할 수 없다
-        if(findOrder.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
+        if (findOrder.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
@@ -142,7 +145,7 @@ public class OrderService {
     }
 
     // 판매내역 조회 (order-id로 분류)
-    public Page<SaleHistory> findHistories (int page, int size, Long orderId) {
+    public Page<SaleHistory> findHistories(int page, int size, Long orderId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return saleHistoryRepository.findByOrderId(orderId, pageable);
     }
@@ -176,4 +179,16 @@ public class OrderService {
         return saleReport.getInventory(itemCd);
     }
 
+
+    private String createOrderCd() {
+        // 현재 날짜를 "yyyyMMMdd" 형식으로 변환 (MMM은 월의 영어 약자)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMMdd", Locale.ENGLISH);
+        String date = LocalDate.now().format(formatter); // 결과: "2024SEP11" (예시)
+
+        // UUID를 이용하여 유니크한 주문 번호 생성
+        String uniqueId = UUID.randomUUID().toString().substring(0, 8);  // UUID의 일부 사용 (8자리)
+
+        // 주문 코드 형식: "yyyyMMMdd-랜덤UUID8자리"
+        return date + "-" + uniqueId;
+    }
 }

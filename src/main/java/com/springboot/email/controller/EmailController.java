@@ -10,17 +10,37 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/email")
 public class EmailController {
 
     private final EmailService emailService;
     private final MemberService memberService;
-    private final String bypassCode = "1234";
 
     public EmailController(EmailService emailService, MemberService memberService) {
         this.emailService = emailService;
         this.memberService = memberService;
+    }
+
+
+    @PostMapping("/send-verification")
+    public String sendVerificationEmail(@RequestBody EmailRequestDto requestDto) throws MessagingException, IOException {
+//        memberService.verifyExistsEmail(requestDto.getEmail());
+        emailService.sendEmail(requestDto.getEmail());
+        return "Verification email sent.";
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity verifyAuthCode(@RequestBody EmailAuthDto request) {
+        boolean isValid = emailService.verifyAuthCode(request.getEmail(), request.getCode());
+        if (isValid) {
+            return ResponseEntity.ok("인증번호 검증 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증번호 불일치");
+        }
     }
 
 
