@@ -180,15 +180,31 @@ public class OrderService {
     }
 
 
+    // 주문 코드 생성 메서드
     private String createOrderCd() {
-        // 현재 날짜를 "yyyyMMMdd" 형식으로 변환 (MMM은 월의 영어 약자)
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMMdd", Locale.ENGLISH);
-        String date = LocalDate.now().format(formatter); // 결과: "2024SEP11" (예시)
+        // 현재 날짜를 "yyMMMdd" 형식으로 변환 (MMM은 월의 영어 약자)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMMdd", Locale.ENGLISH);
+        String date = LocalDate.now().format(formatter).toUpperCase();
 
-        // UUID를 이용하여 유니크한 주문 번호 생성
-        String uniqueId = UUID.randomUUID().toString().substring(0, 8);  // UUID의 일부 사용 (8자리)
+        // 현재 날짜에 해당하는 마지막 주문 코드를 DB에서 조회
+        Optional<String> lastOrderCdOptional = orderHeadersRepository.findTopByOrderCdStartingWithOrderByOrderCdDesc(date);
 
-        // 주문 코드 형식: "yyyyMMMdd-랜덤UUID8자리"
-        return date + "-" + uniqueId;
+        // 마지막 주문 코드가 없으면 00001부터 시작
+        int newOrderNumber = 1;
+
+        if (lastOrderCdOptional.isPresent()) {
+            String lastOrderCd = lastOrderCdOptional.get();
+            // 마지막 주문 코드에서 번호 부분 추출 (예: "24DEC1100001" -> 00001 추출)
+            String lastOrderNumberStr = lastOrderCd.substring(7); // 날짜(6자리) 이후 숫자(5자리) 부분 추출
+            int lastOrderNumber = Integer.parseInt(lastOrderNumberStr);
+
+            // 새로운 주문 번호는 마지막 번호 + 1
+            newOrderNumber = lastOrderNumber + 1;
+        }
+
+        // 새로운 주문 코드 생성 (예: 24DEC1100002)
+        String newOrderCd = String.format("%s%05d", date, newOrderNumber);
+
+        return newOrderCd;
     }
 }
