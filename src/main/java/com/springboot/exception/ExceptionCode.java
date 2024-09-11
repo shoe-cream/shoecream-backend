@@ -24,7 +24,9 @@ public enum ExceptionCode {
     CONFIRM_TYPE(400, "Please Confirm Type" ),
     UNAUTHORIZED(401, "Unauthorized Access"),
     CANNOT_CHANGE_ORDER_STATUS(403,"not change status" ),
-    ITEM_NOT_FOUND_IN_ORDER(404, "The item does not belong to order");
+    ITEM_NOT_FOUND_IN_ORDER(404, "The item does not belong to order"),
+    OUT_OF_STOCK(409, "The item is out of stock" );
+
     @Getter
     private int status;
     @Getter
