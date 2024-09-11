@@ -66,14 +66,14 @@ public class OrderService {
         boolean isStock = orderHeaders.getOrderItems()
                 .stream()
                 .map(orderItems -> saleReport.calculateInventory(orderItems.getItemCd()) - orderItems.getQty())
-                .allMatch(qty -> qty <= 0);
+                .anyMatch(qty -> qty < 0);
         if (isStock) {
             throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
         }
 
         // 주문 코드 생성 후 설정
-        String orderCd = createOrderCd();
-        orderHeaders.setOrderCd(orderCd);
+//        String orderCd = createOrderCd();
+//        orderHeaders.setOrderCd(orderCd);
 
         // DB에 저장
         OrderHeaders orderHeader = orderHeadersRepository.save(orderHeaders);
@@ -196,7 +196,7 @@ public class OrderService {
         String date = LocalDate.now().format(formatter).toUpperCase();
 
         // 현재 날짜에 해당하는 마지막 주문 코드를 DB에서 조회
-        Optional<String> lastOrderCdOptional = orderHeadersRepository.findTopByOrderCdStartingWithOrderByOrderCdDesc(date);
+        Optional<String> lastOrderCdOptional = orderHeadersRepository.findLatestOrderCd(date);
 
         // 마지막 주문 코드가 없으면 00001부터 시작
         int newOrderNumber = 1;

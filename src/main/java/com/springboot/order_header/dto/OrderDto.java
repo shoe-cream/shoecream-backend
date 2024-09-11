@@ -33,6 +33,8 @@ public class OrderDto {
 
     @Getter
     public static class ItemPatch {
+        private Long orderId;
+        private Long itemId;
         private BigDecimal unitPrice;
         private Long qty;
         private LocalDateTime startDate;

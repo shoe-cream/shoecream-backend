@@ -113,7 +113,11 @@ public class SaleReport {
         Integer totalManufactured = getManufacturedQty(itemCd);
         Integer totalOrdered = getOrderQty(itemCd);
         Integer totalUnused = getUnusedItemQty(itemCd);
-        return totalManufactured - totalOrdered - totalUnused;
+        Integer stock =  totalManufactured - totalOrdered - totalUnused;
+        if (stock < 0) {
+            throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
+        }
+        return stock;
     }
 
     //재고 계산을 위한 공급량
