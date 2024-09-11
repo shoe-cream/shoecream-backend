@@ -97,7 +97,7 @@ public class OrderService {
         if (!findItem.getOrderHeaders().getOrderId().equals(orderId)) {
             throw new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND_IN_ORDER);
         }
-        Optional.ofNullable(orderItems.getQuantity()).ifPresent(findItem::setQuantity);
+        Optional.ofNullable(orderItems.getQty()).ifPresent(findItem::setQty);
         Optional.ofNullable(orderItems.getUnitPrice()).ifPresent(findItem::setUnitPrice);
         Optional.ofNullable(orderItems.getStartDate()).ifPresent(findItem::setStartDate);
         Optional.ofNullable(orderItems.getEndDate()).ifPresent(findItem::setEndDate);
@@ -125,7 +125,7 @@ public class OrderService {
     // order 조회 (조회조건 (조합 가능) : 주문 상태별, buyerCode별, itemCode별, 날짜별로 조회가능(기본값 별도))
     public Page<OrderHeaders> findOrders(int page, int size, OrderDto.OrderSearchRequest orderSearchRequest) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return orderQueryRepository.findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCDAndOrderId(orderSearchRequest, pageable);
+        return orderQueryRepository.findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderId(orderSearchRequest, pageable);
     }
 
     // 판매내역 조회 (order-id로 분류)

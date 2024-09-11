@@ -19,7 +19,7 @@ public interface OrderMapper {
       OrderDto.Response.ResponseBuilder response = OrderDto.Response.builder();
       response.orderId(order.getOrderId());
       response.employeeId(order.getMember().getEmployeeId());
-      response.buyerCD(order.getBuyer().getBuyerCd());
+      response.buyerCd(order.getBuyer().getBuyerCd());
       response.buyerNm(order.getBuyer().getBuyerNm());
       response.createdAt(order.getCreatedAt());
       response.requestDate(order.getRequestDate());
