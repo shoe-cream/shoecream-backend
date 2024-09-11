@@ -4,6 +4,8 @@ import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
 import com.springboot.item.repository.ItemRepository;
+import com.springboot.item.service.ItemService;
+import com.springboot.manufacture.service.ManufactureService;
 import com.springboot.manufacture_item.entity.ItemManufacture;
 import com.springboot.manufacture_item.repository.ManufactureItemRepository;
 import com.springboot.manufacture.entity.Manufacture;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,27 +34,24 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ManufactureItemService {
     private final ManufactureItemRepository itemMfRepository;
-    private final ItemRepository itemRepository;
-    private final ManufactureRepository manufactureRepository;
-    private final ManufactureHistoryRepository manuFactureHistoryRepository;
+    private final ItemService itemService;
+    private final ManufactureService manufactureService;
+    private final ManufactureHistoryRepository manufactureHistoryRepository;
     private final ManufactureHistoryMapper manufactureHistoryMapper;
     private final MemberService memberService;
     private final MemberRepository memberRepository;
 
-    public ItemManufacture createItemMf(ItemManufacture itemManufacture, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
-        Member member = verifiedMember(authentication);
+    public void createItemMf(List<ItemManufacture> itemManufactures, Authentication authentication) {
+        Member member = extractMemberFromAuthentication(authentication);
 
-        Item item = itemRepository.findById(itemManufacture.getItem().getItemId())
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
-        Manufacture manufacture = manufactureRepository.findById(itemManufacture.getManufacture().getMfId())
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
-        itemManufacture.addItem(item);
-        itemManufacture.addMf(manufacture);
-
-        ItemManufacture saveItemManufacture = itemMfRepository.save(itemManufacture);
-        manuFactureHistoryRepository.save(manufactureHistoryMapper.manufactureHistoryToItemManufacture(saveItemManufacture, member));
-        return saveItemManufacture;
+        itemManufactures.stream().forEach(itemManufacture -> {
+            Item item = itemService.findVerifiedItemId(itemManufacture.getItem().getItemId());
+            Manufacture manufacture = manufactureService.verifyManufacture(itemManufacture.getManufacture().getMfId());
+            itemManufacture.addItem(item);
+            itemManufacture.addMf(manufacture);
+            ItemManufacture saveItemManufacture = itemMfRepository.save(itemManufacture);
+            manufactureHistoryRepository.save(manufactureHistoryMapper.manufactureHistoryToItemManufacture(saveItemManufacture, member));
+        });
     }
 
     public ItemManufacture findItemMf(long mfItemId, Authentication authentication) {
@@ -80,7 +80,7 @@ public class ManufactureItemService {
     }
 
     public ItemManufacture updateItemMf(ItemManufacture itemManufacture, Authentication authentication){
-        extractMemberFromAuthentication(authentication);
+        Member member = extractMemberFromAuthentication(authentication);
 
         ItemManufacture findItemMf = itemMfRepository.findById(itemManufacture.getMfItemId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
@@ -92,7 +92,9 @@ public class ManufactureItemService {
 
         findItemMf.setModifiedAt(LocalDateTime.now());
 
-        return itemMfRepository.save(findItemMf);
+        ItemManufacture savedItemManufacture = itemMfRepository.save(findItemMf);
+        manufactureHistoryRepository.save(manufactureHistoryMapper.manufactureHistoryToItemManufacture(savedItemManufacture, member));
+        return savedItemManufacture;
     }
 
     private ItemManufacture verifyItemMf(long mfItemId) {
@@ -102,22 +104,16 @@ public class ManufactureItemService {
         return itemManufacture;
     }
 
-    private Member verifiedMember(Authentication authentication) {
-        String user = (String) authentication.getPrincipal();
-        return memberService.findVerifiedEmployee(user);
-    }
-
     public Page<ManuFactureHistory> findHistories (int page, int size, Long mfItemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return manuFactureHistoryRepository.findByMfItemId(mfItemId, pageable);
+        return manufactureHistoryRepository.findByMfItemId(mfItemId, pageable);
     }
 
     private Member extractMemberFromAuthentication(Authentication authentication) {
         String username = (String) authentication.getPrincipal();
 
-        return memberRepository.findByEmployeeId(username)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        return memberService.findVerifiedEmployee(username);
     }
 }

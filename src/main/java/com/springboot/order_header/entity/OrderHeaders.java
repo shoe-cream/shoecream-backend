@@ -25,7 +25,7 @@ public class OrderHeaders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
-    @Column(updatable = false)
+    @Column(unique = true, updatable = false)
     private String orderCd;
 
     @Column(nullable = false)

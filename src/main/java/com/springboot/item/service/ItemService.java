@@ -26,7 +26,11 @@ public class ItemService {
 
     public void createItem(List<Item> items, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
-        items.stream().forEach(item -> itemRepository.save(item));
+        items.stream().forEach(item -> {
+            verifiedExistsItemCd(item.getItemCd());
+            verifiedExists(item.getItemNm());
+            itemRepository.save(item);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -37,32 +41,35 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Item> findItems(int page, int size, Authentication authentication) {
+    public Page<Item> findItems(int page, int size, String criteria, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("itemId").descending());
+        Pageable pageable = createPageable(page, size, criteria);
 
         Page<Item> items = itemRepository.findByItemStatusNot(Item.ItemStatus.NOT_FOR_SALE, pageable);
         return items;
     }
 
-    public Item updateItem(Item item, Authentication authentication) {
+    private Pageable createPageable(int page, int size, String sortCriteria) {
+        Sort sort = Sort.by(sortCriteria).descending();
+
+        return PageRequest.of(page, size, sort);
+    }
+
+    public Item updateItem(Item existingItem, Item patch, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Item findItem = findVerifiedItem(item.getItemCd());
+        Optional.ofNullable(patch.getItemNm())
+                .ifPresent(itemNm -> existingItem.setItemNm(itemNm));
+        Optional.ofNullable(patch.getUnit())
+                .ifPresent(unit -> existingItem.setUnit(unit));
+        Optional.ofNullable(patch.getUnitPrice())
+                .ifPresent(unitPrice -> existingItem.setUnitPrice(unitPrice));
+        Optional.ofNullable(patch.getItemStatus())
+                .ifPresent(itemStatus -> existingItem.setItemStatus(itemStatus));
 
-        Optional.ofNullable(item.getItemNm())
-                .ifPresent(itemNm -> findItem.setItemNm(itemNm));
-        Optional.ofNullable(item.getUnit())
-                .ifPresent(unit -> findItem.setUnit(unit));
-        Optional.ofNullable(item.getUnitPrice())
-                .ifPresent(unitPrice -> findItem.setUnitPrice(unitPrice));
-        Optional.ofNullable(item.getItemStatus())
-                .ifPresent(itemStatus -> findItem.setItemStatus(itemStatus));
-
-        findItem.setModifiedAt(LocalDateTime.now());
-
-        return itemRepository.save(findItem);
+        existingItem.setModifiedAt(LocalDateTime.now());
+        return itemRepository.save(existingItem);
     }
 
     public void deleteItem(long itemId, Authentication authentication) {
@@ -78,7 +85,7 @@ public class ItemService {
 
     public void deleteItems(List<Long> itemIds) {
         // 각 ID에 대해 아이템 조회 후 상태 변경 (삭제 처리)
-        List<Item> items = itemRepository.findByItemIdIn(itemIds);
+        List<Item> items = findVerifiedItems(itemIds);
 
         for (Item item : items) {
             item.setItemStatus(Item.ItemStatus.NOT_FOR_SALE);  // 상태를 판매중지로 변경
@@ -97,5 +104,29 @@ public class ItemService {
 
         return memberRepository.findByEmployeeId(username)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+    }
+
+    // item code 중복 검사
+    private void verifiedExistsItemCd(String itemCd) {
+        if(itemRepository.existsByItemCd(itemCd)) {
+            throw new BusinessLogicException(ExceptionCode.ITEM_CD_ALREADY_EXISTS);
+        }
+    }
+
+    // item name 중복 검사
+    private void verifiedExists(String itemNm) {
+        if(itemRepository.existsByItemNm(itemNm)) {
+            throw new BusinessLogicException(ExceptionCode.ITEM_NAME_ALREADY_EXISTS);
+        }
+    }
+
+    public Item findVerifiedItemId(Long itemId) {
+        Optional<Item> item = itemRepository.findByItemId(itemId);
+
+        return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+    }
+
+    public List<Item> findVerifiedItems(List<Long> itemIds) {
+        return itemRepository.findByItemIdIn(itemIds);
     }
 }

@@ -14,7 +14,7 @@ public enum ExceptionCode {
     AT_LEAST_ONE_CONDITION(404, "적어도 하나의 검색 조건을 입력해야 합니다."),
     BUYERITEM_NOT_FOUND(409, "바이어아이템을 찾을수 없습니다."),
     MANUFACTURE_NOT_FOUND(409, "제조사를 찾을수 없습니다"),
-    MANUFACTURE_EXIST(409, "이미 등록된 제조사입니다."),
+    MANUFACTURE_CODE_EXIST(409, "MF Code Already Exists"),
     ORDER_NOT_FOUND(404,"Order Not Found"),
     ITEM_NOT_FOUND(404,"Item Not Found" ),
     MEMBER_EXISTS(409,"Member Already Exists" ),
@@ -22,7 +22,11 @@ public enum ExceptionCode {
     UNAUTHORIZED(401, "Unauthorized Access"),
     CANNOT_CHANGE_ORDER_STATUS(403,"not change status" ),
     ITEM_NOT_FOUND_IN_ORDER(404, "The item does not belong to order"),
-    OUT_OF_STOCK(409, "The item is out of stock" );
+    OUT_OF_STOCK(409, "The item is out of stock" ),
+    ITEM_CD_ALREADY_EXISTS(409, "Item Code Already Exists" ),
+    ITEM_NAME_ALREADY_EXISTS(409,"Item Name Already Exists" ),
+    MANUFACTURE_NAME_EXIST(409,"MF Name Already Exists" ),
+    INVALID_SORT_FIELD(400,"Invalid Sort Field" );
 
     @Getter
     private int status;

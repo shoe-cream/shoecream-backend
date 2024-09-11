@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -33,7 +34,6 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
-    private final static String ORDER_DEFAULT_URL = "/orders";
     private final BuyerService buyerService;
     private final SaleHistoryMapper saleHistoryMapper;
 
@@ -46,44 +46,50 @@ public class OrderController {
 
     // 주문 등록
     @PostMapping
-    public ResponseEntity postOrder(@Valid @RequestBody OrderDto.Post orderPostDto, Authentication authentication) {
+    public ResponseEntity postOrder(@Valid @RequestBody List<OrderDto.Post> orderPostDtos, Authentication authentication) {
+        for(OrderDto.Post post : orderPostDtos) {
+            OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(post);
 
-        OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(orderPostDto);
-        Buyer buyer = buyerService.findVerifiedBuyer(orderPostDto.getBuyerCd());
-        orderHeaders.setBuyer(buyer);
+            //buyer 저장
+            Buyer buyer = buyerService.findVerifiedBuyer(post.getBuyerCd());
+            orderHeaders.setBuyer(buyer);
 
-        List<OrderItems> orderItemsList = orderMapper.orderItemDtosToOrderItems(orderPostDto.getOrderItems());
-        for (OrderItems orderItem : orderItemsList) {
-            orderItem.setOrderHeaders(orderHeaders);
+            //item 저장
+            List<OrderItems> orderItemsList = orderMapper.orderItemDtosToOrderItems(post.getOrderItems());
+            for (OrderItems orderItem : orderItemsList) {
+                orderItem.setOrderHeaders(orderHeaders);
+            }
+
+            orderHeaders.setOrderItems(orderItemsList);
+            orderService.createOrder(orderHeaders, authentication);
         }
-        orderHeaders.setOrderItems(orderItemsList);
-
-        OrderHeaders createOrder = orderService.createOrder(orderHeaders, authentication);
-
-        URI location = UriCreator.createUri(ORDER_DEFAULT_URL, createOrder.getOrderId());
-        return ResponseEntity.created(location).build();
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
     //주문 (order-header) 수정
-    @PatchMapping("/{order-id}")
-    public ResponseEntity patchOrder(@Positive @PathVariable("order-id") Long orderId,
-                                     @Valid @RequestBody OrderDto.OrderPatch orderPatchDto , Authentication authentication) {
-        orderPatchDto.setOrderId(orderId);
-        OrderHeaders orderHeaders = orderService.updateOrder(orderMapper.orderPatchDtoToOrder(orderPatchDto), authentication);
-
-        return new ResponseEntity(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)), HttpStatus.OK);
+    @PatchMapping
+    public ResponseEntity patchOrder(@Valid @RequestBody List<OrderDto.OrderPatch> orderPatchDtos , Authentication authentication) {
+        List<OrderHeaders> orderHeaderList = new ArrayList<>();
+        for(OrderDto.OrderPatch orderPatchDto : orderPatchDtos) {
+            OrderHeaders orderHeaders = orderService.updateOrder(orderMapper.orderPatchDtoToOrder(orderPatchDto), authentication);
+            orderHeaderList.add(orderHeaders);
+        }
+        return new ResponseEntity(new SingleResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderHeaderList)), HttpStatus.OK);
     }
 
     //주문 (order-item) 수정
-    @PatchMapping("/{order-id}/items/{item-id}")
-    public ResponseEntity patchOrderItem(@Positive @PathVariable("order-id") Long orderId,
-                                         @Positive @PathVariable("item-id") Long itemId,
-                                     @Valid @RequestBody OrderDto.ItemPatch itemPatch , Authentication authentication) {
+    @PatchMapping("/items")
+    public ResponseEntity patchOrderItem( @Valid @RequestBody List<OrderDto.ItemPatch> itemPatches , Authentication authentication) {
 
-        OrderItems item = orderService.updateOrderItem(orderId, itemId, orderMapper.itemPatchDtoToOrderItem(itemPatch), authentication);
-        OrderHeaders orderHeaders = orderService.findVerifiedOrder(orderId);
+        List<OrderHeaders> orderHeaderList = new ArrayList<>();
 
-        return new ResponseEntity(orderMapper.orderToOrderResponseDto(orderHeaders), HttpStatus.OK);
+        for(OrderDto.ItemPatch itemPatch : itemPatches) {
+            orderService.updateOrderItem(itemPatch.getOrderId(), itemPatch.getItemId(), orderMapper.itemPatchDtoToOrderItem(itemPatch), authentication);
+            OrderHeaders orderHeaders = orderService.findVerifiedOrder(itemPatch.getOrderId());
+            orderHeaderList.add(orderHeaders);
+        }
+
+        return new ResponseEntity(orderMapper.ordersToOrderResponseDtos(orderHeaderList), HttpStatus.OK);
     }
 
     //주문 - 팀장 승인

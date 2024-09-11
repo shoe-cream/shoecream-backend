@@ -12,6 +12,6 @@ public interface OrderHeadersRepository extends JpaRepository<OrderHeaders, Long
 
     boolean existsByOrderCd(String orderCd);
 
-    @Query("SELECT o.orderCd FROM OrderHeaders o WHERE o.orderCd LIKE :date% ORDER BY o.orderCd DESC")
-    Optional<String> findTopByOrderCdStartingWithOrderByOrderCdDesc(@Param("date") String date);
+    @Query("SELECT oh.orderCd FROM OrderHeaders oh WHERE oh.orderCd LIKE :orderCdPrefix% ORDER BY oh.orderCd DESC")
+    Optional<String> findLatestOrderCd(@Param("orderCdPrefix") String orderCdPrefix);
 }
