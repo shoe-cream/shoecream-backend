@@ -33,7 +33,6 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
-    private final static String ORDER_DEFAULT_URL = "/orders";
     private final BuyerService buyerService;
     private final SaleHistoryMapper saleHistoryMapper;
 
@@ -46,22 +45,24 @@ public class OrderController {
 
     // 주문 등록
     @PostMapping
-    public ResponseEntity postOrder(@Valid @RequestBody OrderDto.Post orderPostDto, Authentication authentication) {
+    public ResponseEntity postOrder(@Valid @RequestBody List<OrderDto.Post> orderPostDtos, Authentication authentication) {
+        for(OrderDto.Post post : orderPostDtos) {
+            OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(post);
 
-        OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(orderPostDto);
-        Buyer buyer = buyerService.findVerifiedBuyer(orderPostDto.getBuyerCd());
-        orderHeaders.setBuyer(buyer);
+            //buyer set
+            Buyer buyer = buyerService.findVerifiedBuyer(post.getBuyerCd());
+            orderHeaders.setBuyer(buyer);
 
-        List<OrderItems> orderItemsList = orderMapper.orderItemDtosToOrderItems(orderPostDto.getOrderItems());
-        for (OrderItems orderItem : orderItemsList) {
-            orderItem.setOrderHeaders(orderHeaders);
+            //item set
+            List<OrderItems> orderItemsList = orderMapper.orderItemDtosToOrderItems(post.getOrderItems());
+            for (OrderItems orderItem : orderItemsList) {
+                orderItem.setOrderHeaders(orderHeaders);
+            }
+
+            orderHeaders.setOrderItems(orderItemsList);
+            orderService.createOrder(orderHeaders, authentication);
         }
-        orderHeaders.setOrderItems(orderItemsList);
-
-        OrderHeaders createOrder = orderService.createOrder(orderHeaders, authentication);
-
-        URI location = UriCreator.createUri(ORDER_DEFAULT_URL, createOrder.getOrderId());
-        return ResponseEntity.created(location).build();
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
     //주문 (order-header) 수정

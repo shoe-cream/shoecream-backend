@@ -1,5 +1,7 @@
 package com.springboot.order_header.service;
 
+import com.springboot.buyer.entity.Buyer;
+import com.springboot.buyer.service.BuyerService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
@@ -20,10 +22,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -35,7 +39,14 @@ public class OrderService {
     private final MemberService memberService;
     private final SaleReport saleReport;
 
-    public OrderService(OrderHeadersRepository orderHeadersRepository, OrderItemsRepository orderItemsRepository, OrderQueryRepositoryCustom orderQueryRepository, SaleHistoryRepository saleHistoryRepository, SaleHistoryMapper saleHistoryMapper, MemberService memberService, SaleReport saleReport) {
+    public OrderService(OrderHeadersRepository orderHeadersRepository,
+                        OrderItemsRepository orderItemsRepository,
+                        OrderQueryRepositoryCustom orderQueryRepository,
+                        SaleHistoryRepository saleHistoryRepository,
+                        SaleHistoryMapper saleHistoryMapper,
+                        MemberService memberService,
+                        SaleReport saleReport) {
+
         this.orderHeadersRepository = orderHeadersRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.orderQueryRepository = orderQueryRepository;
@@ -45,15 +56,11 @@ public class OrderService {
         this.saleReport = saleReport;
     }
 
-    // 주문 등록
-    public OrderHeaders createOrder(OrderHeaders orderHeaders, Authentication authentication) {
-        //주문 담당자
+    @Transactional
+    public void createOrder(OrderHeaders orderHeaders, Authentication authentication) {
+        //담당자
         Member member = verifiedMember(authentication);
         orderHeaders.setMember(member);
-
-        // 주문 코드 생성 후 설정
-        String orderCd = createOrderCd();
-        orderHeaders.setOrderCd(orderCd);
 
         // 재고량이 없을 때 예외처리
         boolean isStock = orderHeaders.getOrderItems()
@@ -64,11 +71,13 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
         }
 
+        // 주문 코드 생성 후 설정
+        String orderCd = createOrderCd();
+        orderHeaders.setOrderCd(orderCd);
+
         // DB에 저장
         OrderHeaders orderHeader = orderHeadersRepository.save(orderHeaders);
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeader, member));
-
-        return orderHeader;
     }
 
     // OrderHeader 수정 : 주문에 대한 상태랑 납기일 변경
