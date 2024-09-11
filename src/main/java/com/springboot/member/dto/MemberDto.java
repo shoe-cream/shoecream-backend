@@ -99,7 +99,8 @@ public class MemberDto {
     @Getter
     @AllArgsConstructor
     public static class Check {
-        private boolean isAvailable;
+        private boolean isAvailable; // 중복 여부
+        private String message;  // 메시지 필드 추가
     }
 
 
