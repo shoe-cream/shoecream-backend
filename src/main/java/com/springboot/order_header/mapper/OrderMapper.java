@@ -3,10 +3,8 @@ package com.springboot.order_header.mapper;
 import com.springboot.order_header.dto.OrderDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_item.entity.OrderItems;
-import com.springboot.sale_history.entity.SaleHistory;
 import org.mapstruct.Mapper;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -14,7 +12,9 @@ public interface OrderMapper {
    OrderHeaders orderPostDtoToOrder(OrderDto.Post orderPostDto);
    List<OrderHeaders> postDtosToOrders(List<OrderDto.Post> orderPostDtos);
    OrderHeaders orderPatchDtoToOrder(OrderDto.OrderPatch orderPatchDto);
+   List<OrderHeaders> patchDtosToOrders(List<OrderDto.OrderPatch> orderPatchDtos);
    OrderItems itemPatchDtoToOrderItem(OrderDto.ItemPatch itemPatchDto);
+   List<OrderItems> itemPatchesToOrderItems(List<OrderDto.ItemPatch> itemPatchDtos);
 
    default OrderDto.Response orderToOrderResponseDto(OrderHeaders order) {
       OrderDto.Response.ResponseBuilder response = OrderDto.Response.builder();

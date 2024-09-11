@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -49,11 +50,11 @@ public class OrderController {
         for(OrderDto.Post post : orderPostDtos) {
             OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(post);
 
-            //buyer set
+            //buyer 저장
             Buyer buyer = buyerService.findVerifiedBuyer(post.getBuyerCd());
             orderHeaders.setBuyer(buyer);
 
-            //item set
+            //item 저장
             List<OrderItems> orderItemsList = orderMapper.orderItemDtosToOrderItems(post.getOrderItems());
             for (OrderItems orderItem : orderItemsList) {
                 orderItem.setOrderHeaders(orderHeaders);
@@ -66,25 +67,29 @@ public class OrderController {
     }
 
     //주문 (order-header) 수정
-    @PatchMapping("/{order-id}")
-    public ResponseEntity patchOrder(@Positive @PathVariable("order-id") Long orderId,
-                                     @Valid @RequestBody OrderDto.OrderPatch orderPatchDto , Authentication authentication) {
-        orderPatchDto.setOrderId(orderId);
-        OrderHeaders orderHeaders = orderService.updateOrder(orderMapper.orderPatchDtoToOrder(orderPatchDto), authentication);
-
-        return new ResponseEntity(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)), HttpStatus.OK);
+    @PatchMapping
+    public ResponseEntity patchOrder(@Valid @RequestBody List<OrderDto.OrderPatch> orderPatchDtos , Authentication authentication) {
+        List<OrderHeaders> orderHeaderList = new ArrayList<>();
+        for(OrderDto.OrderPatch orderPatchDto : orderPatchDtos) {
+            OrderHeaders orderHeaders = orderService.updateOrder(orderMapper.orderPatchDtoToOrder(orderPatchDto), authentication);
+            orderHeaderList.add(orderHeaders);
+        }
+        return new ResponseEntity(new SingleResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderHeaderList)), HttpStatus.OK);
     }
 
     //주문 (order-item) 수정
-    @PatchMapping("/{order-id}/items/{item-id}")
-    public ResponseEntity patchOrderItem(@Positive @PathVariable("order-id") Long orderId,
-                                         @Positive @PathVariable("item-id") Long itemId,
-                                     @Valid @RequestBody OrderDto.ItemPatch itemPatch , Authentication authentication) {
+    @PatchMapping("/items")
+    public ResponseEntity patchOrderItem( @Valid @RequestBody List<OrderDto.ItemPatch> itemPatches , Authentication authentication) {
 
-        OrderItems item = orderService.updateOrderItem(orderId, itemId, orderMapper.itemPatchDtoToOrderItem(itemPatch), authentication);
-        OrderHeaders orderHeaders = orderService.findVerifiedOrder(orderId);
+        List<OrderHeaders> orderHeaderList = new ArrayList<>();
 
-        return new ResponseEntity(orderMapper.orderToOrderResponseDto(orderHeaders), HttpStatus.OK);
+        for(OrderDto.ItemPatch itemPatch : itemPatches) {
+            orderService.updateOrderItem(itemPatch.getOrderId(), itemPatch.getItemId(), orderMapper.itemPatchDtoToOrderItem(itemPatch), authentication);
+            OrderHeaders orderHeaders = orderService.findVerifiedOrder(itemPatch.getOrderId());
+            orderHeaderList.add(orderHeaders);
+        }
+
+        return new ResponseEntity(orderMapper.ordersToOrderResponseDtos(orderHeaderList), HttpStatus.OK);
     }
 
     //주문 - 팀장 승인
