@@ -5,7 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ManufactureRepository extends JpaRepository<Manufacture, Long> {
+import java.util.Optional;
 
+public interface ManufactureRepository extends JpaRepository<Manufacture, Long> {
+    boolean existsByMfCd(String mfCd);
+    boolean existsByMfNm(String mfNm);
+    boolean existsByEmail(String email);
+    Optional<Manufacture> findByMfCd(String mfCd);
 }
 

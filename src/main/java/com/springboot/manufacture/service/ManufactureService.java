@@ -3,7 +3,6 @@ package com.springboot.manufacture.service;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.manufacture.entity.Manufacture;
-import com.springboot.manufacture.mapper.ManufactureMapper;
 import com.springboot.manufacture.repository.ManufactureRepository;
 import com.springboot.manufacture_history.entity.ManuFactureHistory;
 import com.springboot.manufacture_history.repository.ManufactureHistoryRepository;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,10 +29,15 @@ public class ManufactureService {
     private final MemberRepository memberRepository;
     private final ManufactureHistoryRepository manufactureHistoryRepository;
 
-    public void createManufacture(Manufacture manufacture, Authentication authentication) {
+    public void createManufacture(List<Manufacture> manufactures, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
-        verifyManufactureExists(manufacture.getMfId());
-        manufactureRepository.save(manufacture);
+
+        manufactures.stream().forEach(manufacture -> {
+            verifyManufactureCdExists(manufacture.getMfCd());
+            verifyManufactureNmExists(manufacture.getMfCd());
+            verifyExistsEmail(manufacture.getEmail());
+            manufactureRepository.save(manufacture);
+        });
     }
 
     public Manufacture getManufacture(long mfId, Authentication authentication) {
@@ -88,17 +93,24 @@ public class ManufactureService {
         manufactureRepository.save(manufacture);
     }
 
-    private Manufacture verifyManufacture(long mfId) {
+    public Manufacture verifyManufacture(long mfId) {
         Manufacture manufacture = manufactureRepository.findById(mfId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
 
         return manufacture;
     }
 
-    private void verifyManufactureExists(long mfId) {
-        Optional<Manufacture> optionalManufacture = manufactureRepository.findById(mfId);
-        if(optionalManufacture.isPresent()) {
-            throw new BusinessLogicException(ExceptionCode.MANUFACTURE_EXIST);
+    //MF Code 중복 검사
+    private void verifyManufactureCdExists(String mfCd) {
+        if(manufactureRepository.existsByMfCd(mfCd)) {
+            throw new BusinessLogicException(ExceptionCode.MANUFACTURE_CODE_EXIST);
+        }
+    }
+
+    //MF name 중복 검사
+    private void verifyManufactureNmExists(String mfNm) {
+        if(manufactureRepository.existsByMfNm(mfNm)) {
+            throw new BusinessLogicException(ExceptionCode.MANUFACTURE_NAME_EXIST);
         }
     }
 
@@ -114,5 +126,12 @@ public class ManufactureService {
 
         return memberRepository.findByEmployeeId(username)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+    }
+
+    //이메일 중복 검사
+    private void verifyExistsEmail(String email) {
+        if (manufactureRepository.existsByEmail(email)) {
+            throw new BusinessLogicException(ExceptionCode.EMAIL_ALREADY_EXISTS);
+        }
     }
 }
