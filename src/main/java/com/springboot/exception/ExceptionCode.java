@@ -26,7 +26,7 @@ public enum ExceptionCode {
     ITEM_CD_ALREADY_EXISTS(409, "Item Code Already Exists" ),
     ITEM_NAME_ALREADY_EXISTS(409,"Item Name Already Exists" ),
     MANUFACTURE_NAME_EXIST(409,"MF Name Already Exists" ),
-    INVALID_SORT_FIELD(400,"Invalid Sort Field" );
+    INVALID_SORT_FIELD(400,"Invalid Sort Field" ), EMAIL_ALREADY_EXISTS(402,"" );
 
     @Getter
     private int status;
