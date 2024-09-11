@@ -1,11 +1,13 @@
 package com.springboot.item.dto;
 
 import com.springboot.item.entity.Item;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,8 +40,10 @@ public class Dto {
 
     @Getter
     @Setter
-    @NoArgsConstructor
+    @Builder
     public static class ItemPatchDto {
+        @NotNull(message = "ItemId는 필수입니다.")
+        private Long itemId;
         private String itemNm;
         private String unit;
         private BigDecimal unitPrice;
