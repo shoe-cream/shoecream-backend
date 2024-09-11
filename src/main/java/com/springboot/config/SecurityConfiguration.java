@@ -60,32 +60,34 @@ public class SecurityConfiguration {
                 .apply(new CustomFilterConfigurer())
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
+                        .antMatchers(HttpMethod.PATCH, "/orders/*/approve").hasRole("ADMIN")
+                        .antMatchers(HttpMethod.PATCH,"/orders/*/reject").hasRole("ADMIN")
                         .antMatchers(HttpMethod.POST, "/members").hasRole("ADMIN")
                         .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .antMatchers(HttpMethod.PATCH, "/members/**").hasRole("USER")
-                        .antMatchers(HttpMethod.GET, "/members?**").permitAll()
                         .antMatchers(HttpMethod.GET, "/members/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.DELETE, "/members/**").hasRole("USER")
                         .antMatchers(HttpMethod.POST, "/auth/logout").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST, "/orders").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.PATCH, "/orders").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.PATCH, "/orders/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/orders/*/items/**").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.GET, "orders/*/histories").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.GET, "orders/inventories").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.GET, "orders/reports").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.PATCH, "/orders/*/approve").hasRole("ADMIN")
-                        .antMatchers(HttpMethod.PATCH,"/orders/*/reject").hasRole("ADMIN")
+                        .antMatchers(HttpMethod.GET, "/orders/*/histories").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/orders/inventories").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/orders/reports").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.POST,"/items").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.POST,"/buyer-items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST, "/buyer").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/buyer").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/buyer").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.DELETE, "/buyer").hasAnyRole("USER", "ADMIN")
                         .anyRequest().permitAll()
                 );
-                //.oauth2Login(withDefaults());
+        //.oauth2Login(withDefaults());
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();

@@ -32,6 +32,7 @@ public interface BuyerItemMapper {
 
         return buyerItem;
     }
+    List<BuyerItem> postDtosToBuyerItems(List<Dto.BuyerItemPostDto> postDtos);
 
     BuyerItem buyerItemPatchDtoToBuyer(Dto.BuyerItemPatchDto patchDto);
 

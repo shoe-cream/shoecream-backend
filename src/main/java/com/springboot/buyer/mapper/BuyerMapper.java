@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface BuyerMapper {
     Buyer buyerPostDtoToBuyer(Dto.BuyerPostDto postDto);
+    List<Buyer> postDtosToBuyerItems(List<Dto.BuyerPostDto> postDtoList);
+
     Buyer buyerPatchDtoToBuyer(Dto.BuyerPatchDto patchDto);
     Dto.BuyerResponse buyerToBuyerResponseDto(Buyer buyer);
     List<Dto.BuyerResponse> buyerToBuyerResponseDtos(List<Buyer> buyers);

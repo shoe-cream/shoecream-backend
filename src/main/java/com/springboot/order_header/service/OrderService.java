@@ -88,7 +88,7 @@ public class OrderService {
         }
 
         //취소상태에서 주문상태를 변경할 수 없다
-        if(orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
+        if(findOrder.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 

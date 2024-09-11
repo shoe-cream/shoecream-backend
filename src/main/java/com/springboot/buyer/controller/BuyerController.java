@@ -32,8 +32,8 @@ public class BuyerController {
     private final BuyerItemMapper buyerItemMapper;
 
     @PostMapping
-    public ResponseEntity postBuyer(@Valid @RequestBody Dto.BuyerPostDto postDto, Authentication authentication) {
-        buyerService.createBuyer(buyerMapper.buyerPostDtoToBuyer(postDto), authentication);
+    public ResponseEntity postBuyer(@Valid @RequestBody List<Dto.BuyerPostDto> postDtos, Authentication authentication) {
+        buyerService.createBuyer(buyerMapper.postDtosToBuyerItems(postDtos), authentication);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

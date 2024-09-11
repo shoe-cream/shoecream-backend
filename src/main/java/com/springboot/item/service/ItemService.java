@@ -24,10 +24,9 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
 
-    public void createItem(Item item, Authentication authentication) {
+    public void createItem(List<Item> items, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
-
-        itemRepository.save(item);
+        items.stream().forEach(item -> itemRepository.save(item));
     }
 
     @Transactional(readOnly = true)

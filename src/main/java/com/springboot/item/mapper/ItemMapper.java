@@ -9,6 +9,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
     Item itemPostDtoToItem(Dto.ItemPostDto postDto);
+    List<Item> itemPostDtosToItems(List<Dto.ItemPostDto> postDtos);
     Item itemPatchToItem(Dto.ItemPatchDto patchDto);
     Dto.ItemResponseDto itemToResponseDto(Item item);
     List<Dto.ItemResponseDto> itemToResponseDtos(List<Item> items);
