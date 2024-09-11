@@ -2,10 +2,8 @@ package com.springboot.order_header.controller;
 
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.service.BuyerService;
-import com.springboot.member.entity.Member;
-import com.springboot.member.service.MemberService;
 import com.springboot.order_header.dto.OrderDto;
-import com.springboot.order_header.dto.SaleResponseDto;
+import com.springboot.order_header.dto.OrderReportDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.mapper.OrderMapper;
 import com.springboot.order_header.service.OrderService;
@@ -46,6 +44,7 @@ public class OrderController {
         this.saleHistoryMapper = saleHistoryMapper;
     }
 
+    // 주문 등록
     @PostMapping
     public ResponseEntity postOrder(@Valid @RequestBody OrderDto.Post orderPostDto, Authentication authentication) {
 
@@ -65,7 +64,7 @@ public class OrderController {
         return ResponseEntity.created(location).build();
     }
 
-    //order-header 수정
+    //주문 (order-header) 수정
     @PatchMapping("/{order-id}")
     public ResponseEntity patchOrder(@Positive @PathVariable("order-id") Long orderId,
                                      @Valid @RequestBody OrderDto.OrderPatch orderPatchDto , Authentication authentication) {
@@ -75,7 +74,7 @@ public class OrderController {
         return new ResponseEntity(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)), HttpStatus.OK);
     }
 
-    //order-item 수정
+    //주문 (order-item) 수정
     @PatchMapping("/{order-id}/items/{item-id}")
     public ResponseEntity patchOrderItem(@Positive @PathVariable("order-id") Long orderId,
                                          @Positive @PathVariable("item-id") Long itemId,
@@ -87,7 +86,7 @@ public class OrderController {
         return new ResponseEntity(orderMapper.orderToOrderResponseDto(orderHeaders), HttpStatus.OK);
     }
 
-    //팀장 승인
+    //주문 - 팀장 승인
     @PatchMapping("/{order-id}/approve")
     public ResponseEntity approveStatus(@Positive @PathVariable("order-id") Long orderId, Authentication authentication) {
 
@@ -96,7 +95,7 @@ public class OrderController {
         return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
     }
 
-    //팀장 반려
+    //주문 - 팀장 반려
     @PatchMapping("/{order-id}/reject")
     public ResponseEntity rejectStatus(@Positive @PathVariable("order-id") Long orderId, Authentication authentication) {
         //팀장권한확인
@@ -131,13 +130,6 @@ public class OrderController {
         return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);
     }
 
-/*    @DeleteMapping("/{order-id}")
-    public ResponseEntity deleteOrder(@Positive @PathVariable("order-id") Long orderId) {
-        //취소될때 갯수 취소.
-        orderService.cancleOrder(orderId);
-        return ResponseEntity.noContent().build();
-    }*/
-
     //SaleHistory 조회
     @GetMapping("/{order-id}/histories")
     public ResponseEntity getOrderHistory(@Positive @PathVariable("order-id") Long orderId,
@@ -149,16 +141,23 @@ public class OrderController {
         return new ResponseEntity<>(new MultiResponseDto<>(saleHistoryMapper.saleHistoriesToSaleHistoriesResponseDtos(historyLists),historyPages), HttpStatus.OK);
     }
 
-    @GetMapping("/report")
+    @GetMapping("/reports")
     public ResponseEntity totalSales (@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                       @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-        List<SaleResponseDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
+
+        if(startDate == null) {
+            startDate= LocalDate.of(1900, 1, 1);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.of(9999, 12, 31);
+        }
+        List<OrderReportDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
-    @GetMapping("/inventory")
+    @GetMapping("/inventories")
     public ResponseEntity getStock (@RequestParam String itemCd) {
-        SaleResponseDto.InventoryDto dto = orderService.getStock(itemCd);
+        OrderReportDto.InventoryDto dto = orderService.getStock(itemCd);
         return new ResponseEntity(dto, HttpStatus.OK);
     }
 }

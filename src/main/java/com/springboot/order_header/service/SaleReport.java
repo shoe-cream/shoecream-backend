@@ -6,7 +6,7 @@ import com.springboot.item.entity.Item;
 import com.springboot.item.repository.ItemRepository;
 import com.springboot.manufacture_history.repository.ManufactureHistoryRepository;
 import com.springboot.manufacture_item.repository.ManufactureItemRepository;
-import com.springboot.order_header.dto.SaleResponseDto;
+import com.springboot.order_header.dto.OrderReportDto;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
 import org.springframework.stereotype.Component;
@@ -35,7 +35,7 @@ public class SaleReport {
     }
 
     //기간별 레포트 (마진률, 판매량)
-    public List<SaleResponseDto.SaleReportDto> getSaleReport(LocalDate startDate, LocalDate endDate) {
+    public List<OrderReportDto.SaleReportDto> getSaleReport(LocalDate startDate, LocalDate endDate) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
@@ -44,10 +44,10 @@ public class SaleReport {
 
         return new ArrayList<>(ordersInRange.stream()
                 .collect(Collectors.toMap(OrderItems::getItemCd, orderItem -> {
-                    SaleResponseDto.SaleReportDto reportDto = new SaleResponseDto.SaleReportDto();
+                    OrderReportDto.SaleReportDto reportDto = new OrderReportDto.SaleReportDto();
                     reportDto.setItemCd(orderItem.getItemCd());
-                    reportDto.setTotalOrdered(orderItemsRepository.findTotalOrderedByItemCd(orderItem.getItemCd(), startDateTime, endDateTime));
-                    reportDto.setTotalManufactured(manufactureItemRepository.findTotalManufacturedByItemCdAndDateRange(orderItem.getItemCd(), startDateTime, endDateTime));
+                    reportDto.setTotalOrdered(getTotalOrderedPeriod(orderItem.getItemCd(), startDateTime, endDateTime));
+                    reportDto.setTotalManufactured(getTotalManufacturedPeriod(orderItem.getItemCd(), startDateTime, endDateTime));
                     reportDto.setTotalOrderedPrice(getOrderTotalPrice(orderItem.getItemCd(), startDateTime, endDateTime));
                     reportDto.setTotalMfPrice(getManufactureTotalPrice(orderItem.getItemCd(), startDateTime, endDateTime));
                     reportDto.setMarginRate(calculateMarginRate(
@@ -61,13 +61,15 @@ public class SaleReport {
 
 
     //현재 재고 확인
-    public SaleResponseDto.InventoryDto getInventory(String itemCd) {
+    public OrderReportDto.InventoryDto getInventory(String itemCd) {
         Item item = findVerifiedItem(itemCd);
-        SaleResponseDto.InventoryDto.InventoryDtoBuilder response = SaleResponseDto.InventoryDto.builder();
+        OrderReportDto.InventoryDto.InventoryDtoBuilder response = OrderReportDto.InventoryDto.builder();
         response.itemId(item.getItemId());
         response.itemName(item.getItemNm());
         response.totalOrder(getOrderQty(itemCd));
         response.totalSupply(getManufacturedQty(itemCd));
+        response.unusedStock(getUnusedItemQty(itemCd));
+        response.preparedOrder(getPreparedItemQty(itemCd));
         response.totalStock(calculateInventory(itemCd));
         return response.build();
     }
@@ -82,7 +84,7 @@ public class SaleReport {
         return BigDecimal.ZERO;
     }
 
-    //해당 기간의 총 판매가(승인 이후 상태만 확인해야함)
+    //해당 기간의 총 판매가(승인 이후 상태만 계산 = APPROVED, SHIPPED, PRODUCT_PASS
     private BigDecimal getOrderTotalPrice(String itemCd, LocalDateTime start, LocalDateTime end) {
         BigDecimal orderTotalPrice = orderItemsRepository.findTotalOrderPriceByItemCdAndOrderDateBetween(itemCd, start, end);
         return orderTotalPrice != null ? orderTotalPrice : BigDecimal.ZERO;
@@ -94,12 +96,24 @@ public class SaleReport {
         return manufactureUnitPrice != null ? manufactureUnitPrice : BigDecimal.ZERO;
     }
 
-    //재고 계산
-    private Integer calculateInventory(String itemCd) {
+    //해당 기간의 총 판매량
+    private Integer getTotalOrderedPeriod (String itemCd, LocalDateTime startDate, LocalDateTime endDate) {
+        Integer total = orderItemsRepository.findTotalOrderedByItemCd(itemCd, startDate, endDate);
+        return total != null ? total : 0 ;
+    }
+
+    //해당 기간의 총 공급량
+    private Integer getTotalManufacturedPeriod (String itemCd, LocalDateTime startDate, LocalDateTime endDate) {
+        Integer total = manufactureItemRepository.findTotalManufacturedByItemCdAndDateRange(itemCd, startDate, endDate);
+        return total != null ? total : 0 ;
+    }
+
+    //재고 계산 (총 공급량 - 총 주문량(승인 이후) - 불용재고량
+    public Integer calculateInventory(String itemCd) {
         Integer totalManufactured = getManufacturedQty(itemCd);
         Integer totalOrdered = getOrderQty(itemCd);
-        Integer cal = totalManufactured - totalOrdered;
-        return cal != null ? cal : 0;
+        Integer totalUnused = getUnusedItemQty(itemCd);
+        return totalManufactured - totalOrdered - totalUnused;
     }
 
     //재고 계산을 위한 공급량
@@ -108,10 +122,22 @@ public class SaleReport {
         return totalManufactured != null ? totalManufactured : 0;
     }
 
-    //재고 계산을 위한 주문량 (승인 이후 상태의 주문량만 계산)
+    //재고 계산을 위한 주문량 (승인 이후 상태의 주문량만 계산 = APPROVED, SHIPPED, PRODUCT_PASS)
     private Integer getOrderQty(String itemCd) {
         Integer totalOrdered = orderItemsRepository.findTotalOrderedByItemCdAfterApproval(itemCd);
         return totalOrdered != null ? totalOrdered : 0;
+    }
+
+    //주문 대기량 (상태 = 견적요청, 발주요청)
+    private Integer getPreparedItemQty(String itemCd) {
+        Integer totalUnused = orderItemsRepository.findTotalPreparationOrderByItemCd(itemCd);
+        return totalUnused != null ? totalUnused : 0;
+    }
+
+    // 불용재고량 (상태 = PRODUCT_FAIL)
+    private Integer getUnusedItemQty(String itemCd) {
+        Integer totalUnused = orderItemsRepository.findTotalUnusedByItemCd(itemCd);
+        return totalUnused != null ? totalUnused : 0;
     }
 
     //유효한 제품인지 검증

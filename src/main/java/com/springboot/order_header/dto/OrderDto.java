@@ -17,7 +17,7 @@ public class OrderDto {
     public static class Post {
         @NotNull(message = "buyerCd가 누락되었습니다.")
         private String buyerCd;
-        @NotNull(message = "item은 Cd, 단가, 수량, 시작일, 종료일, 단위가 모두 필요합니다.")
+        @NotNull(message = "orderItem 이 누락되었습니다.")
         private List<OrderItemDto> orderItems;
         @NotNull(message = "납기일이 누락되었습니다.")
         private LocalDateTime requestDate;
@@ -55,11 +55,22 @@ public class OrderDto {
 
     @Getter
     public static class OrderItemDto {
+        @NotNull(message = "itemCd가 누락되었습니다.")
         private String itemCd;
+
+        @NotNull(message = "unitPrice 가 누락되었습니다.")
         private BigDecimal unitPrice;
+
+        @NotNull(message = "qty 이 누락되었습니다.")
         private Long qty;
+
+        @NotNull(message = "startDate 가 누락되었습니다.")
         private LocalDateTime startDate;
+
+        @NotNull(message = "endDate 가 누락되었습니다.")
         private LocalDateTime endDate;
+
+        @NotNull(message = "unit 이 누락되었습니다.")
         private String unit;
     }
 

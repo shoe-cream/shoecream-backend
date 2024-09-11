@@ -5,7 +5,7 @@ import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
 import com.springboot.order_header.dto.OrderDto;
-import com.springboot.order_header.dto.SaleResponseDto;
+import com.springboot.order_header.dto.OrderReportDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.repository.OrderHeadersRepository;
 import com.springboot.order_header.repository.OrderQueryRepositoryCustom;
@@ -36,22 +36,35 @@ public class OrderService {
     private final MemberService memberService;
     private final SaleReport saleReport;
 
-    public OrderService(OrderHeadersRepository orderHeadersRepository, OrderItemsRepository orderItemsRepository, OrderQueryRepositoryCustom orderQueryRepository, SaleHistoryRepository saleHistoryRepository, SaleHistoryMapper saleHistoryMapper, MemberService memberService, SaleReport saleResponseMapper) {
+    public OrderService(OrderHeadersRepository orderHeadersRepository, OrderItemsRepository orderItemsRepository, OrderQueryRepositoryCustom orderQueryRepository, SaleHistoryRepository saleHistoryRepository, SaleHistoryMapper saleHistoryMapper, MemberService memberService, SaleReport saleReport) {
         this.orderHeadersRepository = orderHeadersRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.orderQueryRepository = orderQueryRepository;
         this.saleHistoryRepository = saleHistoryRepository;
         this.saleHistoryMapper = saleHistoryMapper;
         this.memberService = memberService;
-        this.saleReport = saleResponseMapper;
+        this.saleReport = saleReport;
     }
 
     // 주문 등록
     public OrderHeaders createOrder(OrderHeaders orderHeaders, Authentication authentication) {
+        //주문 담당자
         Member member = verifiedMember(authentication);
         orderHeaders.setMember(member);
+
+        // 재고량이 없을 때 예외처리
+        boolean isStock = orderHeaders.getOrderItems()
+                .stream()
+                .map(orderItems -> saleReport.calculateInventory(orderItems.getItemCd()) - orderItems.getQty())
+                .allMatch(qty -> qty <= 0);
+        if (isStock) {
+            throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
+        }
+
+        // DB에 저장
         OrderHeaders orderHeader =  orderHeadersRepository.save(orderHeaders);
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeader, member));
+
         return orderHeader;
     }
 
@@ -154,12 +167,12 @@ public class OrderService {
     }
 
     // 판매 report (마진률)
-    public List<SaleResponseDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
+    public List<OrderReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
         return saleReport.getSaleReport(startDate, endDate);
     }
 
     // 아이템 재고 계산
-    public SaleResponseDto.InventoryDto getStock(String itemCd) {
+    public OrderReportDto.InventoryDto getStock(String itemCd) {
         return saleReport.getInventory(itemCd);
     }
 
