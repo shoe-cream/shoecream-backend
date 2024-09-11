@@ -26,7 +26,8 @@ public enum ExceptionCode {
     OUT_OF_STOCK(409, "The item is out of stock" ),
     ITEM_CD_ALREADY_EXISTS(409, "Item Code Already Exists" ),
     ITEM_NAME_ALREADY_EXISTS(409,"Item Name Already Exists" ),
-    MANUFACTURE_NAME_EXIST(409,"MF Name Already Exists" );
+    MANUFACTURE_NAME_EXIST(409,"MF Name Already Exists" ),
+    INVALID_SORT_FIELD(400,"Invalid Sort Field" );
 
     @Getter
     private int status;

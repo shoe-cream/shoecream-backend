@@ -1,6 +1,8 @@
 package com.springboot.item.controller;
 
 
+import com.springboot.exception.BusinessLogicException;
+import com.springboot.exception.ExceptionCode;
 import com.springboot.item.dto.Dto;
 import com.springboot.item.entity.Item;
 import com.springboot.item.mapper.ItemMapper;
@@ -21,6 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,8 +53,19 @@ public class ItemController {
     @GetMapping
     public ResponseEntity getItems(@RequestParam @Positive int page,
                                    @RequestParam @Positive int size,
+                                   @RequestParam(required = false) String sort,
                                    Authentication authentication) {
-        Page<Item> itemPage = itemService.findItems(page-1, size, authentication);
+        String sortCriteria = "createdAt";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("itemCd", "itemNm", "createdAt", "unitPrice");
+            if (sorts.contains(sort)) {
+                sortCriteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+
+        Page<Item> itemPage = itemService.findItems(page-1, size, sortCriteria, authentication);
         List<Dto.ItemResponseDto> itemResponseDtos =
                 itemMapper.itemToResponseDtos(itemPage.getContent());
 

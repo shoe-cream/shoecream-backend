@@ -41,13 +41,19 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Item> findItems(int page, int size, Authentication authentication) {
+    public Page<Item> findItems(int page, int size, String criteria, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("itemId").descending());
+        Pageable pageable = createPageable(page, size, criteria);
 
         Page<Item> items = itemRepository.findByItemStatusNot(Item.ItemStatus.NOT_FOR_SALE, pageable);
         return items;
+    }
+
+    private Pageable createPageable(int page, int size, String sortCriteria) {
+        Sort sort = Sort.by(sortCriteria).descending();
+
+        return PageRequest.of(page, size, sort);
     }
 
     public Item updateItem(Item existingItem, Item patch, Authentication authentication) {
