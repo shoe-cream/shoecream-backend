@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,7 +39,8 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class BuyerPatchDto {
-        private long buyerId;
+        @NotNull
+        private Long buyerId;
 
         private String buyerNm;
 

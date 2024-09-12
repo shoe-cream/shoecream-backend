@@ -16,4 +16,5 @@ public interface BuyerRepository extends JpaRepository<Buyer, Long> {
     Page<Buyer> findAll(Pageable pageable);
     Page<Buyer> findAllByBusinessType(String businessType, Pageable pageable);
 
+    Optional<Buyer> findByBuyerNm(String name);
 }

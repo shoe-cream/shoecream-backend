@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,14 +30,6 @@ import java.util.List;
 public class BuyerItemController {
     private final BuyerItemService buyerItemService;
     private final BuyerItemMapper buyerItemMapper;
-
-//    @PostMapping
-//    public ResponseEntity postBuyerItem(@RequestBody @Valid Dto.BuyerItemPostDto postDto, Authentication authentication) {
-//
-//        buyerItemService.createBuyerItem(buyerItemMapper.buyerItemPostDtoToBuyerItem(postDto), authentication);
-//
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 
     @PostMapping
     public ResponseEntity postBuyerItem(@RequestBody @Valid List<Dto.BuyerItemPostDto> postDto, Authentication authentication) {
@@ -73,16 +66,19 @@ public class BuyerItemController {
                 new MultiResponseDto<>(buyerItemResponseDtos, buyerItemPage), HttpStatus.OK);
     }
 
-    @PatchMapping("/{buyerItemId}")
-    public ResponseEntity updateBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId,
-                                          @RequestBody Dto.BuyerItemPatchDto patchDto,
+    @PatchMapping
+    public ResponseEntity updateBuyerItem(@RequestBody List<Dto.BuyerItemPatchDto> patchDtos,
                                           Authentication authentication) {
-        patchDto.setBuyerItemId(buyerItemId);
-        BuyerItem buyerItem =
-                buyerItemService.updateBuyerItem(buyerItemMapper.buyerItemPatchDtoToBuyer(patchDto), authentication);
+
+        List<BuyerItem> buyerItems = new ArrayList<>();
+        for(Dto.BuyerItemPatchDto patchDto : patchDtos) {
+            BuyerItem buyerItem =
+                    buyerItemService.updateBuyerItem(buyerItemMapper.buyerItemPatchDtoToBuyer(patchDto), authentication);
+            buyerItems.add(buyerItem);
+        }
 
         return new ResponseEntity<>(
-                new SingleResponseDto<>(buyerItemMapper.buyerItemToBuyerResponseDto(buyerItem)), HttpStatus.OK);
+                new SingleResponseDto<>(buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItems)), HttpStatus.OK);
 
     }
 

@@ -9,6 +9,7 @@ import javax.persistence.PrePersist;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,19 +40,14 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class BuyerItemPatchDto {
-        private long buyerItemId;
-
-        private String buyerNm;
-
-        private String itemNm;
-
-        private String unit;
+        @NotNull
+        private Long buyerItemId;
 
         private BigDecimal unitPrice;
 
-        private LocalDateTime startDate = LocalDateTime.now();
+        private LocalDateTime startDate;
 
-        private LocalDateTime endDate = LocalDateTime.now();
+        private LocalDateTime endDate;
 
         private LocalDateTime modifiedAt;
     }

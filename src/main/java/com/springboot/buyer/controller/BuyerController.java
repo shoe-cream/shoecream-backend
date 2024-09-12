@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -75,14 +76,17 @@ public class BuyerController {
                 new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
     }
 
-    @PatchMapping("/{buyer-id}")
-    public ResponseEntity patchBuyer(@PathVariable("buyer-id") @Positive long buyerId,
-                                     @RequestBody @Valid Dto.BuyerPatchDto patchDto,
+    @PatchMapping
+    public ResponseEntity patchBuyer(@RequestBody @Valid List<Dto.BuyerPatchDto> patchDtos,
                                      Authentication authentication) {
-        patchDto.setBuyerId(buyerId);
-        Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDtoToBuyer(patchDto), authentication);
+        List<Buyer> buyers = new ArrayList<>();
+        for(Dto.BuyerPatchDto patchDto : patchDtos) {
+            Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDtoToBuyer(patchDto), authentication);
+            buyers.add(buyer);
+        }
+
         return new ResponseEntity<>(
-                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyer)), HttpStatus.OK);
+                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{buyer-id}")

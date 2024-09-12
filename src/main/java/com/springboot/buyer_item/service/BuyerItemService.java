@@ -93,12 +93,14 @@ public class BuyerItemService {
         BuyerItem findedBuyerItem = buyerItemRepository.findById(buyerItem.getBuyerItemId())
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYERITEM_NOT_FOUND));
 
-        Optional.ofNullable(buyerItem.getItem().getItemNm())
-                .ifPresent(itemNm -> findedBuyerItem.getItem().setItemNm(itemNm));
-        Optional.ofNullable(buyerItem.getItem().getUnit())
-                .ifPresent(unit -> findedBuyerItem.getItem().setUnit(unit));
-        Optional.ofNullable(buyerItem.getItem().getItemStatus())
-                .ifPresent(itemStatus -> findedBuyerItem.getItem().setItemStatus(itemStatus));
+        //여기서 item 정보는 수정할 수 없어야 함. 만약 수정해야한다면 필드로 가지고 있어야한다.
+
+        Optional.ofNullable(buyerItem.getUnitPrice())
+                .ifPresent(unitPrice -> findedBuyerItem.setUnitPrice(unitPrice));
+        Optional.ofNullable(buyerItem.getStartDate())
+                .ifPresent(startDate -> findedBuyerItem.setStartDate(startDate));
+        Optional.ofNullable(buyerItem.getEndDate())
+                .ifPresent(endDate -> findedBuyerItem.setEndDate(endDate));
 
         findedBuyerItem.setModifiedAt(LocalDateTime.now());
 
