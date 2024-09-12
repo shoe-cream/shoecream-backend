@@ -56,20 +56,20 @@ public class ItemService {
         return PageRequest.of(page, size, sort);
     }
 
-    public Item updateItem(Item existingItem, Item patch, Authentication authentication) {
+    public Item updateItem(Item patch, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
-
+        Item findItem = findVerifiedItemId(patch.getItemId());
         Optional.ofNullable(patch.getItemNm())
-                .ifPresent(itemNm -> existingItem.setItemNm(itemNm));
+                .ifPresent(itemNm -> findItem.setItemNm(itemNm));
         Optional.ofNullable(patch.getUnit())
-                .ifPresent(unit -> existingItem.setUnit(unit));
+                .ifPresent(unit -> findItem.setUnit(unit));
         Optional.ofNullable(patch.getUnitPrice())
-                .ifPresent(unitPrice -> existingItem.setUnitPrice(unitPrice));
+                .ifPresent(unitPrice -> findItem.setUnitPrice(unitPrice));
         Optional.ofNullable(patch.getItemStatus())
-                .ifPresent(itemStatus -> existingItem.setItemStatus(itemStatus));
+                .ifPresent(itemStatus -> findItem.setItemStatus(itemStatus));
 
-        existingItem.setModifiedAt(LocalDateTime.now());
-        return itemRepository.save(existingItem);
+        findItem.setModifiedAt(LocalDateTime.now());
+        return itemRepository.save(findItem);
     }
 
     public void deleteItem(long itemId, Authentication authentication) {
