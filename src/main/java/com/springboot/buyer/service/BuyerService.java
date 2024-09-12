@@ -61,9 +61,9 @@ public class BuyerService {
         Pageable pageable = createPageable(page, size, criteria);
 
         if (businessType != null && !businessType.isEmpty()) {
-            return buyerRepository.findAllByBusinessType(businessType, pageable);
+            return buyerRepository.findAllByBusinessTypeAndBuyerStatusNot(businessType, Buyer.BuyerStatus.INACTIVE, pageable);
         } else {
-            return buyerRepository.findAll(pageable);
+            return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE, pageable);
         }
     }
 

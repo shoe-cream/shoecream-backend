@@ -86,12 +86,8 @@ public class BuyerController {
         Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, businessType, authentication);
         List<Buyer> buyers = buyerPage.getContent();
 
-        List<Buyer> activeBuyers = buyers.stream()
-                .filter(buyer -> !buyer.getBuyerStatus().equals(Buyer.BuyerStatus.INACTIVE))
-                .collect(Collectors.toList());
-
         return new ResponseEntity<>(
-                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(activeBuyers), buyerPage), HttpStatus.OK);
+                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
     }
 
     @PatchMapping
