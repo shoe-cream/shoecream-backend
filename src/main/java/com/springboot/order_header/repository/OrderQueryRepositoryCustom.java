@@ -6,6 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface OrderQueryRepositoryCustom {
-    Page<OrderHeaders> findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderId(OrderDto.OrderSearchRequest orderSearchRequest,
+    Page<OrderHeaders> findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderCd(OrderDto.OrderSearchRequest orderSearchRequest,
                                                                                                           Pageable pageable);
 }

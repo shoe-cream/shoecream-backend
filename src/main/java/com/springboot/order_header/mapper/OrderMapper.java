@@ -19,6 +19,7 @@ public interface OrderMapper {
    default OrderDto.Response orderToOrderResponseDto(OrderHeaders order) {
       OrderDto.Response.ResponseBuilder response = OrderDto.Response.builder();
       response.orderId(order.getOrderId());
+      response.orderCd(order.getOrderCd());
       response.employeeId(order.getMember().getEmployeeId());
       response.buyerCd(order.getBuyer().getBuyerCd());
       response.buyerNm(order.getBuyer().getBuyerNm());
