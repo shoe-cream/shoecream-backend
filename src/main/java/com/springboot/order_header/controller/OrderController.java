@@ -15,6 +15,7 @@ import com.springboot.response.SingleResponseDto;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
 import com.springboot.utils.UriCreator;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -96,21 +97,40 @@ public class OrderController {
     }
 
     //주문 - 팀장 승인
-    @PatchMapping("/{order-id}/approve")
-    public ResponseEntity approveStatus(@Positive @PathVariable("order-id") Long orderId, Authentication authentication) {
+    @PatchMapping("/approve")
+    public ResponseEntity approveStatus(@Valid @RequestBody List<OrderDto.ApprovalOrRejectDto> approvalDtos,
+                                        Authentication authentication) {
 
-        OrderHeaders updatedOrder = orderService.updateStatus(orderId, OrderHeaders.OrderStatus.APPROVED, authentication);
+        List<OrderHeaders> orderHeaders = new ArrayList<>();
 
-        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
+        for(OrderDto.ApprovalOrRejectDto approvalDto : approvalDtos) {
+            OrderHeaders updatedOrder = orderService
+                    .updateStatus(approvalDto.getOrderCd(),
+                            OrderHeaders.OrderStatus.APPROVED,
+                            approvalDto.getRejectReason(),
+                            authentication);
+
+            orderHeaders.add(updatedOrder);
+        }
+        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderHeaders)),HttpStatus.OK);
     }
 
     //주문 - 팀장 반려
-    @PatchMapping("/{order-id}/reject")
-    public ResponseEntity rejectStatus(@Positive @PathVariable("order-id") Long orderId, Authentication authentication) {
-        //팀장권한확인
-        OrderHeaders updatedOrder = orderService.updateStatus(orderId, OrderHeaders.OrderStatus.REJECTED, authentication);
+    @PatchMapping("/reject")
+    public ResponseEntity rejectStatus(@Valid @RequestBody List<OrderDto.ApprovalOrRejectDto> rejectDtos,
+                                       Authentication authentication) {
 
-        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
+        List<OrderHeaders> orderHeaders = new ArrayList<>();
+
+        for(OrderDto.ApprovalOrRejectDto rejectDto : rejectDtos){
+            OrderHeaders updatedOrder = orderService
+                    .updateStatus(rejectDto.getOrderCd(),
+                            OrderHeaders.OrderStatus.REJECTED,
+                            rejectDto.getRejectReason(), authentication);
+
+            orderHeaders.add(updatedOrder);
+        }
+        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderHeaders)),HttpStatus.OK);
     }
 
     //주문 개별 조회
@@ -152,11 +172,24 @@ public class OrderController {
     }
 
     //SaleHistory 조회
-    @GetMapping("/{order-id}/histories")
-    public ResponseEntity getOrderHistory(@Positive @PathVariable("order-id") Long orderId,
+    @GetMapping("/{order-cd}/histories")
+    public ResponseEntity getOrderHistory(@Positive @PathVariable("order-cd") String orderCd,
                                           @Positive @RequestParam int page,
-                                          @Positive @RequestParam int size) {
-        Page<SaleHistory> historyPages = orderService.findHistories(page - 1, size, orderId);
+                                          @Positive @RequestParam int size,
+                                          @RequestParam(required = false) String sort,
+                                          @RequestParam(required = false) String direction) {
+
+        String sortCriteria = "createdAt";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("createdAt", "saleHistoryId", "personInCharge", "buyerCd", "requestDate", "orderDate", "orderStatus");
+            if (sorts.contains(sort)) {
+                sortCriteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+
+        Page<SaleHistory> historyPages = orderService.findHistories(page - 1, size, sortCriteria, direction, orderCd);
         List<SaleHistory> historyLists = historyPages.getContent();
 
         return new ResponseEntity<>(new MultiResponseDto<>(saleHistoryMapper.saleHistoriesToSaleHistoriesResponseDtos(historyLists),historyPages), HttpStatus.OK);
