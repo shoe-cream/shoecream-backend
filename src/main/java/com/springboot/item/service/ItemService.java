@@ -91,16 +91,6 @@ public class ItemService {
         itemRepository.save(item);
     }
 
-    public void deleteItems(List<Long> itemIds) {
-        // 각 ID에 대해 아이템 조회 후 상태 변경 (삭제 처리)
-        List<Item> items = findVerifiedItems(itemIds);
-
-        for (Item item : items) {
-            item.setItemStatus(Item.ItemStatus.NOT_FOR_SALE);  // 상태를 판매중지로 변경
-        }
-        itemRepository.saveAll(items);
-    }
-
     private Item findVerifiedItem(String itemCd) {
         Optional<Item> item = itemRepository.findByItemCd(itemCd);
 

@@ -62,7 +62,7 @@ public class ManufactureService {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         }
 
-        return manufactureRepository.findAll(pageable);
+       return manufactureRepository.findAllByManufactureStatus(Manufacture.ManufactureStatus.ACTIVE, pageable);
     }
 
     public Manufacture updateManufacture(Manufacture manufacture, Authentication authentication) {
@@ -125,11 +125,23 @@ public class ManufactureService {
         }
     }
 
-    public Page<ManuFactureHistory> findManufactureHistories (int page, int size, Long mfId, Authentication authentication) {
+    public Page<ManuFactureHistory> findManufactureHistories (int page, int size,
+                                                              String sort,
+                                                              String direction,
+                                                              Long mfId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = createPageable(page, size, sort, direction);
         return manufactureHistoryRepository.findByMfId(mfId, pageable);
+    }
+
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+
+        Sort sort = Sort.by(sortDirection, sortCriteria);
+
+        return PageRequest.of(page, size, sort);
     }
 
     private Member extractMemberFromAuthentication(Authentication authentication) {

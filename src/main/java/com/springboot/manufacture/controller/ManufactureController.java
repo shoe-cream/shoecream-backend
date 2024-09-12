@@ -1,5 +1,7 @@
 package com.springboot.manufacture.controller;
 
+import com.springboot.exception.BusinessLogicException;
+import com.springboot.exception.ExceptionCode;
 import com.springboot.manufacture.dto.Dto;
 import com.springboot.manufacture.entity.Manufacture;
 import com.springboot.manufacture.mapper.ManufactureMapper;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -90,8 +93,19 @@ public class ManufactureController {
     public ResponseEntity getManufactureHistory(@Positive @PathVariable("mfId") Long mfId,
                                                 @Positive @RequestParam int page,
                                                 @Positive @RequestParam int size,
+                                                @RequestParam(required = false) String sort,
+                                                @RequestParam(required = false) String direction,
                                                 Authentication authentication) {
-        Page<ManuFactureHistory> historyPages = manufactureService.findManufactureHistories(page - 1, size, mfId, authentication);
+        String criteria = "createdAt";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("mfItemId", "mfCd", "createdAt", "receiveDate", "qty", "unitPrice", "author", "mfHistoryId");
+            if (sorts.contains(sort)) {
+                criteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+        Page<ManuFactureHistory> historyPages = manufactureService.findManufactureHistories(page - 1, size, criteria, direction, mfId, authentication);
         List<ManuFactureHistory> historyLists = historyPages.getContent();
 
         return new ResponseEntity<>(
