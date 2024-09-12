@@ -57,12 +57,7 @@ public class ManufactureItemService {
     public ItemManufacture findItemMf(long mfItemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Optional<ItemManufacture> itemManufacture = itemMfRepository.findById(mfItemId);
-
-        ItemManufacture itemMf = itemManufacture
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
-
-        return itemMf;
+        return verifyItemMf(mfItemId);
     }
     
     public Page<ItemManufacture> findItemMfs(int page, int size, String criteria,String direction, String itemCd, String mfCd, Authentication authentication) {
@@ -79,6 +74,14 @@ public class ManufactureItemService {
             return itemMfRepository.findByManufacture_MfCd(mfCd, pageable);
     }
 
+    public Page<ManuFactureHistory> findHistories (int page, int size, String criteria, String direction, Long mfItemId, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
+        Pageable pageable = createPageable(page, size, criteria, direction);
+
+        return manufactureHistoryRepository.findByMfItemId(mfItemId, pageable);
+    }
+
     private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
 
         Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
@@ -92,8 +95,7 @@ public class ManufactureItemService {
     public ItemManufacture updateItemMf(ItemManufacture itemManufacture, Authentication authentication){
         Member member = extractMemberFromAuthentication(authentication);
 
-        ItemManufacture findItemMf = itemMfRepository.findById(itemManufacture.getMfItemId())
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
+        ItemManufacture findItemMf = verifyItemMf(itemManufacture.getMfItemId());
 
         Optional.ofNullable(itemManufacture.getUnitPrice())
                 .ifPresent(unitPrice -> findItemMf.setUnitPrice(unitPrice));
@@ -102,8 +104,10 @@ public class ManufactureItemService {
 
         findItemMf.setModifiedAt(LocalDateTime.now());
 
+        //DB에 저장
         ItemManufacture savedItemManufacture = itemMfRepository.save(findItemMf);
         manufactureHistoryRepository.save(manufactureHistoryMapper.manufactureHistoryToItemManufacture(savedItemManufacture, member));
+
         return savedItemManufacture;
     }
 
@@ -112,13 +116,6 @@ public class ManufactureItemService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
 
         return itemManufacture;
-    }
-
-    public Page<ManuFactureHistory> findHistories (int page, int size, Long mfItemId, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return manufactureHistoryRepository.findByMfItemId(mfItemId, pageable);
     }
 
     private Member extractMemberFromAuthentication(Authentication authentication) {

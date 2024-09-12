@@ -102,5 +102,14 @@ public class BuyerItemController {
         buyerItemService.deleteBuyerItem(buyerItemId, authentication);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping
+    public ResponseEntity deleteBuyerItems(Dto.BuyerItemDeleteDtos deleteDtos, Authentication authentication) {
+        List<Long> deleteIds = deleteDtos.getItemId();
+        for(Long id : deleteIds) {
+            buyerItemService.deleteBuyerItem(id, authentication);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
 

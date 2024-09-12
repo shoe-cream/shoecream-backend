@@ -38,7 +38,7 @@ public interface BuyerItemMapper {
 
     default Dto.BuyerItemResponseDto buyerItemToBuyerResponseDto(BuyerItem buyerItem) {
         Dto.BuyerItemResponseDto responseDto = new Dto.BuyerItemResponseDto();
-
+        responseDto.setBuyerItemId(buyerItem.getBuyerItemId());
         responseDto.setBuyerNm(buyerItem.getBuyer().getBuyerNm());
         responseDto.setItemNm(buyerItem.getItem().getItemNm());
         responseDto.setItemCd(buyerItem.getItem().getItemCd());
@@ -47,6 +47,7 @@ public interface BuyerItemMapper {
         responseDto.setUnitPrice(buyerItem.getUnitPrice());
         responseDto.setStartDate(buyerItem.getStartDate());
         responseDto.setEndDate(buyerItem.getEndDate());
+        responseDto.setModifiedAt(buyerItem.getModifiedAt());
 
         return responseDto;
     }

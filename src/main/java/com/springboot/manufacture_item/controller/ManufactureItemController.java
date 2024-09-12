@@ -86,8 +86,21 @@ public class ManufactureItemController {
     public ResponseEntity getHistory(@Positive @PathVariable("mfItemId") Long mfItemId,
                                      @Positive @RequestParam int page,
                                      @Positive @RequestParam int size,
+                                     @RequestParam(required = false) String sort,
+                                     @RequestParam(required = false) String direction,
                                      Authentication authentication) {
-        Page<ManuFactureHistory> historyPages = manufactureItemService.findHistories(page - 1, size, mfItemId, authentication);
+
+        String criteria = "createdAt";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("mfItemId", "mfCd", "createdAt", "receiveDate", "qty", "unitPrice", "author", "mfHistoryId");
+            if (sorts.contains(sort)) {
+                criteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+
+        Page<ManuFactureHistory> historyPages = manufactureItemService.findHistories(page - 1, size, sort, direction, mfItemId, authentication);
         List<ManuFactureHistory> historyLists = historyPages.getContent();
 
         return new ResponseEntity<>(

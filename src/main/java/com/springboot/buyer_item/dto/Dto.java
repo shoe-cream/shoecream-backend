@@ -58,6 +58,7 @@ public class Dto {
     @NoArgsConstructor
     @Builder
     public static class BuyerItemResponseDto {
+        private Long buyerItemId;
         private String buyerNm;     // 바이어 이름
         private String itemCd;      // 기본 아이템 코드
         private String itemNm;      // 기본 아이템 이름
@@ -65,6 +66,12 @@ public class Dto {
         private BigDecimal unitPrice; // 바이어 맞춤 단가
         private LocalDateTime startDate; // 계약 시작기간
         private LocalDateTime endDate;   // 계약 종료기간
+        private LocalDateTime modifiedAt;
         private Item.ItemStatus itemStatus;  // 아이템 상태
+    }
+
+    @Getter
+    public static class BuyerItemDeleteDtos {
+        private List<Long> itemId;
     }
 }
