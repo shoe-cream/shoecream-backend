@@ -19,4 +19,7 @@ public interface BuyerRepository extends JpaRepository<Buyer, Long> {
     Optional<Buyer> findByBuyerNm(String name);
 
     Boolean existsByTel(String tel);
+
+    Page<Buyer> findAllByBuyerStatusNot(Buyer.BuyerStatus buyerStatus, Pageable pageable);
+    Page<Buyer> findAllByBusinessTypeAndBuyerStatusNot(String businessType, Buyer.BuyerStatus buyerStatus, Pageable pageable);
 }
