@@ -5,6 +5,8 @@ import com.springboot.buyer_item.dto.Dto;
 import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.mapper.BuyerItemMapper;
 import com.springboot.buyer_item.service.BuyerItemService;
+import com.springboot.exception.BusinessLogicException;
+import com.springboot.exception.ExceptionCode;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -54,10 +57,18 @@ public class BuyerItemController {
     public ResponseEntity getBuyerItems(@RequestParam(required = false) String buyerCd,
                                         @RequestParam @Positive int page,
                                         @RequestParam @Positive int size,
+                                        @RequestParam(required = false) String sort,
                                         Authentication authentication) {
 
+        String criteria = "buyerItemId";
+        List<String> sorts = Arrays.asList("buyerItemId", "buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
+        if (sorts.contains(sort)) {
+            criteria = sort;
+        } else {
+            throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+        }
 
-        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, authentication);
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, criteria, authentication);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());

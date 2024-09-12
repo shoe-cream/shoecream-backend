@@ -75,7 +75,7 @@ public class BuyerController {
                                     Authentication authentication) {
         String criteria = "buyerId";
         if(sort != null) {
-            List<String> sorts = Arrays.asList("buyerId", "buyerNm", "createdAt", "buyerCd");
+            List<String> sorts = Arrays.asList("buyerId", "buyerNm", "createdAt", "buyerCd", "address", "businessType");
             if(sorts.contains(sort)) {
                 criteria = sort;
             } else {
@@ -106,6 +106,15 @@ public class BuyerController {
     public ResponseEntity deleteBuyer(@PathVariable("buyer-id") @Positive long buyerId,
                                       Authentication authentication) {
         buyerService.deleteBuyer(buyerId, authentication);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity deleteBuyers (@RequestBody Dto.BuyerDeleteDtos deleteDtos,
+                                        Authentication authentication) {
+        List<Long> itemIds = deleteDtos.getBuyerId();
+        for(Long id : itemIds) {
+            buyerService.deleteBuyer(id, authentication);
+        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

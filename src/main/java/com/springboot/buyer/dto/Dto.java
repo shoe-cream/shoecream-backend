@@ -85,4 +85,8 @@ public class Dto {
         private String tel;
         private List<com.springboot.buyer_item.dto.Dto.BuyerItemResponseDto> buyerItems;
     }
+    @Getter
+    public static class BuyerDeleteDtos {
+        private List<Long> buyerId;
+    }
 }
