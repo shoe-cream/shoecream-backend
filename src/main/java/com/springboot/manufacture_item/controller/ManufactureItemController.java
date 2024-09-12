@@ -22,6 +22,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -57,8 +58,12 @@ public class ManufactureItemController {
                                      @RequestParam(required = false) String itemCd,
                                      @Positive int page,
                                      @Positive int size,
+                                     @RequestParam(required = false) String sort,
                                      Authentication authentication) {
-        Page<ItemManufacture> itemManufacturePage = manufactureItemService.findItemMfs(page - 1, size, itemCd, mfCd, authentication);
+
+        String criteria = "mfItemId";
+        List<String> sorts = Arrays.asList("mfItemId", "unitPrice", "createdAt", "modifiedAt", "qty");
+        Page<ItemManufacture> itemManufacturePage = manufactureItemService.findItemMfs(page - 1, size, criteria, itemCd, mfCd, authentication);
         List<ItemManufacture> itemManufactures = itemManufacturePage.getContent();
 
         return new ResponseEntity<>(
