@@ -6,6 +6,8 @@ import com.springboot.buyer.mapper.BuyerMapper;
 import com.springboot.buyer.service.BuyerService;
 import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.mapper.BuyerItemMapper;
+import com.springboot.exception.BusinessLogicException;
+import com.springboot.exception.ExceptionCode;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -67,9 +70,19 @@ public class BuyerController {
     @GetMapping
     public ResponseEntity getBuyers(@RequestParam @Positive int page,
                                     @RequestParam @Positive int size,
+                                    @RequestParam(required = false) String sort,
                                     @RequestParam(required = false) String businessType,
                                     Authentication authentication) {
-        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, businessType, authentication);
+        String criteria = "buyerId";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("buyerId", "buyerNm", "createdAt", "buyerCd");
+            if(sorts.contains(sort)) {
+                criteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, businessType, authentication);
         List<Buyer> buyers = buyerPage.getContent();
 
         return new ResponseEntity<>(

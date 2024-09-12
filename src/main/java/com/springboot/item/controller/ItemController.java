@@ -9,7 +9,6 @@ import com.springboot.item.mapper.ItemMapper;
 import com.springboot.item.service.ItemService;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
-import com.springboot.utils.UriCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -21,11 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +52,7 @@ public class ItemController {
                                    @RequestParam @Positive int size,
                                    @RequestParam(required = false) String sort,
                                    Authentication authentication) {
-        String sortCriteria = "createdAt";
+        String sortCriteria = "itemId";
         if(sort != null) {
             List<String> sorts = Arrays.asList("itemCd", "itemNm", "createdAt", "unitPrice", "itemId");
             if (sorts.contains(sort)) {
