@@ -1,5 +1,6 @@
 package com.springboot.buyer.dto;
 
+import com.springboot.buyer.entity.Buyer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -71,6 +72,8 @@ public class Dto {
         private String address;
 
         private String businessType;
+
+        private Buyer.BuyerStatus buyerStatus;
 
         private String email;
     }

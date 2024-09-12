@@ -65,10 +65,10 @@ public class ManufactureItemService {
         return itemMf;
     }
     
-    public Page<ItemManufacture> findItemMfs(int page, int size, String itemCd, String mfCd, Authentication authentication) {
+    public Page<ItemManufacture> findItemMfs(int page, int size, String criteria, String itemCd, String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("manufacture.mfCd").descending());
+        Pageable pageable = createPageable(page, size, criteria);
         
         if((itemCd == null || itemCd.isEmpty()) && (mfCd == null || mfCd.isEmpty())) {
             return itemMfRepository.findAll(pageable);
@@ -77,6 +77,12 @@ public class ManufactureItemService {
             return itemMfRepository.findByItem_ItemCd(itemCd, pageable);
         }
             return itemMfRepository.findByManufacture_MfCd(mfCd, pageable);
+    }
+
+    private Pageable createPageable(int page, int size, String sortCriteria) {
+        Sort sort = Sort.by(sortCriteria).descending();
+
+        return PageRequest.of(page, size, sort);
     }
 
     public ItemManufacture updateItemMf(ItemManufacture itemManufacture, Authentication authentication){

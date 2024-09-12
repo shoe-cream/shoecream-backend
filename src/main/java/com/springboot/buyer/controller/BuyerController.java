@@ -24,6 +24,7 @@ import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/buyers")
@@ -85,8 +86,12 @@ public class BuyerController {
         Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, businessType, authentication);
         List<Buyer> buyers = buyerPage.getContent();
 
+        List<Buyer> activeBuyers = buyers.stream()
+                .filter(buyer -> !buyer.getBuyerStatus().equals(Buyer.BuyerStatus.INACTIVE))
+                .collect(Collectors.toList());
+
         return new ResponseEntity<>(
-                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
+                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(activeBuyers), buyerPage), HttpStatus.OK);
     }
 
     @PatchMapping
@@ -109,6 +114,7 @@ public class BuyerController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping
     public ResponseEntity deleteBuyers (@RequestBody Dto.BuyerDeleteDtos deleteDtos,
                                         Authentication authentication) {
         List<Long> itemIds = deleteDtos.getBuyerId();
