@@ -51,6 +51,7 @@ public class ItemController {
     public ResponseEntity getItems(@RequestParam @Positive int page,
                                    @RequestParam @Positive int size,
                                    @RequestParam(required = false) String sort,
+                                   @RequestParam(required = false) String direction,
                                    Authentication authentication) {
         String sortCriteria = "itemId";
         if(sort != null) {
@@ -62,7 +63,7 @@ public class ItemController {
             }
         }
 
-        Page<Item> itemPage = itemService.findItems(page-1, size, sortCriteria, authentication);
+        Page<Item> itemPage = itemService.findItems(page-1, size, sortCriteria, direction, authentication);
         List<Dto.ItemResponseDto> itemResponseDtos =
                 itemMapper.itemToResponseDtos(itemPage.getContent());
 

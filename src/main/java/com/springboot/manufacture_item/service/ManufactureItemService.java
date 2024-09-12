@@ -65,10 +65,10 @@ public class ManufactureItemService {
         return itemMf;
     }
     
-    public Page<ItemManufacture> findItemMfs(int page, int size, String criteria, String itemCd, String mfCd, Authentication authentication) {
+    public Page<ItemManufacture> findItemMfs(int page, int size, String criteria,String direction, String itemCd, String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = createPageable(page, size, criteria);
+        Pageable pageable = createPageable(page, size, criteria, direction);
         
         if((itemCd == null || itemCd.isEmpty()) && (mfCd == null || mfCd.isEmpty())) {
             return itemMfRepository.findAll(pageable);
@@ -79,11 +79,15 @@ public class ManufactureItemService {
             return itemMfRepository.findByManufacture_MfCd(mfCd, pageable);
     }
 
-    private Pageable createPageable(int page, int size, String sortCriteria) {
-        Sort sort = Sort.by(sortCriteria).descending();
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+
+        Sort sort = Sort.by(sortDirection, sortCriteria);
 
         return PageRequest.of(page, size, sort);
     }
+
 
     public ItemManufacture updateItemMf(ItemManufacture itemManufacture, Authentication authentication){
         Member member = extractMemberFromAuthentication(authentication);

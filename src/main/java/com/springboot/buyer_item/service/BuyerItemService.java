@@ -72,10 +72,10 @@ public class BuyerItemService {
 //        }
 //    }
 
-    public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd, String criteria, Authentication authentication) {
+    public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd, String criteria, String direction, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = createPageable(page, size, criteria);
+        Pageable pageable = createPageable(page, size, criteria, direction);
 
         if(buyerCd == null || buyerCd.isEmpty()) {
             // buyerCd가 없으면 전체 데이터를 조회
@@ -86,8 +86,11 @@ public class BuyerItemService {
         }
     }
 
-    private Pageable createPageable(int page, int size, String sortCriteria) {
-        Sort sort = Sort.by(sortCriteria).descending();
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+
+        Sort sort = Sort.by(sortDirection, sortCriteria);
 
         return PageRequest.of(page, size, sort);
     }
