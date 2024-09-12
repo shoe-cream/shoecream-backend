@@ -63,7 +63,7 @@ public class BuyerItemController {
 
         String criteria = "buyerItemId";
         if(sort != null) {
-            List<String> sorts = Arrays.asList("buyerItemId", "buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
+            List<String> sorts = Arrays.asList("buyerItemId", "buyer.buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
             if (sorts.contains(sort)) {
                 criteria = sort;
             } else {
@@ -104,7 +104,7 @@ public class BuyerItemController {
     }
 
     @DeleteMapping
-    public ResponseEntity deleteBuyerItems(Dto.BuyerItemDeleteDtos deleteDtos, Authentication authentication) {
+    public ResponseEntity deleteBuyerItems(@RequestBody Dto.BuyerItemDeleteDtos deleteDtos, Authentication authentication) {
         List<Long> deleteIds = deleteDtos.getItemId();
         for(Long id : deleteIds) {
             buyerItemService.deleteBuyerItem(id, authentication);

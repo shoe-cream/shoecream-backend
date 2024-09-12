@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Dto {
     @Getter
@@ -45,5 +46,10 @@ public class Dto {
         private String email;
         private String mfNm;
         private String mfCd;
+    }
+
+    @Getter
+    public static class ManufactureDeleteList {
+        private List<Long> mfId;
     }
 }

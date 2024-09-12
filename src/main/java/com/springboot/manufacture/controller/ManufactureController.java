@@ -88,6 +88,18 @@ public class ManufactureController {
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping
+    public ResponseEntity deleteManufactures(@RequestBody Dto.ManufactureDeleteList deleteList, Authentication authentication) {
+        List<Long> deleteIds = deleteList.getMfId();
+
+        for(Long id : deleteIds) {
+            manufactureService.deleteManufacture(id, authentication);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
     // 공급 기록 조회
     @GetMapping("/{mfId}/histories")
     public ResponseEntity getManufactureHistory(@Positive @PathVariable("mfId") Long mfId,
