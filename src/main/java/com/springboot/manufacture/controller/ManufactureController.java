@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -63,14 +64,18 @@ public class ManufactureController {
     // 제조사 수정
     @PatchMapping("/{mfId}")
     public ResponseEntity updateManufacture(@PathVariable @Positive long mfId,
-                                            @RequestBody Dto.ManufacturePatchDto patchDto,
+                                            @RequestBody List<Dto.ManufacturePatchDto> patchDtos,
                                             Authentication authentication) {
-        patchDto.setMfId(mfId);
-        Manufacture manufacture =
-                manufactureService.updateManufacture(manufactureMapper.patchDtoToManufacture(patchDto), authentication);
+        List<Manufacture> manufactures = new ArrayList<>();
 
+        for(Dto.ManufacturePatchDto patchDto : patchDtos) {
+            patchDto.setMfId(mfId);
+            Manufacture manufacture =
+                    manufactureService.updateManufacture(manufactureMapper.patchDtoToManufacture(patchDto), authentication);
+            manufactures.add(manufacture);
+        }
         return new ResponseEntity<>(
-                new SingleResponseDto<>(manufactureMapper.manufactureToResponseDto(manufacture)), HttpStatus.OK);
+                new SingleResponseDto<>(manufactureMapper.manufactureToResponseDtos(manufactures)), HttpStatus.OK);
     }
 
     // 제조사 삭제

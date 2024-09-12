@@ -86,8 +86,10 @@ public class BuyerService {
 
         Optional.ofNullable(buyer.getBuyerNm())
                 .ifPresent(buyerNm -> {
-                    verifyExistName(buyerNm);
-                    findBuyer.setBuyerNm(buyerNm);
+                    if(!buyerNm.equals(findBuyer.getBuyerNm())) {
+                        verifyExistName(buyerNm);
+                        findBuyer.setBuyerNm(buyerNm);
+                    }
                 });
 
         Optional.ofNullable(buyer.getAddress())
@@ -95,14 +97,18 @@ public class BuyerService {
 
         Optional.ofNullable(buyer.getEmail())
                 .ifPresent(email -> {
-                    verifyExistEmail(email);
-                    findBuyer.setEmail(email);
+                    if(!email.equals(findBuyer.getEmail())) {
+                        verifyExistEmail(email);
+                        findBuyer.setEmail(email);
+                    }
                 });
 
         Optional.ofNullable(buyer.getTel())
                 .ifPresent(tel -> {
-                    verifyExistTel(tel);
-                    findBuyer.setTel(tel);
+                    if(!tel.equals(findBuyer.getTel())) {
+                        verifyExistTel(tel);
+                        findBuyer.setTel(tel);
+                    }
                 });
 
         Optional.ofNullable(buyer.getBusinessType())
@@ -126,14 +132,14 @@ public class BuyerService {
     private void verifyBuyerCdExists(String buyerCd) {
         Optional<Buyer> buyer = buyerRepository.findByBuyerCd(buyerCd);
         if(buyer.isPresent()) {
-            throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
+            throw new BusinessLogicException(ExceptionCode.BUYER_CD_ALREADY_EXIST);
         }
     }
 
     private void verifyExistEmail(String email) {
         Optional<Buyer> buyer = buyerRepository.findByEmail(email);
         if(buyer.isPresent()) {
-            throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
+            throw new BusinessLogicException(ExceptionCode.EMAIL_ALREADY_EXISTS);
         }
     }
 
@@ -145,8 +151,7 @@ public class BuyerService {
     }
 
     private void verifyExistTel(String tel) {
-        Optional<Buyer> buyer = buyerRepository.findByTel(tel);
-        if(buyer.isPresent()) {
+        if(buyerRepository.existsByTel(tel)) {
             throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
         }
     }

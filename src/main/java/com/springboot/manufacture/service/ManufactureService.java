@@ -34,7 +34,7 @@ public class ManufactureService {
 
         manufactures.stream().forEach(manufacture -> {
             verifyManufactureCdExists(manufacture.getMfCd());
-            verifyManufactureNmExists(manufacture.getMfCd());
+            verifyManufactureNmExists(manufacture.getMfNm());
             verifyExistsEmail(manufacture.getEmail());
             manufactureRepository.save(manufacture);
         });
@@ -71,11 +71,22 @@ public class ManufactureService {
         Manufacture findManufacture = verifyManufacture(manufacture.getMfId());
 
         Optional.ofNullable(manufacture.getEmail())
-                .ifPresent(email -> findManufacture.setEmail(email));
+                .ifPresent(email -> {
+                    if(!email.equals(findManufacture.getEmail())) {
+                        verifyExistsEmail(email);
+                        findManufacture.setEmail(email);
+                    }
+                });
+
         Optional.ofNullable(manufacture.getRegion())
                 .ifPresent(region -> findManufacture.setRegion(region));
         Optional.ofNullable(manufacture.getMfNm())
-                .ifPresent(mfNm -> findManufacture.setMfNm(mfNm));
+                .ifPresent(mfNm -> {
+                    if(!mfNm.equals(findManufacture.getMfNm())) {
+                        verifyManufactureNmExists(mfNm);
+                        findManufacture.setMfNm(mfNm);
+                    }
+                });
 
         findManufacture.setModifiedAt(LocalDateTime.now());
 

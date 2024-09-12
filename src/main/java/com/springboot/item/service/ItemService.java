@@ -60,7 +60,12 @@ public class ItemService {
         extractMemberFromAuthentication(authentication);
         Item findItem = findVerifiedItemId(patch.getItemId());
         Optional.ofNullable(patch.getItemNm())
-                .ifPresent(itemNm -> findItem.setItemNm(itemNm));
+                .ifPresent(itemNm -> {
+                    if(!itemNm.equals(findItem.getItemNm())) {
+                        verifiedExists(itemNm);
+                        findItem.setItemNm(itemNm);
+                    }
+                });
         Optional.ofNullable(patch.getUnit())
                 .ifPresent(unit -> findItem.setUnit(unit));
         Optional.ofNullable(patch.getUnitPrice())

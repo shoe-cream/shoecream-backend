@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -79,15 +80,17 @@ public class ManufactureItemController {
     }
 
     // 제조사 공급단가, 수량 수정
-    @PatchMapping("/{mfItemId}")
-    public ResponseEntity updateItemMf(@Positive @PathVariable("mfItemId") long mfItemId,
-                                       @RequestBody @Valid Dto.ItemMfPatchDto patchDto,
+    @PatchMapping
+    public ResponseEntity updateItemMf(@RequestBody @Valid List<Dto.ItemMfPatchDto> patchDtos,
                                        Authentication authentication) {
-        patchDto.setMfItemId(mfItemId);
-        ItemManufacture itemManufacture =
-                manufactureItemService.updateItemMf(itemMfMapper.itemMfPatchDtoToItemMf(patchDto), authentication);
 
+        List<ItemManufacture> itemManufactures = new ArrayList<>();
+        for(Dto.ItemMfPatchDto patchDto : patchDtos) {
+
+          ItemManufacture itemManufacture = manufactureItemService.updateItemMf(itemMfMapper.itemMfPatchDtoToItemMf(patchDto), authentication);
+            itemManufactures.add(itemManufacture);
+        }
         return new ResponseEntity(
-                new SingleResponseDto<>(itemMfMapper.itemMfToItemMfResponseDto(itemManufacture)), HttpStatus.OK);
+                new SingleResponseDto<>(itemMfMapper.itemMfToItemMfResponseDtos(itemManufactures)), HttpStatus.OK);
     }
 }
