@@ -57,7 +57,7 @@ public class ItemController {
                                    Authentication authentication) {
         String sortCriteria = "createdAt";
         if(sort != null) {
-            List<String> sorts = Arrays.asList("itemCd", "itemNm", "createdAt", "unitPrice");
+            List<String> sorts = Arrays.asList("itemCd", "itemNm", "createdAt", "unitPrice", "itemId");
             if (sorts.contains(sort)) {
                 sortCriteria = sort;
             } else {
@@ -72,23 +72,6 @@ public class ItemController {
         return new ResponseEntity<>(
                 new MultiResponseDto<>(itemResponseDtos, itemPage), HttpStatus.OK);
     }
-
-//    @PatchMapping
-//    public ResponseEntity updateItem(@Valid @RequestBody List<Dto.ItemPatchDto> patchDtos,
-//                                     Authentication authentication) {
-//        List<Item> patches = itemMapper.itemPatchDtosToItems(patchDtos);
-//        List<Item> existingItems = itemService.findVerifiedItems(patchDtos.stream()
-//                .map(Dto.ItemPatchDto::getItemId).collect(Collectors.toList()));
-//
-//        List<Item> updateList = new ArrayList<>();
-//        for(int i = 0; i < patchDtos.size(); i++) {
-//            Item item = itemService.updateItem(existingItems.get(i),patches.get(i), authentication);
-//            updateList.add(item);
-//        }
-//
-//        return new ResponseEntity<>(
-//                new SingleResponseDto<>(itemMapper.itemToResponseDtos(updateList)), HttpStatus.OK);
-//    }
 
     @PatchMapping
     public ResponseEntity updateItem(@Valid @RequestBody List<Dto.ItemPatchDto> patchDtos,
