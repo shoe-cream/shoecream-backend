@@ -73,21 +73,35 @@ public class ItemController {
                 new MultiResponseDto<>(itemResponseDtos, itemPage), HttpStatus.OK);
     }
 
+//    @PatchMapping
+//    public ResponseEntity updateItem(@Valid @RequestBody List<Dto.ItemPatchDto> patchDtos,
+//                                     Authentication authentication) {
+//        List<Item> patches = itemMapper.itemPatchDtosToItems(patchDtos);
+//        List<Item> existingItems = itemService.findVerifiedItems(patchDtos.stream()
+//                .map(Dto.ItemPatchDto::getItemId).collect(Collectors.toList()));
+//
+//        List<Item> updateList = new ArrayList<>();
+//        for(int i = 0; i < patchDtos.size(); i++) {
+//            Item item = itemService.updateItem(existingItems.get(i),patches.get(i), authentication);
+//            updateList.add(item);
+//        }
+//
+//        return new ResponseEntity<>(
+//                new SingleResponseDto<>(itemMapper.itemToResponseDtos(updateList)), HttpStatus.OK);
+//    }
+
     @PatchMapping
     public ResponseEntity updateItem(@Valid @RequestBody List<Dto.ItemPatchDto> patchDtos,
                                      Authentication authentication) {
-        List<Item> patches = itemMapper.itemPatchDtosToItems(patchDtos);
-        List<Item> existingItems = itemService.findVerifiedItems(patchDtos.stream()
-                .map(Dto.ItemPatchDto::getItemId).collect(Collectors.toList()));
 
-        List<Item> updateList = new ArrayList<>();
-        for(int i = 0; i < patchDtos.size(); i++) {
-            Item item = itemService.updateItem(existingItems.get(i),patches.get(i), authentication);
-            updateList.add(item);
+        List<Item> response = new ArrayList<>();
+        for (Dto.ItemPatchDto patchDto : patchDtos) {
+            Item updateItem = itemService.updateItem(itemMapper.itemPatchToItem(patchDto), authentication);
+            response.add(updateItem);
         }
 
         return new ResponseEntity<>(
-                new SingleResponseDto<>(itemMapper.itemToResponseDtos(updateList)), HttpStatus.OK);
+                new SingleResponseDto<>(itemMapper.itemToResponseDtos(response)), HttpStatus.OK);
     }
 
     @DeleteMapping("/{itemId}")

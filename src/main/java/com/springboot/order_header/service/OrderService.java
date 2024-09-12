@@ -71,7 +71,7 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
         }
 
-        // 주문 코드 생성 후 설정
+//        // 주문 코드 생성 후 설정
 //        String orderCd = createOrderCd();
 //        orderHeaders.setOrderCd(orderCd);
 
