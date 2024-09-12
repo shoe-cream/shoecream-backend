@@ -111,9 +111,9 @@ public class OrderController {
     }
 
     //주문 개별 조회
-    @GetMapping("/{order-id}")
-    public ResponseEntity getOrder(@Positive @PathVariable("order-id") Long orderId) {
-        OrderHeaders orderHeaders = orderService.findOrder(orderId);
+    @GetMapping("/{order-cd}")
+    public ResponseEntity getOrder(@Positive @PathVariable("order-cd") String orderCd) {
+        OrderHeaders orderHeaders = orderService.findVerifiedOrderByCd(orderCd);
         return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)),HttpStatus.OK);
     }
 
@@ -121,16 +121,16 @@ public class OrderController {
     //조회조건 : 주문 상태별, buyerCode별, itemCode별, 날짜별로 조회가능(기본값 별도)
     @GetMapping
     public ResponseEntity getOrders(
-            @RequestParam(required = false) String buyerCode,
-            @RequestParam(required = false) String itemCode,
+            @RequestParam(required = false) String buyerCd,
+            @RequestParam(required = false) String itemCd,
             @RequestParam(required = false) OrderHeaders.OrderStatus status,
-            @RequestParam(required = false) Long orderId,
+            @RequestParam(required = false) String orderCd,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchStartDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchEndDate,
             @Positive @RequestParam int page,
             @Positive @RequestParam int size) {
 
-        OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCode, itemCode, status, orderId, searchStartDate, searchEndDate);
+        OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCd, itemCd, status, orderCd, searchStartDate, searchEndDate);
         Page<OrderHeaders> orderPages = orderService.findOrders(page - 1, size, orderSearchRequest);
         List<OrderHeaders> orderLists = orderPages.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);

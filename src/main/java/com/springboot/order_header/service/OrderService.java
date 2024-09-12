@@ -1,7 +1,5 @@
 package com.springboot.order_header.service;
 
-import com.springboot.buyer.entity.Buyer;
-import com.springboot.buyer.service.BuyerService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
@@ -25,9 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -71,9 +67,9 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
         }
 
-//        // 주문 코드 생성 후 설정
-//        String orderCd = createOrderCd();
-//        orderHeaders.setOrderCd(orderCd);
+        // 주문 코드 생성 후 설정
+        String orderCd = createOrderCd();
+        orderHeaders.setOrderCd(orderCd);
 
         // DB에 저장
         OrderHeaders orderHeader = orderHeadersRepository.save(orderHeaders);
@@ -150,7 +146,7 @@ public class OrderService {
     // order 조회 (조회조건 (조합 가능) : 주문 상태별, buyerCode별, itemCode별, 날짜별로 조회가능(기본값 별도))
     public Page<OrderHeaders> findOrders(int page, int size, OrderDto.OrderSearchRequest orderSearchRequest) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return orderQueryRepository.findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderId(orderSearchRequest, pageable);
+        return orderQueryRepository.findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderCd(orderSearchRequest, pageable);
     }
 
     // 판매내역 조회 (order-id로 분류)
@@ -163,6 +159,12 @@ public class OrderService {
     public OrderHeaders findVerifiedOrder(Long orderId) {
         Optional<OrderHeaders> findOrder = orderHeadersRepository.findById(orderId);
         return findOrder.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
+    }
+
+    //orderCd 검증
+    public OrderHeaders findVerifiedOrderByCd(String orderCd) {
+        Optional<OrderHeaders> findOrder = orderHeadersRepository.findByOrderCd(orderCd);
+        return findOrder.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_CD_NOT_FOUND));
     }
 
     // orderItem 검증 및 조회
@@ -191,29 +193,8 @@ public class OrderService {
 
     // 주문 코드 생성 메서드
     private String createOrderCd() {
-        // 현재 날짜를 "yyMMMdd" 형식으로 변환 (MMM은 월의 영어 약자)
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMMdd", Locale.ENGLISH);
-        String date = LocalDate.now().format(formatter).toUpperCase();
 
-        // 현재 날짜에 해당하는 마지막 주문 코드를 DB에서 조회
-        Optional<String> lastOrderCdOptional = orderHeadersRepository.findLatestOrderCd(date);
-
-        // 마지막 주문 코드가 없으면 00001부터 시작
-        int newOrderNumber = 1;
-
-        if (lastOrderCdOptional.isPresent()) {
-            String lastOrderCd = lastOrderCdOptional.get();
-            // 마지막 주문 코드에서 번호 부분 추출 (예: "24DEC1100001" -> 00001 추출)
-            String lastOrderNumberStr = lastOrderCd.substring(7); // 날짜(6자리) 이후 숫자(5자리) 부분 추출
-            int lastOrderNumber = Integer.parseInt(lastOrderNumberStr);
-
-            // 새로운 주문 번호는 마지막 번호 + 1
-            newOrderNumber = lastOrderNumber + 1;
-        }
-
-        // 새로운 주문 코드 생성 (예: 24DEC1100002)
-        String newOrderCd = String.format("%s%05d", date, newOrderNumber);
-
-        return newOrderCd;
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        return "SHO" + uuid;
     }
 }

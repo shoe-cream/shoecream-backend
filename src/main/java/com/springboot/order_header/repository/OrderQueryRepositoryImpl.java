@@ -25,7 +25,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
     }
 
     @Override
-    public Page<OrderHeaders> findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderId(OrderDto.OrderSearchRequest orderSearchRequest,
+    public Page<OrderHeaders> findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderCd(OrderDto.OrderSearchRequest orderSearchRequest,
                                                                                                                  Pageable pageable) {
 
         QOrderHeaders orderHeaders = QOrderHeaders.orderHeaders;
@@ -56,9 +56,9 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
             builder.and(orderItems.itemCd.eq(orderSearchRequest.getItemCd()));
         }
 
-        //주문번호 필터
-        if (orderSearchRequest.getOrderId() != null) {
-            builder.and(orderHeaders.orderId.eq(orderSearchRequest.getOrderId()));
+        //orderCode 필터
+        if (orderSearchRequest.getOrderCd() != null) {
+            builder.and(orderHeaders.orderCd.eq(orderSearchRequest.getOrderCd()));
         }
 
         List<OrderHeaders> results = queryFactory
