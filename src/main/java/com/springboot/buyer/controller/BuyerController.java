@@ -73,6 +73,7 @@ public class BuyerController {
                                     @RequestParam @Positive int size,
                                     @RequestParam(required = false) String sort,
                                     @RequestParam(required = false) String businessType,
+                                    @RequestParam(required = false) String direction,
                                     Authentication authentication) {
         String criteria = "buyerId";
         if(sort != null) {
@@ -83,7 +84,7 @@ public class BuyerController {
                 throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
             }
         }
-        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, businessType, authentication);
+        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, direction, businessType, authentication);
         List<Buyer> buyers = buyerPage.getContent();
 
         return new ResponseEntity<>(

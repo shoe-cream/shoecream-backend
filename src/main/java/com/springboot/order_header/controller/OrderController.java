@@ -2,6 +2,8 @@ package com.springboot.order_header.controller;
 
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.service.BuyerService;
+import com.springboot.exception.BusinessLogicException;
+import com.springboot.exception.ExceptionCode;
 import com.springboot.order_header.dto.OrderDto;
 import com.springboot.order_header.dto.OrderReportDto;
 import com.springboot.order_header.entity.OrderHeaders;
@@ -26,6 +28,7 @@ import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -128,10 +131,22 @@ public class OrderController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchStartDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate searchEndDate,
             @Positive @RequestParam int page,
-            @Positive @RequestParam int size) {
+            @Positive @RequestParam int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String direction) {
+
+        String sortCriteria = "orderId";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("orderId", "orderCd", "requestDate", "createdAt", "orderStatus");
+            if (sorts.contains(sort)) {
+                sortCriteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
 
         OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCd, itemCd, status, orderCd, searchStartDate, searchEndDate);
-        Page<OrderHeaders> orderPages = orderService.findOrders(page - 1, size, orderSearchRequest);
+        Page<OrderHeaders> orderPages = orderService.findOrders(page - 1, size, sortCriteria, direction, orderSearchRequest);
         List<OrderHeaders> orderLists = orderPages.getContent();
         return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);
     }

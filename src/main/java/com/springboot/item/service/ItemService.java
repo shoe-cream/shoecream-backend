@@ -41,17 +41,20 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Item> findItems(int page, int size, String criteria, Authentication authentication) {
+    public Page<Item> findItems(int page, int size, String criteria, String direction, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = createPageable(page, size, criteria);
+        Pageable pageable = createPageable(page, size, criteria, direction);
 
         Page<Item> items = itemRepository.findByItemStatusNot(Item.ItemStatus.NOT_FOR_SALE, pageable);
         return items;
     }
 
-    private Pageable createPageable(int page, int size, String sortCriteria) {
-        Sort sort = Sort.by(sortCriteria).descending();
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+
+        Sort sort = Sort.by(sortDirection, sortCriteria);
 
         return PageRequest.of(page, size, sort);
     }

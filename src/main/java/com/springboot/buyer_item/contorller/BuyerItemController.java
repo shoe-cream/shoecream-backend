@@ -58,17 +58,20 @@ public class BuyerItemController {
                                         @RequestParam @Positive int page,
                                         @RequestParam @Positive int size,
                                         @RequestParam(required = false) String sort,
+                                        @RequestParam(required = false) String direction,
                                         Authentication authentication) {
 
         String criteria = "buyerItemId";
-        List<String> sorts = Arrays.asList("buyerItemId", "buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
-        if (sorts.contains(sort)) {
-            criteria = sort;
-        } else {
-            throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("buyerItemId", "buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
+            if (sorts.contains(sort)) {
+                criteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
         }
 
-        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, criteria, authentication);
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, criteria, direction, authentication);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());

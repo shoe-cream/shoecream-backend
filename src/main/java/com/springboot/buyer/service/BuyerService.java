@@ -55,10 +55,10 @@ public class BuyerService {
     }
 
     // 페이지네이션으로 필터링을통해 전체조회 ok 필터링 없이 전체를 조회 ok.
-    public Page<Buyer> findBuyers(int page, int size, String criteria, String businessType, Authentication authentication) {
+    public Page<Buyer> findBuyers(int page, int size, String criteria, String direction, String businessType, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable = createPageable(page, size, criteria);
+        Pageable pageable = createPageable(page, size, criteria, direction);
 
         if (businessType != null && !businessType.isEmpty()) {
             return buyerRepository.findAllByBusinessTypeAndBuyerStatusNot(businessType, Buyer.BuyerStatus.INACTIVE, pageable);
@@ -67,8 +67,11 @@ public class BuyerService {
         }
     }
 
-    private Pageable createPageable(int page, int size, String sortCriteria) {
-        Sort sort = Sort.by(sortCriteria).descending();
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+
+        Sort sort = Sort.by(sortDirection, sortCriteria);
 
         return PageRequest.of(page, size, sort);
     }

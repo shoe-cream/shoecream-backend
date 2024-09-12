@@ -1,5 +1,7 @@
 package com.springboot.manufacture_item.controller;
 
+import com.springboot.exception.BusinessLogicException;
+import com.springboot.exception.ExceptionCode;
 import com.springboot.manufacture_item.dto.Dto;
 import com.springboot.manufacture_item.entity.ItemManufacture;
 import com.springboot.manufacture_item.mapper.ItemMfMapper;
@@ -59,11 +61,20 @@ public class ManufactureItemController {
                                      @Positive int page,
                                      @Positive int size,
                                      @RequestParam(required = false) String sort,
+                                     @RequestParam(required = false) String direction,
                                      Authentication authentication) {
 
         String criteria = "mfItemId";
-        List<String> sorts = Arrays.asList("mfItemId", "unitPrice", "createdAt", "modifiedAt", "qty");
-        Page<ItemManufacture> itemManufacturePage = manufactureItemService.findItemMfs(page - 1, size, criteria, itemCd, mfCd, authentication);
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("mfItemId", "unitPrice", "createdAt", "modifiedAt", "qty");
+            if (sorts.contains(sort)) {
+                criteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+
+        Page<ItemManufacture> itemManufacturePage = manufactureItemService.findItemMfs(page - 1, size, criteria, direction, itemCd, mfCd, authentication);
         List<ItemManufacture> itemManufactures = itemManufacturePage.getContent();
 
         return new ResponseEntity<>(

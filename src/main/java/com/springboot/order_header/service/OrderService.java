@@ -144,10 +144,18 @@ public class OrderService {
     }
 
     // order 조회 (조회조건 (조합 가능) : 주문 상태별, buyerCode별, itemCode별, 날짜별로 조회가능(기본값 별도))
-    public Page<OrderHeaders> findOrders(int page, int size, OrderDto.OrderSearchRequest orderSearchRequest) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    public Page<OrderHeaders> findOrders(int page, int size, String criteria, String direction, OrderDto.OrderSearchRequest orderSearchRequest) {
+        Pageable pageable = createPageable(page, size, criteria, direction);
         return orderQueryRepository.findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderCd(orderSearchRequest, pageable);
     }
+
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+        Sort sort = Sort.by(sortDirection, sortCriteria);
+
+        return PageRequest.of(page, size, sort);
+    }
+
 
     // 판매내역 조회 (order-id로 분류)
     public Page<SaleHistory> findHistories(int page, int size, Long orderId) {
@@ -158,43 +166,47 @@ public class OrderService {
     //orderId 검증
     public OrderHeaders findVerifiedOrder(Long orderId) {
         Optional<OrderHeaders> findOrder = orderHeadersRepository.findById(orderId);
+
         return findOrder.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
     }
 
     //orderCd 검증
     public OrderHeaders findVerifiedOrderByCd(String orderCd) {
         Optional<OrderHeaders> findOrder = orderHeadersRepository.findByOrderCd(orderCd);
+
         return findOrder.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ORDER_CD_NOT_FOUND));
     }
 
     // orderItem 검증 및 조회
     private OrderItems findVerifiedOrderItems(Long itemId) {
         Optional<OrderItems> findItem = orderItemsRepository.findById(itemId);
+
         return findItem.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
     }
 
     //member 검증 및 반환
     private Member verifiedMember(Authentication authentication) {
-
         String user = (String) authentication.getPrincipal();
+
         return memberService.findVerifiedEmployee(user);
     }
 
     // 판매 report (마진률)
     public List<OrderReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
+
         return saleReport.getSaleReport(startDate, endDate);
     }
 
     // 아이템 재고 계산
     public OrderReportDto.InventoryDto getStock(String itemCd) {
+
         return saleReport.getInventory(itemCd);
     }
 
-
     // 주문 코드 생성 메서드
     private String createOrderCd() {
-
         String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+
         return "SHO" + uuid;
     }
 }
