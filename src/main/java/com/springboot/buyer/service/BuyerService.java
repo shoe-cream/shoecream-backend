@@ -32,6 +32,7 @@ public class BuyerService {
         extractMemberFromAuthentication(authentication);
 
         buyers.stream().forEach(buyer -> {
+            verifyExistName(buyer.getBuyerNm());
             verifyExistTel(buyer.getTel());
             verifyExistEmail(buyer.getEmail());
             verifyBuyerCdExists(buyer.getBuyerCd());
@@ -84,13 +85,26 @@ public class BuyerService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
 
         Optional.ofNullable(buyer.getBuyerNm())
-                .ifPresent(buyerNm -> findBuyer.setBuyerNm(buyerNm));
+                .ifPresent(buyerNm -> {
+                    verifyExistName(buyerNm);
+                    findBuyer.setBuyerNm(buyerNm);
+                });
+
         Optional.ofNullable(buyer.getAddress())
                 .ifPresent(address -> findBuyer.setAddress(address));
+
         Optional.ofNullable(buyer.getEmail())
-                .ifPresent(email -> findBuyer.setEmail(email));
+                .ifPresent(email -> {
+                    verifyExistEmail(email);
+                    findBuyer.setEmail(email);
+                });
+
         Optional.ofNullable(buyer.getTel())
-                .ifPresent(tel -> findBuyer.setTel(tel));
+                .ifPresent(tel -> {
+                    verifyExistTel(tel);
+                    findBuyer.setTel(tel);
+                });
+
         Optional.ofNullable(buyer.getBusinessType())
                 .ifPresent(businessType -> findBuyer.setBusinessType(businessType));
 
@@ -118,6 +132,13 @@ public class BuyerService {
 
     private void verifyExistEmail(String email) {
         Optional<Buyer> buyer = buyerRepository.findByEmail(email);
+        if(buyer.isPresent()) {
+            throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
+        }
+    }
+
+    private void verifyExistName(String name) {
+        Optional<Buyer> buyer = buyerRepository.findByBuyerNm(name);
         if(buyer.isPresent()) {
             throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
         }
