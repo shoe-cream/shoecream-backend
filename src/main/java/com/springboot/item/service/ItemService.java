@@ -22,6 +22,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
 
+    //item 생성
     public void createItem(List<Item> items, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
         items.stream().forEach(item -> {
@@ -31,34 +32,38 @@ public class ItemService {
         });
     }
 
+    //item Cd로 item 찾기
     @Transactional(readOnly = true)
     public Item findItem(String itemCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
         return findVerifiedItem(itemCd);
     }
 
+    //전체 item 조회 - pagination
     @Transactional(readOnly = true)
     public Page<Item> findItems(int page, int size, String criteria, String direction, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         Pageable pageable = createPageable(page, size, criteria, direction);
+        Page<Item> items = itemRepository.findAll(pageable);
 
-        Page<Item> items = itemRepository.findByItemStatusNot(Item.ItemStatus.NOT_FOR_SALE, pageable);
         return items;
     }
 
-    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
-
-        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
-
-        Sort sort = Sort.by(sortDirection, sortCriteria);
-
-        return PageRequest.of(page, size, sort);
+    //전체 item 조회
+    public List<Item> findItemsAll() {
+        return itemRepository.findAll();
     }
 
+    //item 정보 수정 (이름/단위/단가/상태)
     public Item updateItem(Item patch, Authentication authentication) {
+        //member 검증
         extractMemberFromAuthentication(authentication);
+
+        //변경 전 Item
         Item findItem = findVerifiedItemId(patch.getItemId());
+
+        //변경할 필드값
         Optional.ofNullable(patch.getItemNm())
                 .ifPresent(itemNm -> {
                     if(!itemNm.equals(findItem.getItemNm())) {
@@ -67,33 +72,28 @@ public class ItemService {
                     }
                 });
         Optional.ofNullable(patch.getUnit())
-                .ifPresent(unit -> findItem.setUnit(unit));
+                .ifPresent(findItem::setUnit);
         Optional.ofNullable(patch.getUnitPrice())
-                .ifPresent(unitPrice -> findItem.setUnitPrice(unitPrice));
+                .ifPresent(findItem::setUnitPrice);
         Optional.ofNullable(patch.getItemStatus())
-                .ifPresent(itemStatus -> findItem.setItemStatus(itemStatus));
+                .ifPresent(findItem::setItemStatus);
 
+        // 변경 저장
         findItem.setModifiedAt(LocalDateTime.now());
+
         return itemRepository.save(findItem);
     }
 
+    //item DB에서 삭제
     public void deleteItem(long itemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+        Item item = findVerifiedItemId(itemId);
 
-        item.setItemStatus(Item.ItemStatus.NOT_FOR_SALE);
-
-        itemRepository.save(item);
+        itemRepository.delete(item);
     }
 
-    private Item findVerifiedItem(String itemCd) {
-        Optional<Item> item = itemRepository.findByItemCd(itemCd);
-
-        return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
-    }
-
+    //authentication -> member 정보 가져오기
     private Member extractMemberFromAuthentication(Authentication authentication) {
         String username = (String) authentication.getPrincipal();
 
@@ -115,13 +115,27 @@ public class ItemService {
         }
     }
 
+    //검증된 item 찾기 - itemCd를 통해
+    private Item findVerifiedItem(String itemCd) {
+        Optional<Item> item = itemRepository.findByItemCd(itemCd);
+
+        return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+    }
+
+    //검증된 item 찾기 - itemId를 통해
     public Item findVerifiedItemId(Long itemId) {
         Optional<Item> item = itemRepository.findByItemId(itemId);
 
         return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
     }
 
-    public List<Item> findVerifiedItems(List<Long> itemIds) {
-        return itemRepository.findByItemIdIn(itemIds);
+    //Pageable 생성
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+
+        Sort sort = Sort.by(sortDirection, sortCriteria);
+
+        return PageRequest.of(page, size, sort);
     }
 }

@@ -2,7 +2,7 @@ package com.springboot.item.mapper;
 
 import com.springboot.item.dto.Dto;
 import com.springboot.item.entity.Item;
-import com.springboot.order_header.dto.OrderReportDto;
+import com.springboot.report.reportDto.ReportDto;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public interface ItemMapper {
     List<Item> itemPostDtosToItems(List<Dto.ItemPostDto> postDtos);
     Item itemPatchToItem(Dto.ItemPatchDto patchDto);
     List<Item> itemPatchDtosToItems(List<Dto.ItemPatchDto> patchDtos);
-    default Dto.ItemResponseDto itemToResponseDto(Item item , OrderReportDto.InventoryDto report) {
+    default Dto.ItemResponseDto itemToResponseDto(Item item , ReportDto.InventoryDto report) {
         Dto.ItemResponseDto itemResponseDto = new Dto.ItemResponseDto();
 
         itemResponseDto.setItemId( item.getItemId() );
