@@ -45,10 +45,10 @@ public class BuyerItemService {
         });
     }
 
-    public BuyerItem findBuyerItem(long buyerItemId, Authentication authentication) {
+    public BuyerItem findBuyerItem(String buyerItemCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        return findVerifiedBuyerItem(buyerItemId);
+        return findVerifiedBuyerItemByItemCd(buyerItemCd);
     }
 
     public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd, String criteria, String direction, Authentication authentication) {
@@ -122,6 +122,11 @@ public class BuyerItemService {
 
     private BuyerItem findVerifiedBuyerItem(Long buyerItemId) {
         return buyerItemRepository.findById(buyerItemId)
+                .orElseThrow(()-> new BusinessLogicException(ExceptionCode.BUYER_ITEM_NOT_FOUND));
+    }
+
+    private BuyerItem findVerifiedBuyerItemByItemCd(String buyerItemCd) {
+        return buyerItemRepository.findByItem_ItemCd(buyerItemCd)
                 .orElseThrow(()-> new BusinessLogicException(ExceptionCode.BUYER_ITEM_NOT_FOUND));
     }
 }

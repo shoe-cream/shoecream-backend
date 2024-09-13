@@ -60,6 +60,7 @@ public interface BuyerItemMapper {
                 .filter(buyerItem -> buyerItem.getItem().getItemStatus() != Item.ItemStatus.NOT_FOR_SALE)
                 .map(buyerItem -> Dto.BuyerItemResponseDto
                         .builder()
+                        .buyerItemId(buyerItem.getBuyerItemId())
                         .itemNm(buyerItem.getItem().getItemNm())
                         .itemCd(buyerItem.getItem().getItemCd())
                         .buyerNm(buyerItem.getBuyer().getBuyerNm())
@@ -68,6 +69,7 @@ public interface BuyerItemMapper {
                         .startDate(buyerItem.getStartDate())
                         .endDate(buyerItem.getEndDate())
                         .itemStatus(buyerItem.getItem().getItemStatus())
+                        .modifiedAt(buyerItem.getModifiedAt())
                         .build())
                 .collect(Collectors.toList());
     }
