@@ -1,5 +1,6 @@
 package com.springboot.order_header.controller;
 
+import com.querydsl.core.types.Order;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.service.BuyerService;
 import com.springboot.exception.BusinessLogicException;
@@ -14,6 +15,7 @@ import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
+import com.springboot.utils.UriCreator;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +40,7 @@ public class OrderController {
     private final OrderMapper orderMapper;
     private final BuyerService buyerService;
     private final SaleHistoryMapper saleHistoryMapper;
+    private final static String ORDER_DEFAULT_URI ="/orders";
 
     public OrderController(OrderService orderService, OrderMapper orderMapper, BuyerService buyerService, SaleHistoryMapper saleHistoryMapper) {
         this.orderService = orderService;
@@ -48,6 +52,9 @@ public class OrderController {
     // 주문 등록
     @PostMapping
     public ResponseEntity postOrder(@Valid @RequestBody List<OrderDto.Post> orderPostDtos, Authentication authentication) {
+
+        List<OrderHeaders> orders = new ArrayList<>();
+
         for(OrderDto.Post post : orderPostDtos) {
             OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(post);
 
@@ -62,9 +69,12 @@ public class OrderController {
             }
 
             orderHeaders.setOrderItems(orderItemsList);
-            orderService.createOrder(orderHeaders, authentication);
+            OrderHeaders order = orderService.createOrder(orderHeaders, authentication);
+            orders.add(order);
+
         }
-        return new ResponseEntity(HttpStatus.CREATED);
+
+        return new ResponseEntity(orderMapper.ordersToOrderResponseDtos(orders), HttpStatus.CREATED);
     }
 
     //주문 (order-header) 수정

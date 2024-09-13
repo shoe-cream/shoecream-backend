@@ -54,7 +54,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void createOrder(OrderHeaders orderHeaders, Authentication authentication) {
+    public OrderHeaders createOrder(OrderHeaders orderHeaders, Authentication authentication) {
         //담당자 설정
         Member member = verifiedMember(authentication);
         orderHeaders.setMember(member);
@@ -69,6 +69,7 @@ public class OrderService {
         // DB에 저장
         OrderHeaders orderHeader = orderHeadersRepository.save(orderHeaders);
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeader, member));
+        return orderHeader;
     }
 
     // OrderHeader 수정 : 주문에 대한 상태랑 납기일 변경
