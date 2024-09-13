@@ -43,8 +43,8 @@ public class BuyerItemController {
     }
 
     // 특정 바이어아이템 조회
-    @GetMapping("/{buyerItemId}")
-    public ResponseEntity findBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId, Authentication authentication) {
+    @GetMapping("/{buyerItemCd}")
+    public ResponseEntity findBuyerItem(@PathVariable("buyerItemCd") @Positive long buyerItemId, Authentication authentication) {
         BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId, authentication);
 
         return new ResponseEntity<>(
@@ -94,13 +94,6 @@ public class BuyerItemController {
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItems)), HttpStatus.OK);
 
-    }
-
-    @DeleteMapping("/{buyerItemId}")
-    public ResponseEntity deleteBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId,
-                                          Authentication authentication) {
-        buyerItemService.deleteBuyerItem(buyerItemId, authentication);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping

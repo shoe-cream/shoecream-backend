@@ -102,7 +102,7 @@ public class BuyerController {
                                      Authentication authentication) {
         List<Buyer> buyers = new ArrayList<>();
         for(Dto.BuyerPatchDto patchDto : patchDtos) {
-            Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDgittoToBuyer(patchDto), authentication);
+            Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDtoToBuyer(patchDto), authentication);
             buyers.add(buyer);
         }
 
