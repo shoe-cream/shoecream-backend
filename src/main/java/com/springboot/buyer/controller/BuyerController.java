@@ -109,7 +109,8 @@ public class BuyerController {
                 .sorted(Comparator.comparing(Buyer::getBuyerNm))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(buyerMapper.buyerToBuyerResponseDtos(sortedBuyers), HttpStatus.OK);
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(sortedBuyers)), HttpStatus.OK);
     }
 
     //Buyer 수정
