@@ -91,12 +91,18 @@ public class BuyerController {
                 new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity getAllBuyers(Authentication authentication) {
+        List<Buyer> buyers = buyerService.findAll(authentication);
+        return new ResponseEntity<>(buyerMapper.buyerToBuyerResponseDtos(buyers), HttpStatus.OK);
+    }
+
     @PatchMapping
     public ResponseEntity patchBuyer(@RequestBody @Valid List<Dto.BuyerPatchDto> patchDtos,
                                      Authentication authentication) {
         List<Buyer> buyers = new ArrayList<>();
         for(Dto.BuyerPatchDto patchDto : patchDtos) {
-            Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDtoToBuyer(patchDto), authentication);
+            Buyer buyer = buyerService.updateBuyer(buyerMapper.buyerPatchDgittoToBuyer(patchDto), authentication);
             buyers.add(buyer);
         }
 
