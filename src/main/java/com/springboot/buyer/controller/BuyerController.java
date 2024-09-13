@@ -4,7 +4,6 @@ import com.springboot.buyer.dto.Dto;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.mapper.BuyerMapper;
 import com.springboot.buyer.service.BuyerService;
-import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.mapper.BuyerItemMapper;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
@@ -37,6 +36,7 @@ public class BuyerController {
     private final BuyerMapper buyerMapper;
     private final BuyerItemMapper buyerItemMapper;
 
+    //Buyer 등록
     @PostMapping
     public ResponseEntity postBuyer(@Valid @RequestBody List<Dto.BuyerPostDto> postDtos, Authentication authentication) {
         buyerService.createBuyer(buyerMapper.postDtosToBuyerItems(postDtos), authentication);
@@ -49,7 +49,9 @@ public class BuyerController {
                                    @RequestParam(required = false) String buyerNm,
                                    @RequestParam(required = false) String businessType,
                                    Authentication authentication) {
+
         Buyer buyerByCd = buyerService.findBuyerByFilter(buyerCd, buyerNm, businessType, authentication);
+
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyerByCd)), HttpStatus.OK);
     }
@@ -68,7 +70,7 @@ public class BuyerController {
                 new SingleResponseDto<>(response), HttpStatus.OK);
     }
 
-    // 페이지네이션으로 바이어 전체조회 또는 사업유형으로 전채조회.
+    // 페이지네이션으로 바이어 전체조회 또는 사업유형으로 전체조회.
     @GetMapping
     public ResponseEntity getBuyers(@RequestParam @Positive int page,
                                     @RequestParam @Positive int size,
@@ -76,15 +78,21 @@ public class BuyerController {
                                     @RequestParam(required = false) String businessType,
                                     @RequestParam(required = false) String direction,
                                     Authentication authentication) {
+
         String criteria = "buyerId";
+
         if(sort != null) {
+
+            //정렬 기준
             List<String> sorts = Arrays.asList("buyerId", "buyerNm", "createdAt", "buyerCd", "address", "businessType");
+
             if(sorts.contains(sort)) {
                 criteria = sort;
             } else {
                 throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
             }
         }
+
         Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, direction, businessType, authentication);
         List<Buyer> buyers = buyerPage.getContent();
 
@@ -92,6 +100,7 @@ public class BuyerController {
                 new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
     }
 
+    //Buyer 전체 조회
     @GetMapping("/all")
     public ResponseEntity getAllBuyers() {
         List<Buyer> buyers = buyerService.findAll();
@@ -103,6 +112,7 @@ public class BuyerController {
         return new ResponseEntity<>(buyerMapper.buyerToBuyerResponseDtos(sortedBuyers), HttpStatus.OK);
     }
 
+    //Buyer 수정
     @PatchMapping
     public ResponseEntity patchBuyer(@RequestBody @Valid List<Dto.BuyerPatchDto> patchDtos,
                                      Authentication authentication) {
@@ -116,13 +126,7 @@ public class BuyerController {
                 new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers)), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{buyer-id}")
-    public ResponseEntity deleteBuyer(@PathVariable("buyer-id") @Positive long buyerId,
-                                      Authentication authentication) {
-        buyerService.deleteBuyer(buyerId, authentication);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
+    // Buyer 다중 id 선택 - 삭제
     @DeleteMapping
     public ResponseEntity deleteBuyers (@RequestBody Dto.BuyerDeleteDtos deleteDtos,
                                         Authentication authentication) {

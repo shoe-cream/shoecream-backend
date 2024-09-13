@@ -44,15 +44,14 @@ public class BuyerItemController {
 
     // 특정 바이어아이템 조회
     @GetMapping("/{buyerItemCd}")
-    public ResponseEntity findBuyerItem(@PathVariable("buyerItemCd") @Positive long buyerItemId, Authentication authentication) {
-        BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId, authentication);
+    public ResponseEntity findBuyerItem(@PathVariable("buyerItemCd") String buyerItemCd, Authentication authentication) {
+        BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemCd, authentication);
 
         return new ResponseEntity<>(
                 new SingleResponseDto<>(buyerItemMapper.buyerItemToBuyerResponseDto(buyerItem)), HttpStatus.OK);
     }
 
-    // 수정 필요!!
-    // 페이지네이션으로 바이어아이템 전체조회 또는 특정 조건을 사용자가 입력해 전체 조회
+    //전체조회 (Pagination, buyerCd 입력시 필터)
     @GetMapping
     public ResponseEntity getBuyerItems(@RequestParam(required = false) String buyerCd,
                                         @RequestParam @Positive int page,
@@ -80,6 +79,7 @@ public class BuyerItemController {
                 new MultiResponseDto<>(buyerItemResponseDtos, buyerItemPage), HttpStatus.OK);
     }
 
+    //BuyerItem 수정
     @PatchMapping
     public ResponseEntity updateBuyerItem(@RequestBody List<Dto.BuyerItemPatchDto> patchDtos,
                                           Authentication authentication) {
@@ -96,6 +96,7 @@ public class BuyerItemController {
 
     }
 
+    //BuyerItem 삭제 - buyerId를 통해
     @DeleteMapping
     public ResponseEntity deleteBuyerItems(@RequestBody Dto.BuyerItemDeleteDtos deleteDtos, Authentication authentication) {
         List<Long> deleteIds = deleteDtos.getItemId();

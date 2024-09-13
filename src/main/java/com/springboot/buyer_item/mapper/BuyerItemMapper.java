@@ -19,9 +19,10 @@ import java.util.stream.Collectors;
 public interface BuyerItemMapper {
     default BuyerItem buyerItemPostDtoToBuyerItem(Dto.BuyerItemPostDto postDto){
         Buyer buyer = new Buyer();
-        buyer.setBuyerId(postDto.getBuyerId());
+        buyer.setBuyerNm(postDto.getBuyerNm());
+
         Item item = new Item();
-        item.setItemId(postDto.getItemId());
+        item.setItemNm(postDto.getItemNm());
 
         BuyerItem buyerItem = new BuyerItem();
         buyerItem.setBuyer(buyer);
@@ -59,6 +60,7 @@ public interface BuyerItemMapper {
                 .filter(buyerItem -> buyerItem.getItem().getItemStatus() != Item.ItemStatus.NOT_FOR_SALE)
                 .map(buyerItem -> Dto.BuyerItemResponseDto
                         .builder()
+                        .buyerItemId(buyerItem.getBuyerItemId())
                         .itemNm(buyerItem.getItem().getItemNm())
                         .itemCd(buyerItem.getItem().getItemCd())
                         .buyerNm(buyerItem.getBuyer().getBuyerNm())
@@ -67,6 +69,7 @@ public interface BuyerItemMapper {
                         .startDate(buyerItem.getStartDate())
                         .endDate(buyerItem.getEndDate())
                         .itemStatus(buyerItem.getItem().getItemStatus())
+                        .modifiedAt(buyerItem.getModifiedAt())
                         .build())
                 .collect(Collectors.toList());
     }

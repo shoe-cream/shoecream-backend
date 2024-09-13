@@ -21,11 +21,11 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class BuyerItemPostDto {
-        @Min(value = 1, message = "buyer ID는 1 이상이어야 합니다.")
-        private long buyerId;
+        @NotNull
+        private String buyerNm;
 
-        @Min(value = 1, message = "item ID는 1 이상이어야 합니다.")
-        private long itemId;
+        @NotNull
+        private String itemNm;
 
         @DecimalMin(value = "0.01", message = "단가는 0보다 커야 합니다.")
         private BigDecimal unitPrice;
