@@ -137,8 +137,10 @@ public class MemberService {
     private String generateRandomPassword() {
         return UUID.randomUUID().toString().substring(0, 8); // 8자리 비밀번호 생성
     }
-    public Member uploadProfile(String email, String profileUrl) {
-        Member member = findVerifiedMember(email);
+
+
+    public Member uploadProfile(String employeeId, String profileUrl) {
+        Member member = findVerifiedEmployee(employeeId);
         member.setProfileUrl(profileUrl);
         return memberRepository.save(member);
     }
@@ -151,8 +153,8 @@ public class MemberService {
     }
 
     // 프로필 사진 삭제 (기본 이미지로 변경)
-    public Member deleteProfile(String email) {
-        Member member = findVerifiedMember(email);
+    public Member deleteProfile(String employeeId) {
+        Member member = findVerifiedEmployee(employeeId);
         member.setProfileUrl("https://img.hankyung.com/photo/202208/BF.30820179.1.jpg"); // 기본 이미지 URL
         return memberRepository.save(member);
     }

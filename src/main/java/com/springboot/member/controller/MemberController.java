@@ -108,7 +108,7 @@ public class MemberController {
     public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.UploadProfile profileUploadDto, Authentication authentication) {
         String employeeId = authentication.getName();
         Member updatedMember = memberService.uploadProfile(employeeId, profileUploadDto.getProfileUrl());
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUploadToMember(profileUploadDto)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(updatedMember), HttpStatus.OK);
     }
 
     // 프로필 사진 수정
