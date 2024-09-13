@@ -5,12 +5,13 @@ import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
 import com.springboot.order_header.dto.OrderDto;
-import com.springboot.order_header.dto.OrderReportDto;
+import com.springboot.report.reportDto.ReportDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.repository.OrderHeadersRepository;
 import com.springboot.order_header.repository.OrderQueryRepositoryCustom;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
+import com.springboot.report.service.SaleReport;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
 import com.springboot.sale_history.repository.SaleHistoryRepository;
@@ -192,13 +193,13 @@ public class OrderService {
     }
 
     // 판매 report (마진률)
-    public List<OrderReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
+    public List<ReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
 
         return saleReport.getSaleReport(startDate, endDate);
     }
 
     // 아이템 재고 조회
-    public OrderReportDto.InventoryDto getStock(String itemCd) {
+    public ReportDto.InventoryDto getStock(String itemCd) {
 
         return saleReport.getInventory(itemCd);
     }

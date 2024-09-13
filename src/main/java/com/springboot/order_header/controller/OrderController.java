@@ -5,7 +5,7 @@ import com.springboot.buyer.service.BuyerService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.order_header.dto.OrderDto;
-import com.springboot.order_header.dto.OrderReportDto;
+import com.springboot.report.reportDto.ReportDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.mapper.OrderMapper;
 import com.springboot.order_header.service.OrderService;
@@ -14,8 +14,6 @@ import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
-import com.springboot.utils.UriCreator;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,7 +132,7 @@ public class OrderController {
 
     //주문 개별 조회
     @GetMapping("/{order-cd}")
-    public ResponseEntity getOrder(@Positive @PathVariable("order-cd") String orderCd) {
+    public ResponseEntity getOrder(@PathVariable("order-cd") String orderCd) {
         OrderHeaders orderHeaders = orderService.findVerifiedOrderByCd(orderCd);
         return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)),HttpStatus.OK);
     }
@@ -173,7 +170,7 @@ public class OrderController {
 
     //SaleHistory 조회
     @GetMapping("/{order-cd}/histories")
-    public ResponseEntity getOrderHistory(@Positive @PathVariable("order-cd") String orderCd,
+    public ResponseEntity getOrderHistory(@PathVariable("order-cd") String orderCd,
                                           @Positive @RequestParam int page,
                                           @Positive @RequestParam int size,
                                           @RequestParam(required = false) String sort,
@@ -205,13 +202,13 @@ public class OrderController {
         if (endDate == null) {
             endDate = LocalDate.of(9999, 12, 31);
         }
-        List<OrderReportDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
+        List<ReportDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
     @GetMapping("/inventories")
     public ResponseEntity getStock (@RequestParam String itemCd) {
-        OrderReportDto.InventoryDto dto = orderService.getStock(itemCd);
+        ReportDto.InventoryDto dto = orderService.getStock(itemCd);
         return new ResponseEntity(dto, HttpStatus.OK);
     }
 }

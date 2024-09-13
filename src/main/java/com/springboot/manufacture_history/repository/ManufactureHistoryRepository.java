@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ManufactureHistoryRepository extends JpaRepository<ManuFactureHistory, Long> {
+
     Page<ManuFactureHistory> findByMfItemId(Long mfItemId, Pageable pageable);
-    Page<ManuFactureHistory> findByMfId(Long mfId, Pageable pageable);
+    Page<ManuFactureHistory> findByMfCd(String mfCd, Pageable pageable);
 }
