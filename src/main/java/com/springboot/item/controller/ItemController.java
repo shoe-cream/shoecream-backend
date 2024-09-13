@@ -1,6 +1,7 @@
 package com.springboot.item.controller;
 
 
+import com.springboot.buyer.entity.Buyer;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.dto.Dto;
@@ -24,7 +25,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,8 +55,13 @@ public class ItemController {
     @GetMapping("/all")
     public ResponseEntity getItemsAll() {
         List<Item> items = itemService.findItemsAll();
+
+        List<Item> sortedItems = items.stream()
+                .sorted(Comparator.comparing(Item::getItemNm))
+                .collect(Collectors.toList());
+
         return new ResponseEntity(
-                new SingleResponseDto<>(itemMapper.itemToResponseDtos(items)),HttpStatus.OK);
+                new SingleResponseDto<>(itemMapper.itemToResponseDtos(sortedItems)),HttpStatus.OK);
     }
 
 

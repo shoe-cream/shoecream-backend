@@ -90,7 +90,7 @@ public class OrderController {
 
     //주문 (order-item) 수정
     @PatchMapping("/items")
-    public ResponseEntity patchOrderItem( @Valid @RequestBody List<OrderDto.ItemPatch> itemPatches , Authentication authentication) {
+    public ResponseEntity patchOrderItem(@Valid @RequestBody List<OrderDto.ItemPatch> itemPatches , Authentication authentication) {
 
         List<OrderHeaders> orderHeaderList = new ArrayList<>();
 
@@ -173,8 +173,10 @@ public class OrderController {
         }
 
         OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCd, itemCd, status, orderCd, searchStartDate, searchEndDate);
+
         Page<OrderHeaders> orderPages = orderService.findOrders(page - 1, size, sortCriteria, direction, orderSearchRequest);
         List<OrderHeaders> orderLists = orderPages.getContent();
+
         return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);
     }
 
@@ -185,7 +187,7 @@ public class OrderController {
                                           @Positive @RequestParam int size,
                                           @RequestParam(required = false) String sort,
                                           @RequestParam(required = false) String direction) {
-
+        //정렬기준
         String sortCriteria = "createdAt";
         if(sort != null) {
             List<String> sorts = Arrays.asList("createdAt", "saleHistoryId", "personInCharge", "buyerCd", "requestDate", "orderDate", "orderStatus");
@@ -202,6 +204,7 @@ public class OrderController {
         return new ResponseEntity<>(new MultiResponseDto<>(saleHistoryMapper.saleHistoriesToSaleHistoriesResponseDtos(historyLists),historyPages), HttpStatus.OK);
     }
 
+    //판매 report
     @GetMapping("/reports")
     public ResponseEntity totalSales (@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                       @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
@@ -219,6 +222,7 @@ public class OrderController {
     @GetMapping("/inventories")
     public ResponseEntity getStock (@RequestParam String itemCd) {
         ReportDto.InventoryDto dto = orderService.getStock(itemCd);
+
         return new ResponseEntity(dto, HttpStatus.OK);
     }
 }

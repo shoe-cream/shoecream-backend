@@ -186,7 +186,7 @@ public class BuyerService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
-    public List<Buyer> findAll(Authentication authentication) {
+    public List<Buyer> findAll() {
         return buyerRepository.findAll();
     }
 }
