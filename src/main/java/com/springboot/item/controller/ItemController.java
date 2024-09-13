@@ -7,6 +7,8 @@ import com.springboot.item.dto.Dto;
 import com.springboot.item.entity.Item;
 import com.springboot.item.mapper.ItemMapper;
 import com.springboot.item.service.ItemService;
+import com.springboot.order_header.dto.OrderReportDto;
+import com.springboot.order_header.service.SaleReport;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ import java.util.List;
 public class ItemController {
     private final ItemMapper itemMapper;
     private final ItemService itemService;
+    private final SaleReport saleReport;
 
     @PostMapping
     public ResponseEntity createItem(@Valid @RequestBody List<Dto.ItemPostDto> postDtos, Authentication authentication) {
@@ -42,9 +45,9 @@ public class ItemController {
     @GetMapping("/{itemCd}")
     public ResponseEntity getItem(@PathVariable("itemCd") String itemCd, Authentication authentication) {
         Item item = itemService.findItem(itemCd, authentication);
-
+        OrderReportDto.InventoryDto report = saleReport.getInventory(itemCd);
         return new ResponseEntity<>(
-                new SingleResponseDto<>(itemMapper.itemToResponseDto(item)), HttpStatus.OK);
+                new SingleResponseDto<>(itemMapper.itemToResponseDto(item, report)), HttpStatus.OK);
     }
 
     @GetMapping
