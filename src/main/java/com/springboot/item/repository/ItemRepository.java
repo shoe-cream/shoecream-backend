@@ -11,10 +11,9 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> findByItemCd(String itemCd);
     Page<Item> findByItemNm(String itemNm, Pageable pageable);
-    List<Item> findByItemIdIn(List<Long> ids);
-    Page<Item> findByItemStatusNot(Item.ItemStatus itemStatus, Pageable pageable);
     List<Item> findAll();
     boolean existsByItemCd(String itemCd);
     boolean existsByItemNm(String itemNm);
     Optional<Item> findByItemId(Long itemId);
+    Optional<Item> findByItemNm(String itemNm);
 }

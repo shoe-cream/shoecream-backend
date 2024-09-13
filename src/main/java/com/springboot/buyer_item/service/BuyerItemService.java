@@ -39,8 +39,8 @@ public class BuyerItemService {
         extractMemberFromAuthentication(authentication);
 
         buyerItems.stream().forEach(buyerItem -> {
-            buyerItem.addItem(findVerifiedItem(buyerItem.getItem().getItemId()));
-            buyerItem.addBuyer(findVerifiedBuyer(buyerItem.getBuyer().getBuyerId()));
+            buyerItem.addItem(findVerifiedItem(buyerItem.getItem().getItemNm()));
+            buyerItem.addBuyer(findVerifiedBuyer(buyerItem.getBuyer().getBuyerNm()));
             buyerItemRepository.save(buyerItem);
         });
     }
@@ -74,7 +74,6 @@ public class BuyerItemService {
         return PageRequest.of(page, size, sort);
     }
 
-    // 수정 관련 한번더 확인
     public BuyerItem updateBuyerItem(BuyerItem buyerItem, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -111,13 +110,13 @@ public class BuyerItemService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
-    private Item findVerifiedItem(Long itemId) {
-        return itemRepository.findById(itemId)
+    private Item findVerifiedItem(String itemNm) {
+        return itemRepository.findByItemNm(itemNm)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
     }
 
-    private Buyer findVerifiedBuyer (Long buyerId) {
-        return  buyerRepository.findById(buyerId)
+    private Buyer findVerifiedBuyer (String buyerNm) {
+        return  buyerRepository.findByBuyerNm(buyerNm)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
     }
 

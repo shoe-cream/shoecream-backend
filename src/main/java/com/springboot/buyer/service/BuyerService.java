@@ -28,6 +28,7 @@ public class BuyerService {
     private final BuyerRepository buyerRepository;
     private final MemberRepository memberRepository;
 
+    //Buyer 생성
     public void createBuyer(List<Buyer> buyers, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -43,6 +44,7 @@ public class BuyerService {
     // 바이어의 이름, 코드, 타입중 하나로 검색
     public Buyer findBuyerByFilter(String buyerCd, String buyerNm, String businessType, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
+
         if((buyerCd != null && !buyerCd.isEmpty()) ||
             buyerNm != null && !buyerNm.isEmpty() ||
             businessType != null && !businessType.isEmpty()) {
@@ -63,7 +65,7 @@ public class BuyerService {
         if (businessType != null && !businessType.isEmpty()) {
             return buyerRepository.findAllByBusinessTypeAndBuyerStatusNot(businessType, Buyer.BuyerStatus.INACTIVE, pageable);
         } else {
-            return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE, pageable);
+            return buyerRepository.findAll(pageable);
         }
     }
 
@@ -77,6 +79,7 @@ public class BuyerService {
         return PageRequest.of(page, size, sort);
     }
 
+    //buyerNm + buyerCd 조합으로 조회
     public Buyer findBuyerWithItems(String buyerCd, String buyerNm) {
         if ((buyerCd == null || buyerCd.isEmpty()) && (buyerNm == null || buyerNm.isEmpty())) {
             throw new BusinessLogicException(ExceptionCode.CONDITION_NOT_FIT);
@@ -88,7 +91,7 @@ public class BuyerService {
         return buyer;
     }
 
-    //Buyer 정보 수정 - 이름/주소/이메일/연락처/사업자유형
+    //Buyer 정보 수정 - 이름/주소/이메일/연락처/사업자유형/상태
     public Buyer updateBuyer(Buyer buyer, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -97,33 +100,30 @@ public class BuyerService {
 
         Optional.ofNullable(buyer.getBuyerNm())
                 .ifPresent(buyerNm -> {
-                    if(!buyerNm.equals(findBuyer.getBuyerNm())) {
+
                         verifyExistName(buyerNm);
                         findBuyer.setBuyerNm(buyerNm);
-                    }
                 });
 
         Optional.ofNullable(buyer.getAddress())
-                .ifPresent(address -> findBuyer.setAddress(address));
+                .ifPresent(findBuyer::setAddress);
 
         Optional.ofNullable(buyer.getEmail())
                 .ifPresent(email -> {
-                    if(!email.equals(findBuyer.getEmail())) {
-                        verifyExistEmail(email);
-                        findBuyer.setEmail(email);
-                    }
+
+                    verifyExistEmail(email);
+                    findBuyer.setEmail(email);
                 });
 
         Optional.ofNullable(buyer.getTel())
                 .ifPresent(tel -> {
-                    if(!tel.equals(findBuyer.getTel())) {
+
                         verifyExistTel(tel);
                         findBuyer.setTel(tel);
-                    }
                 });
 
         Optional.ofNullable(buyer.getBusinessType())
-                .ifPresent(businessType -> findBuyer.setBusinessType(businessType));
+                .ifPresent(findBuyer::setBusinessType);
 
         findBuyer.setModifiedAt(LocalDateTime.now());
 
@@ -131,18 +131,15 @@ public class BuyerService {
     }
 
 
-    //Buyer 삭제 - 상태만 변경
-    public void deleteBuyer(long buyerId, Authentication authentication) {
+    //Buyer 삭제
+    public void deleteBuyer(Long buyerId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Optional<Buyer> findBuyer = buyerRepository.findById(buyerId);
-        Buyer buyer = findBuyer
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
-        buyer.setBuyerStatus(Buyer.BuyerStatus.INACTIVE);
-        buyerRepository.save(buyer);
+        Buyer buyer = findVerifiedBuyer(buyerId);
+        buyerRepository.delete(buyer);
     }
 
-    //Buyer 검증 (buyerCd를 통해)
+    //BuyerCd 중복검사
     private void verifyBuyerCdExists(String buyerCd) {
         Optional<Buyer> buyer = buyerRepository.findByBuyerCd(buyerCd);
         if(buyer.isPresent()) {
@@ -173,12 +170,19 @@ public class BuyerService {
         }
     }
 
-    //Buyer 검증
+    //buyerId를 통해 Buyer 검증
+    private Buyer findVerifiedBuyer(Long buyerId) {
+        return buyerRepository.findById(buyerId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+    }
+
+    //buyerCd를 통해 Buyer 검증
     public Buyer findVerifiedBuyer(String buyerCd) {
         return buyerRepository.findByBuyerCd(buyerCd)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
     }
 
+    //검증된 member 정보 가져오기
     private Member extractMemberFromAuthentication(Authentication authentication) {
         String username = (String) authentication.getPrincipal();
 
@@ -186,6 +190,7 @@ public class BuyerService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
+    //고객사 전체 조회
     public List<Buyer> findAll() {
         return buyerRepository.findAll();
     }

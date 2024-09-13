@@ -19,9 +19,10 @@ import java.util.stream.Collectors;
 public interface BuyerItemMapper {
     default BuyerItem buyerItemPostDtoToBuyerItem(Dto.BuyerItemPostDto postDto){
         Buyer buyer = new Buyer();
-        buyer.setBuyerId(postDto.getBuyerId());
+        buyer.setBuyerNm(postDto.getBuyerNm());
+
         Item item = new Item();
-        item.setItemId(postDto.getItemId());
+        item.setItemNm(postDto.getItemNm());
 
         BuyerItem buyerItem = new BuyerItem();
         buyerItem.setBuyer(buyer);
