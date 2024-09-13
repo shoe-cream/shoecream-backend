@@ -1,14 +1,13 @@
-package com.springboot.report;
+package com.springboot.report.service;
 
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
 import com.springboot.item.repository.ItemRepository;
-import com.springboot.manufacture_history.repository.ManufactureHistoryRepository;
 import com.springboot.manufacture_item.repository.ManufactureItemRepository;
-import com.springboot.order_header.dto.OrderReportDto;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
+import com.springboot.report.reportDto.ReportDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -36,7 +35,7 @@ public class SaleReport {
     }
 
     //기간별 레포트 (마진률, 판매량)
-    public List<OrderReportDto.SaleReportDto> getSaleReport(LocalDate startDate, LocalDate endDate) {
+    public List<ReportDto.SaleReportDto> getSaleReport(LocalDate startDate, LocalDate endDate) {
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
@@ -46,7 +45,7 @@ public class SaleReport {
 
         return new ArrayList<>(ordersInRange.stream()
                 .collect(Collectors.toMap(OrderItems::getItemCd, orderItem -> {
-                    OrderReportDto.SaleReportDto reportDto = new OrderReportDto.SaleReportDto();
+                    ReportDto.SaleReportDto reportDto = new ReportDto.SaleReportDto();
                     reportDto.setItemCd(orderItem.getItemCd());
                     reportDto.setTotalOrdered(getTotalOrderedPeriod(orderItem.getItemCd(), startDateTime, endDateTime));
                     reportDto.setTotalManufactured(getTotalManufacturedPeriod(orderItem.getItemCd(), startDateTime, endDateTime));
@@ -63,9 +62,9 @@ public class SaleReport {
 
 
     //현재 재고 확인
-    public OrderReportDto.InventoryDto getInventory(String itemCd) {
+    public ReportDto.InventoryDto getInventory(String itemCd) {
         Item item = findVerifiedItem(itemCd);
-        OrderReportDto.InventoryDto.InventoryDtoBuilder response = OrderReportDto.InventoryDto.builder();
+        ReportDto.InventoryDto.InventoryDtoBuilder response = ReportDto.InventoryDto.builder();
         response.itemId(item.getItemId());
         response.itemName(item.getItemNm());
         response.totalOrder(getOrderQty(itemCd));
