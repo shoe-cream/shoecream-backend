@@ -1,4 +1,4 @@
-package com.springboot.order_header.service;
+package com.springboot.report;
 
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
@@ -24,18 +24,20 @@ import java.util.stream.Collectors;
 public class SaleReport {
     private final OrderItemsRepository orderItemsRepository;
     private final ManufactureItemRepository manufactureItemRepository;
-    private final ManufactureHistoryRepository manufactureHistoryRepository;
     private final ItemRepository itemRepository;
 
-    public SaleReport(OrderItemsRepository orderItemsRepository, ManufactureItemRepository manufactureItemRepository, ManufactureHistoryRepository manufactureHistoryRepository, ItemRepository itemRepository) {
+    public SaleReport(OrderItemsRepository orderItemsRepository,
+                      ManufactureItemRepository manufactureItemRepository,
+                      ItemRepository itemRepository) {
+
         this.orderItemsRepository = orderItemsRepository;
         this.manufactureItemRepository = manufactureItemRepository;
-        this.manufactureHistoryRepository = manufactureHistoryRepository;
         this.itemRepository = itemRepository;
     }
 
     //기간별 레포트 (마진률, 판매량)
     public List<OrderReportDto.SaleReportDto> getSaleReport(LocalDate startDate, LocalDate endDate) {
+
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 

@@ -40,12 +40,12 @@ public class ManufactureService {
         });
     }
 
-    public Manufacture getManufacture(long mfId, Authentication authentication) {
+    //manufacture
+    public Manufacture findManufacture(String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Manufacture manufacture = verifyManufacture(mfId);
+        return findVerifiedManufactureByMfCd(mfCd);
 
-        return manufacture;
     }
 
     public Page<Manufacture> getManufactures(String sortBy, int page, int size, Authentication authentication) {
@@ -93,46 +93,47 @@ public class ManufactureService {
         return manufactureRepository.save(findManufacture);
     }
 
-
-    public void deleteManufacture(long mfId, Authentication authentication) {
+    // mfId로 manufacture 삭제
+    public void deleteManufactures(Long mfId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Optional<Manufacture> optionalManufacture = manufactureRepository.findById(mfId);
-        Manufacture manufacture = optionalManufacture
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
+        Manufacture manufacture = verifyManufacture(mfId);
+        manufacture.setManufactureStatus(Manufacture.ManufactureStatus.INACTIVE);
+
+        manufactureRepository.save(manufacture);
+    }
+
+    //mfCd로 manufacture 삭제
+    public void deleteManufacture(String mfCd, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
+        Manufacture manufacture = findVerifiedManufactureByMfCd(mfCd);
         manufacture.setManufactureStatus(Manufacture.ManufactureStatus.INACTIVE);
         manufactureRepository.save(manufacture);
     }
 
+    // mfId로 Manufacture 검증
     public Manufacture verifyManufacture(long mfId) {
-        Manufacture manufacture = manufactureRepository.findById(mfId)
+        return manufactureRepository.findById(mfId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
 
-        return manufacture;
     }
 
-    //MF Code 중복 검사
-    private void verifyManufactureCdExists(String mfCd) {
-        if(manufactureRepository.existsByMfCd(mfCd)) {
-            throw new BusinessLogicException(ExceptionCode.MANUFACTURE_CODE_EXIST);
-        }
-    }
+    // mfCd로 Manufacture 검증
+    private Manufacture findVerifiedManufactureByMfCd(String mfCd) {
 
-    //MF name 중복 검사
-    private void verifyManufactureNmExists(String mfNm) {
-        if(manufactureRepository.existsByMfNm(mfNm)) {
-            throw new BusinessLogicException(ExceptionCode.MANUFACTURE_NAME_EXIST);
-        }
+        return manufactureRepository.findBymfCd(mfCd)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
     }
 
     public Page<ManuFactureHistory> findManufactureHistories (int page, int size,
                                                               String sort,
                                                               String direction,
-                                                              Long mfId, Authentication authentication) {
+                                                              String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         Pageable pageable = createPageable(page, size, sort, direction);
-        return manufactureHistoryRepository.findByMfId(mfId, pageable);
+        return manufactureHistoryRepository.findByMfCd(mfCd, pageable);
     }
 
     private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
@@ -157,4 +158,19 @@ public class ManufactureService {
             throw new BusinessLogicException(ExceptionCode.EMAIL_ALREADY_EXISTS);
         }
     }
+
+    //MF Code 중복 검사
+    private void verifyManufactureCdExists(String mfCd) {
+        if(manufactureRepository.existsByMfCd(mfCd)) {
+            throw new BusinessLogicException(ExceptionCode.MANUFACTURE_CODE_EXIST);
+        }
+    }
+
+    //MF name 중복 검사
+    private void verifyManufactureNmExists(String mfNm) {
+        if(manufactureRepository.existsByMfNm(mfNm)) {
+            throw new BusinessLogicException(ExceptionCode.MANUFACTURE_NAME_EXIST);
+        }
+    }
+
 }
