@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class BuyerController {
     private final BuyerService buyerService;
     private final BuyerMapper buyerMapper;
-    private final BuyerItemMapper buyerItemMapper;
+
 
     //Buyer 등록
     @PostMapping
