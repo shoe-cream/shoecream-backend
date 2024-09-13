@@ -23,7 +23,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/manufacturers")
@@ -35,6 +37,7 @@ public class ManufactureController {
     private final ManufactureMapper manufactureMapper;
     private final ManufactureHistoryMapper manufactureHistoryMapper;
 
+    //제조사 등록
     @PostMapping
     public ResponseEntity createManufacture(@Valid @RequestBody List<Dto.ManufacturePostDto> postDto, Authentication authentication) {
         manufactureService.createManufacture(manufactureMapper.postDtosToManuFactrues(postDto), authentication);
@@ -50,13 +53,27 @@ public class ManufactureController {
                 new SingleResponseDto<>(manufactureMapper.manufactureToResponseDto(manufacture)), HttpStatus.OK);
     }
 
-    // 제조사 전체 조회 최신순(선택사항)
+    // 제조사 전체 조회 (pagination)
     @GetMapping
-    public ResponseEntity getManufactures(@RequestParam(defaultValue = "createdAt") String sortBy,
+    public ResponseEntity getManufactures(@RequestParam(required = false) String sort,
+                                          @RequestParam(required = false) String direction,
                                           @RequestParam @Positive int page,
                                           @RequestParam @Positive int size,
                                           Authentication authentication) {
-        Page<Manufacture> manufacturePage = manufactureService.getManufactures(sortBy, page -1, size, authentication);
+
+        String criteria = "mfId"; //기본값
+        if (sort != null) {
+            //정렬 기준
+            List<String> sorts = Arrays.asList("mfId", "region", "email", "mfCd", "mfNm", "createdAt", "modifiedAt", "manufactureStatus");
+
+            if(sorts.contains(sort)) {
+                criteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+
+        Page<Manufacture> manufacturePage = manufactureService.getManufactures(sort, direction,page -1, size, authentication);
         List<Dto.ManufactureResponseDto> manufactureResponseDtos =
                 manufactureMapper.manufactureToResponseDtos(manufacturePage.getContent());
 
@@ -83,7 +100,7 @@ public class ManufactureController {
                 new SingleResponseDto<>(manufactureMapper.manufactureToResponseDtos(manufactures)), HttpStatus.OK);
     }
 
-    // 제조사 삭제
+    // 제조사 DB에서 삭제
     @DeleteMapping("/{mfCd}")
     public ResponseEntity deleteManufacture(@PathVariable("mfCd") String mfCd, Authentication authentication) {
         manufactureService.deleteManufacture(mfCd, authentication);
@@ -91,6 +108,7 @@ public class ManufactureController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    // 제조사 DB에서 삭제
     @DeleteMapping
     public ResponseEntity deleteManufactures(@RequestBody Dto.ManufactureDeleteList deleteList, Authentication authentication) {
         List<Long> deleteIds = deleteList.getMfId();
@@ -101,7 +119,7 @@ public class ManufactureController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // 공급 기록 조회 ( manufacture-item 등록/수정 history)
+    // 공급 기록 조회 ( manufacture-item 등록/수정 history ->  mfCd로 필터)
     @GetMapping("/{mfCd}/histories")
     public ResponseEntity getManufactureHistory(@PathVariable("mfCd") String mfCd,
                                                 @Positive @RequestParam int page,
@@ -124,5 +142,18 @@ public class ManufactureController {
         return new ResponseEntity<>(
                 new MultiResponseDto<>(
                         manufactureHistoryMapper.mfHistoriesToMfHistoriesResponseDtos(historyLists),historyPages), HttpStatus.OK);
+    }
+
+    //제조사 전체 조회
+    @GetMapping("/all")
+    public ResponseEntity getManufactures(){
+        List<Manufacture> manufactures = manufactureService.findManufactureAll();
+
+        List<Manufacture> sortedManufactures = manufactures.stream()
+                .sorted(Comparator.comparing(Manufacture::getMfNm))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(manufactureMapper.manufactureToResponseDtos(sortedManufactures)), HttpStatus.OK);
     }
 }

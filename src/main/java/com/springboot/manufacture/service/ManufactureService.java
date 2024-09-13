@@ -29,6 +29,7 @@ public class ManufactureService {
     private final MemberRepository memberRepository;
     private final ManufactureHistoryRepository manufactureHistoryRepository;
 
+    //제조사 등록
     public void createManufacture(List<Manufacture> manufactures, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -40,7 +41,7 @@ public class ManufactureService {
         });
     }
 
-    //manufacture
+    //제조사 개별 조회 (mfCd를 통해)
     public Manufacture findManufacture(String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -48,23 +49,16 @@ public class ManufactureService {
 
     }
 
-    public Page<Manufacture> getManufactures(String sortBy, int page, int size, Authentication authentication) {
+    //제조사 전체 조회 (pagination)
+    public Page<Manufacture> getManufactures(String sortBy, String direction, int page, int size, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Pageable pageable;
+        Pageable pageable = createPageable(page, size, sortBy, direction);
 
-        if ("mfCd".equals(sortBy)) {
-            pageable = PageRequest.of(page, size, Sort.by("mfCd").ascending());
-        } else if ("region".equals(sortBy)) {
-            pageable = PageRequest.of(page, size, Sort.by("region").ascending());
-        } else {
-            // 기본 정렬: 최신순
-            pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        }
-
-       return manufactureRepository.findAllByManufactureStatus(Manufacture.ManufactureStatus.ACTIVE, pageable);
+       return manufactureRepository.findAll(pageable);
     }
 
+    //제조사 정보 수정 (이메일/ 지역/ 이름)
     public Manufacture updateManufacture(Manufacture manufacture, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -72,45 +66,73 @@ public class ManufactureService {
 
         Optional.ofNullable(manufacture.getEmail())
                 .ifPresent(email -> {
-                    if(!email.equals(findManufacture.getEmail())) {
-                        verifyExistsEmail(email);
-                        findManufacture.setEmail(email);
-                    }
+                    verifyExistsEmail(email);
+                    findManufacture.setEmail(email);
+
                 });
 
         Optional.ofNullable(manufacture.getRegion())
-                .ifPresent(region -> findManufacture.setRegion(region));
+                .ifPresent(findManufacture::setRegion);
+
         Optional.ofNullable(manufacture.getMfNm())
                 .ifPresent(mfNm -> {
-                    if(!mfNm.equals(findManufacture.getMfNm())) {
-                        verifyManufactureNmExists(mfNm);
-                        findManufacture.setMfNm(mfNm);
-                    }
+                    verifyManufactureNmExists(mfNm);
+                    findManufacture.setMfNm(mfNm);
+
                 });
+
+        Optional.ofNullable(manufacture.getManufactureStatus())
+                .ifPresent(findManufacture::setManufactureStatus);
 
         findManufacture.setModifiedAt(LocalDateTime.now());
 
         return manufactureRepository.save(findManufacture);
     }
 
-    // mfId로 manufacture 삭제
+    // mfId로 manufacture DB에서 삭제 -> 여러 개 삭제시 사용
     public void deleteManufactures(Long mfId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         Manufacture manufacture = verifyManufacture(mfId);
-        manufacture.setManufactureStatus(Manufacture.ManufactureStatus.INACTIVE);
 
-        manufactureRepository.save(manufacture);
+        manufactureRepository.delete(manufacture);
     }
 
-    //mfCd로 manufacture 삭제
+    //mfCd로 manufacture DB에서 삭제
     public void deleteManufacture(String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         Manufacture manufacture = findVerifiedManufactureByMfCd(mfCd);
-        manufacture.setManufactureStatus(Manufacture.ManufactureStatus.INACTIVE);
-        manufactureRepository.save(manufacture);
+
+        manufactureRepository.delete(manufacture);
     }
+
+    //ManuFactureHistory 조회 (mfCd로 필터 , pagination)
+    public Page<ManuFactureHistory> findManufactureHistories (int page, int size,
+                                                              String sort,
+                                                              String direction,
+                                                              String mfCd, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
+        Pageable pageable = createPageable(page, size, sort, direction);
+        return manufactureHistoryRepository.findByMfCd(mfCd, pageable);
+    }
+
+    // 제조사 전체 조회
+    public List<Manufacture> findManufactureAll() {
+        return manufactureRepository.findAll();
+    }
+
+    //Pageable 생성
+    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
+
+        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
+
+        Sort sort = Sort.by(sortDirection, sortCriteria);
+
+        return PageRequest.of(page, size, sort);
+    }
+
 
     // mfId로 Manufacture 검증
     public Manufacture verifyManufacture(long mfId) {
@@ -126,25 +148,7 @@ public class ManufactureService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
     }
 
-    public Page<ManuFactureHistory> findManufactureHistories (int page, int size,
-                                                              String sort,
-                                                              String direction,
-                                                              String mfCd, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
-
-        Pageable pageable = createPageable(page, size, sort, direction);
-        return manufactureHistoryRepository.findByMfCd(mfCd, pageable);
-    }
-
-    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
-
-        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
-
-        Sort sort = Sort.by(sortDirection, sortCriteria);
-
-        return PageRequest.of(page, size, sort);
-    }
-
+    //Member 정보 가져오기
     private Member extractMemberFromAuthentication(Authentication authentication) {
         String username = (String) authentication.getPrincipal();
 
