@@ -135,6 +135,7 @@ public class OrderService {
         //승인 시 재고 확인
         if (status.equals(OrderHeaders.OrderStatus.APPROVED)) {
             isStock(orderHeaders);
+
         } else {
             //반려시 사유 확인
             orderHeaders.setRejectReason(reason);
