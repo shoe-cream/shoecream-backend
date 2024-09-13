@@ -94,5 +94,12 @@ public class OrderDto {
         private LocalDate searchEndDate = LocalDate.of(9999, 12, 31); // 기본값
 
     }
+
+    @Getter
+    public static class ApprovalOrRejectDto {
+        @NotNull
+        private String orderCd;
+        private String rejectReason;
+    }
 }
 

@@ -1,4 +1,4 @@
-package com.springboot.order_header.dto;
+package com.springboot.report.reportDto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-public class OrderReportDto {
+public class ReportDto {
     @Getter
     @Builder
     public static class InventoryDto {

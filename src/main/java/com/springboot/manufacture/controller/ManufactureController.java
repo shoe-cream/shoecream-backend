@@ -42,9 +42,10 @@ public class ManufactureController {
     }
 
     // 제조사 정보 조회
-    @GetMapping("/{mfId}")
-    public ResponseEntity getManufacture(@PathVariable @Positive long mfId, Authentication authentication) {
-        Manufacture manufacture = manufactureService.getManufacture(mfId, authentication);
+    @GetMapping("/{mfCd}")
+    public ResponseEntity getManufacture(@PathVariable("mfCd") String mfCd, Authentication authentication) {
+
+        Manufacture manufacture = manufactureService.findManufacture(mfCd, authentication);
         return new ResponseEntity<>(
                 new SingleResponseDto<>(manufactureMapper.manufactureToResponseDto(manufacture)), HttpStatus.OK);
     }
@@ -65,32 +66,44 @@ public class ManufactureController {
     }
 
     // 제조사 수정
-    @PatchMapping("/{mfId}")
-    public ResponseEntity updateManufacture(@PathVariable @Positive long mfId,
-                                            @RequestBody List<Dto.ManufacturePatchDto> patchDtos,
+    @PatchMapping
+    public ResponseEntity updateManufacture(@RequestBody List<Dto.ManufacturePatchDto> patchDtos,
                                             Authentication authentication) {
+
         List<Manufacture> manufactures = new ArrayList<>();
 
         for(Dto.ManufacturePatchDto patchDto : patchDtos) {
-            patchDto.setMfId(mfId);
             Manufacture manufacture =
                     manufactureService.updateManufacture(manufactureMapper.patchDtoToManufacture(patchDto), authentication);
+
             manufactures.add(manufacture);
         }
+
         return new ResponseEntity<>(
                 new SingleResponseDto<>(manufactureMapper.manufactureToResponseDtos(manufactures)), HttpStatus.OK);
     }
 
     // 제조사 삭제
-    @DeleteMapping("/{mfId}")
-    public ResponseEntity deleteManufacture(@PathVariable @Positive long mfId, Authentication authentication) {
-        manufactureService.deleteManufacture(mfId, authentication);
+    @DeleteMapping("/{mfCd}")
+    public ResponseEntity deleteManufacture(@PathVariable("mfCd") String mfCd, Authentication authentication) {
+        manufactureService.deleteManufacture(mfCd, authentication);
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-    // 공급 기록 조회
-    @GetMapping("/{mfId}/histories")
-    public ResponseEntity getManufactureHistory(@Positive @PathVariable("mfId") Long mfId,
+
+    @DeleteMapping
+    public ResponseEntity deleteManufactures(@RequestBody Dto.ManufactureDeleteList deleteList, Authentication authentication) {
+        List<Long> deleteIds = deleteList.getMfId();
+
+        for(Long id : deleteIds) {
+            manufactureService.deleteManufactures(id, authentication);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // 공급 기록 조회 ( manufacture-item 등록/수정 history)
+    @GetMapping("/{mfCd}/histories")
+    public ResponseEntity getManufactureHistory(@PathVariable("mfCd") String mfCd,
                                                 @Positive @RequestParam int page,
                                                 @Positive @RequestParam int size,
                                                 @RequestParam(required = false) String sort,
@@ -105,7 +118,7 @@ public class ManufactureController {
                 throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
             }
         }
-        Page<ManuFactureHistory> historyPages = manufactureService.findManufactureHistories(page - 1, size, criteria, direction, mfId, authentication);
+        Page<ManuFactureHistory> historyPages = manufactureService.findManufactureHistories(page - 1, size, criteria, direction, mfCd, authentication);
         List<ManuFactureHistory> historyLists = historyPages.getContent();
 
         return new ResponseEntity<>(

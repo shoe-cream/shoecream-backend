@@ -10,7 +10,6 @@ import com.springboot.manufacture_history.entity.ManuFactureHistory;
 import com.springboot.manufacture_history.mapper.ManufactureHistoryMapper;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
-import com.springboot.utils.UriCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

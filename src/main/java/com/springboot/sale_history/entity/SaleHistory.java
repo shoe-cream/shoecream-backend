@@ -30,6 +30,9 @@ public class SaleHistory {
     private String employeeId;
 
     @Column
+    private String orderCd;
+
+    @Column
     private String personInCharge;
 
     @Column(nullable = false)

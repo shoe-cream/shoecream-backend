@@ -1,12 +1,15 @@
 package com.springboot.item.controller;
 
 
+import com.springboot.buyer.entity.Buyer;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.dto.Dto;
 import com.springboot.item.entity.Item;
 import com.springboot.item.mapper.ItemMapper;
 import com.springboot.item.service.ItemService;
+import com.springboot.report.reportDto.ReportDto;
+import com.springboot.report.service.SaleReport;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +25,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +37,7 @@ import java.util.List;
 public class ItemController {
     private final ItemMapper itemMapper;
     private final ItemService itemService;
+    private final SaleReport saleReport;
 
     @PostMapping
     public ResponseEntity createItem(@Valid @RequestBody List<Dto.ItemPostDto> postDtos, Authentication authentication) {
@@ -42,10 +48,22 @@ public class ItemController {
     @GetMapping("/{itemCd}")
     public ResponseEntity getItem(@PathVariable("itemCd") String itemCd, Authentication authentication) {
         Item item = itemService.findItem(itemCd, authentication);
-
+        ReportDto.InventoryDto report = saleReport.getInventory(itemCd);
         return new ResponseEntity<>(
-                new SingleResponseDto<>(itemMapper.itemToResponseDto(item)), HttpStatus.OK);
+                new SingleResponseDto<>(itemMapper.itemToResponseDto(item, report)), HttpStatus.OK);
     }
+    @GetMapping("/all")
+    public ResponseEntity getItemsAll() {
+        List<Item> items = itemService.findItemsAll();
+
+        List<Item> sortedItems = items.stream()
+                .sorted(Comparator.comparing(Item::getItemNm))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity(
+                new SingleResponseDto<>(itemMapper.itemToResponseDtos(sortedItems)),HttpStatus.OK);
+    }
+
 
     @GetMapping
     public ResponseEntity getItems(@RequestParam @Positive int page,

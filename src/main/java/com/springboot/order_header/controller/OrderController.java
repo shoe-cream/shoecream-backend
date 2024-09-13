@@ -1,11 +1,12 @@
 package com.springboot.order_header.controller;
 
+import com.querydsl.core.types.Order;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.service.BuyerService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.order_header.dto.OrderDto;
-import com.springboot.order_header.dto.OrderReportDto;
+import com.springboot.report.reportDto.ReportDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.mapper.OrderMapper;
 import com.springboot.order_header.service.OrderService;
@@ -39,6 +40,7 @@ public class OrderController {
     private final OrderMapper orderMapper;
     private final BuyerService buyerService;
     private final SaleHistoryMapper saleHistoryMapper;
+    private final static String ORDER_DEFAULT_URI ="/orders";
 
     public OrderController(OrderService orderService, OrderMapper orderMapper, BuyerService buyerService, SaleHistoryMapper saleHistoryMapper) {
         this.orderService = orderService;
@@ -50,6 +52,9 @@ public class OrderController {
     // 주문 등록
     @PostMapping
     public ResponseEntity postOrder(@Valid @RequestBody List<OrderDto.Post> orderPostDtos, Authentication authentication) {
+
+        List<OrderHeaders> orders = new ArrayList<>();
+
         for(OrderDto.Post post : orderPostDtos) {
             OrderHeaders orderHeaders = orderMapper.orderPostDtoToOrder(post);
 
@@ -64,9 +69,12 @@ public class OrderController {
             }
 
             orderHeaders.setOrderItems(orderItemsList);
-            orderService.createOrder(orderHeaders, authentication);
+            OrderHeaders order = orderService.createOrder(orderHeaders, authentication);
+            orders.add(order);
+
         }
-        return new ResponseEntity(HttpStatus.CREATED);
+
+        return new ResponseEntity(orderMapper.ordersToOrderResponseDtos(orders), HttpStatus.CREATED);
     }
 
     //주문 (order-header) 수정
@@ -82,7 +90,7 @@ public class OrderController {
 
     //주문 (order-item) 수정
     @PatchMapping("/items")
-    public ResponseEntity patchOrderItem( @Valid @RequestBody List<OrderDto.ItemPatch> itemPatches , Authentication authentication) {
+    public ResponseEntity patchOrderItem(@Valid @RequestBody List<OrderDto.ItemPatch> itemPatches , Authentication authentication) {
 
         List<OrderHeaders> orderHeaderList = new ArrayList<>();
 
@@ -96,26 +104,45 @@ public class OrderController {
     }
 
     //주문 - 팀장 승인
-    @PatchMapping("/{order-id}/approve")
-    public ResponseEntity approveStatus(@Positive @PathVariable("order-id") Long orderId, Authentication authentication) {
+    @PatchMapping("/approve")
+    public ResponseEntity approveStatus(@Valid @RequestBody List<OrderDto.ApprovalOrRejectDto> approvalDtos,
+                                        Authentication authentication) {
 
-        OrderHeaders updatedOrder = orderService.updateStatus(orderId, OrderHeaders.OrderStatus.APPROVED, authentication);
+        List<OrderHeaders> orderHeaders = new ArrayList<>();
 
-        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
+        for(OrderDto.ApprovalOrRejectDto approvalDto : approvalDtos) {
+            OrderHeaders updatedOrder = orderService
+                    .updateStatus(approvalDto.getOrderCd(),
+                            OrderHeaders.OrderStatus.APPROVED,
+                            approvalDto.getRejectReason(),
+                            authentication);
+
+            orderHeaders.add(updatedOrder);
+        }
+        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderHeaders)),HttpStatus.OK);
     }
 
     //주문 - 팀장 반려
-    @PatchMapping("/{order-id}/reject")
-    public ResponseEntity rejectStatus(@Positive @PathVariable("order-id") Long orderId, Authentication authentication) {
-        //팀장권한확인
-        OrderHeaders updatedOrder = orderService.updateStatus(orderId, OrderHeaders.OrderStatus.REJECTED, authentication);
+    @PatchMapping("/reject")
+    public ResponseEntity rejectStatus(@Valid @RequestBody List<OrderDto.ApprovalOrRejectDto> rejectDtos,
+                                       Authentication authentication) {
 
-        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(updatedOrder)),HttpStatus.OK);
+        List<OrderHeaders> orderHeaders = new ArrayList<>();
+
+        for(OrderDto.ApprovalOrRejectDto rejectDto : rejectDtos){
+            OrderHeaders updatedOrder = orderService
+                    .updateStatus(rejectDto.getOrderCd(),
+                            OrderHeaders.OrderStatus.REJECTED,
+                            rejectDto.getRejectReason(), authentication);
+
+            orderHeaders.add(updatedOrder);
+        }
+        return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderHeaders)),HttpStatus.OK);
     }
 
     //주문 개별 조회
     @GetMapping("/{order-cd}")
-    public ResponseEntity getOrder(@Positive @PathVariable("order-cd") String orderCd) {
+    public ResponseEntity getOrder(@PathVariable("order-cd") String orderCd) {
         OrderHeaders orderHeaders = orderService.findVerifiedOrderByCd(orderCd);
         return new ResponseEntity<>(new SingleResponseDto<>(orderMapper.orderToOrderResponseDto(orderHeaders)),HttpStatus.OK);
     }
@@ -146,22 +173,38 @@ public class OrderController {
         }
 
         OrderDto.OrderSearchRequest orderSearchRequest = new OrderDto.OrderSearchRequest(buyerCd, itemCd, status, orderCd, searchStartDate, searchEndDate);
+
         Page<OrderHeaders> orderPages = orderService.findOrders(page - 1, size, sortCriteria, direction, orderSearchRequest);
         List<OrderHeaders> orderLists = orderPages.getContent();
+
         return new ResponseEntity<>(new MultiResponseDto<>(orderMapper.ordersToOrderResponseDtos(orderLists), orderPages), HttpStatus.OK);
     }
 
     //SaleHistory 조회
-    @GetMapping("/{order-id}/histories")
-    public ResponseEntity getOrderHistory(@Positive @PathVariable("order-id") Long orderId,
+    @GetMapping("/{order-cd}/histories")
+    public ResponseEntity getOrderHistory(@PathVariable("order-cd") String orderCd,
                                           @Positive @RequestParam int page,
-                                          @Positive @RequestParam int size) {
-        Page<SaleHistory> historyPages = orderService.findHistories(page - 1, size, orderId);
+                                          @Positive @RequestParam int size,
+                                          @RequestParam(required = false) String sort,
+                                          @RequestParam(required = false) String direction) {
+        //정렬기준
+        String sortCriteria = "createdAt";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("createdAt", "saleHistoryId", "personInCharge", "buyerCd", "requestDate", "orderDate", "orderStatus");
+            if (sorts.contains(sort)) {
+                sortCriteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+
+        Page<SaleHistory> historyPages = orderService.findHistories(page - 1, size, sortCriteria, direction, orderCd);
         List<SaleHistory> historyLists = historyPages.getContent();
 
         return new ResponseEntity<>(new MultiResponseDto<>(saleHistoryMapper.saleHistoriesToSaleHistoriesResponseDtos(historyLists),historyPages), HttpStatus.OK);
     }
 
+    //판매 report
     @GetMapping("/reports")
     public ResponseEntity totalSales (@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                       @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
@@ -172,13 +215,14 @@ public class OrderController {
         if (endDate == null) {
             endDate = LocalDate.of(9999, 12, 31);
         }
-        List<OrderReportDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
+        List<ReportDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
     @GetMapping("/inventories")
     public ResponseEntity getStock (@RequestParam String itemCd) {
-        OrderReportDto.InventoryDto dto = orderService.getStock(itemCd);
+        ReportDto.InventoryDto dto = orderService.getStock(itemCd);
+
         return new ResponseEntity(dto, HttpStatus.OK);
     }
 }

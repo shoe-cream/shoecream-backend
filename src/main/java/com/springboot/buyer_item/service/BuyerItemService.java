@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,28 +48,8 @@ public class BuyerItemService {
     public BuyerItem findBuyerItem(long buyerItemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Optional<BuyerItem> buyerIt = buyerItemRepository.findById(buyerItemId);
-
-        BuyerItem buyerItem = buyerIt
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYERITEM_NOT_FOUND));
-
-        return buyerItem;
+        return findVerifiedBuyerItem(buyerItemId);
     }
-
-    // 페이지네이션으로 필터링을통해 전체조회 ok 필터링 없이 전체를 조회 ok.
-//    public Page<BuyerItem> findBuyerItems(int page, int size,
-//                                          String buyerCd,
-//                                          String buyerNm,
-//                                          String ItemCd,
-//                                          String ItemNm) {
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("buyerCd").descending());
-//
-//        if (buyerCd != null && !buyerCd.isEmpty()) {
-//            return buyerItemRepository.findAllByBuyerCdOrBuyerNmOrItemCdOrItemNm(buyerCd, buyerNm, ItemCd, ItemNm, pageable);
-//        } else {
-//            return buyerItemRepository.findAll(pageable);
-//        }
-//    }
 
     public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd, String criteria, String direction, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
@@ -100,36 +79,29 @@ public class BuyerItemService {
         extractMemberFromAuthentication(authentication);
 
         BuyerItem findedBuyerItem = buyerItemRepository.findById(buyerItem.getBuyerItemId())
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYERITEM_NOT_FOUND));
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_ITEM_NOT_FOUND));
 
         //여기서 item 정보는 수정할 수 없어야 함. 만약 수정해야한다면 필드로 가지고 있어야한다.
 
         Optional.ofNullable(buyerItem.getUnitPrice())
-                .ifPresent(unitPrice -> findedBuyerItem.setUnitPrice(unitPrice));
+                .ifPresent(findedBuyerItem::setUnitPrice);
         Optional.ofNullable(buyerItem.getStartDate())
-                .ifPresent(startDate -> findedBuyerItem.setStartDate(startDate));
+                .ifPresent(findedBuyerItem::setStartDate);
         Optional.ofNullable(buyerItem.getEndDate())
-                .ifPresent(endDate -> findedBuyerItem.setEndDate(endDate));
+                .ifPresent(findedBuyerItem::setEndDate);
 
         findedBuyerItem.setModifiedAt(LocalDateTime.now());
 
         return buyerItemRepository.save(findedBuyerItem);
     }
 
+    // DB 에서 삭제
     public void deleteBuyerItem(long buyerItemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Optional<BuyerItem> findBuyer = buyerItemRepository.findById(buyerItemId);
-        BuyerItem buyer = findBuyer
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
-//        buyer.setItemStatus(BuyerItem.ItemStatus.DELETED)
-        buyerItemRepository.save(buyer);
-    }
+        BuyerItem buyerItem = findVerifiedBuyerItem(buyerItemId);
 
-    private Member verifiedMember(Authentication authentication) {
-
-        String user = (String) authentication.getPrincipal();
-        return memberService.findVerifiedEmployee(user);
+        buyerItemRepository.delete(buyerItem);
     }
 
     private Member extractMemberFromAuthentication(Authentication authentication) {
@@ -147,5 +119,10 @@ public class BuyerItemService {
     private Buyer findVerifiedBuyer (Long buyerId) {
         return  buyerRepository.findById(buyerId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+    }
+
+    private BuyerItem findVerifiedBuyerItem(Long buyerItemId) {
+        return buyerItemRepository.findById(buyerItemId)
+                .orElseThrow(()-> new BusinessLogicException(ExceptionCode.BUYER_ITEM_NOT_FOUND));
     }
 }

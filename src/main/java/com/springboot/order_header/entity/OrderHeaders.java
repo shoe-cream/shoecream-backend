@@ -34,6 +34,9 @@ public class OrderHeaders {
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now(); //주문일자
 
+    @Column
+    private String rejectReason;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
     private OrderStatus orderStatus = OrderStatus.REQUEST_TEMP;

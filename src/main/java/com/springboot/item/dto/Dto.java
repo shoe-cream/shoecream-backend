@@ -65,6 +65,8 @@ public class Dto {
         private int size;
         private Item.ItemStatus itemStatus;
         private LocalDateTime createdAt;
+        private Integer totalStock; // 총 재고량
+        private Integer prepareOrder; // 주문대기 수량
     }
 
     @Getter

@@ -5,12 +5,13 @@ import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
 import com.springboot.order_header.dto.OrderDto;
-import com.springboot.order_header.dto.OrderReportDto;
+import com.springboot.report.reportDto.ReportDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.repository.OrderHeadersRepository;
 import com.springboot.order_header.repository.OrderQueryRepositoryCustom;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
+import com.springboot.report.service.SaleReport;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
 import com.springboot.sale_history.repository.SaleHistoryRepository;
@@ -53,19 +54,13 @@ public class OrderService {
     }
 
     @Transactional
-    public void createOrder(OrderHeaders orderHeaders, Authentication authentication) {
-        //담당자
+    public OrderHeaders createOrder(OrderHeaders orderHeaders, Authentication authentication) {
+        //담당자 설정
         Member member = verifiedMember(authentication);
         orderHeaders.setMember(member);
 
         // 재고량이 없을 때 예외처리
-        boolean isStock = orderHeaders.getOrderItems()
-                .stream()
-                .map(orderItems -> saleReport.calculateInventory(orderItems.getItemCd()) - orderItems.getQty())
-                .anyMatch(qty -> qty < 0);
-        if (isStock) {
-            throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
-        }
+        isStock(orderHeaders);
 
         // 주문 코드 생성 후 설정
         String orderCd = createOrderCd();
@@ -74,9 +69,11 @@ public class OrderService {
         // DB에 저장
         OrderHeaders orderHeader = orderHeadersRepository.save(orderHeaders);
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeader, member));
+        return orderHeader;
     }
 
     // OrderHeader 수정 : 주문에 대한 상태랑 납기일 변경
+    @Transactional
     public OrderHeaders updateOrder(OrderHeaders orderHeaders, Authentication authentication) {
 
         Member member = verifiedMember(authentication);
@@ -109,6 +106,7 @@ public class OrderService {
     }
 
     //item 수정 - 수량, 금액
+    @Transactional
     public OrderItems updateOrderItem(Long orderId, Long itemId, OrderItems orderItems, Authentication authentication) {
         Member member = verifiedMember(authentication);
         OrderHeaders orderHeaders = findVerifiedOrder(orderId);
@@ -129,18 +127,24 @@ public class OrderService {
     }
 
     //팀장이 승인, 반려 버튼을 눌렀을 때
-    public OrderHeaders updateStatus(Long orderId, OrderHeaders.OrderStatus status, Authentication authentication) {
+    @Transactional
+    public OrderHeaders updateStatus(String orderCd, OrderHeaders.OrderStatus status, String reason, Authentication authentication) {
         Member member = verifiedMember(authentication);
-        OrderHeaders orderHeaders = findVerifiedOrder(orderId);
+        OrderHeaders orderHeaders = findVerifiedOrderByCd(orderCd);
+
+        //승인 시 재고 확인
+        if (status.equals(OrderHeaders.OrderStatus.APPROVED)) {
+            isStock(orderHeaders);
+
+        } else {
+            //반려시 사유 확인
+            orderHeaders.setRejectReason(reason);
+        }
+
         orderHeaders.setOrderStatus(status);
 
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeaders, member));
         return orderHeadersRepository.save(orderHeaders);
-    }
-
-    // order 개별조회
-    public OrderHeaders findOrder(Long orderId) {
-        return findVerifiedOrder(orderId);
     }
 
     // order 조회 (조회조건 (조합 가능) : 주문 상태별, buyerCode별, itemCode별, 날짜별로 조회가능(기본값 별도))
@@ -156,11 +160,10 @@ public class OrderService {
         return PageRequest.of(page, size, sort);
     }
 
-
-    // 판매내역 조회 (order-id로 분류)
-    public Page<SaleHistory> findHistories(int page, int size, Long orderId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return saleHistoryRepository.findByOrderId(orderId, pageable);
+    // 판매내역 조회 (order-code 로 분류)
+    public Page<SaleHistory> findHistories(int page, int size, String criteria, String direction, String orderCd) {
+        Pageable pageable = createPageable(page, size, criteria, direction);
+        return saleHistoryRepository.findByOrderCd(orderCd, pageable);
     }
 
     //orderId 검증
@@ -192,15 +195,26 @@ public class OrderService {
     }
 
     // 판매 report (마진률)
-    public List<OrderReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
+    public List<ReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
 
         return saleReport.getSaleReport(startDate, endDate);
     }
 
-    // 아이템 재고 계산
-    public OrderReportDto.InventoryDto getStock(String itemCd) {
+    // 아이템 재고 조회
+    public ReportDto.InventoryDto getStock(String itemCd) {
 
         return saleReport.getInventory(itemCd);
+    }
+
+    //재고 여부 확인
+    private void isStock (OrderHeaders orderHeaders) {
+        boolean isStock = orderHeaders.getOrderItems()
+                .stream()
+                .map(orderItems -> saleReport.calculateInventory(orderItems.getItemCd()) - orderItems.getQty())
+                .anyMatch(qty -> qty < 0);
+        if (isStock) {
+            throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
+        }
     }
 
     // 주문 코드 생성 메서드

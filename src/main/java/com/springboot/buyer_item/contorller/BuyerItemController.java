@@ -43,8 +43,8 @@ public class BuyerItemController {
     }
 
     // 특정 바이어아이템 조회
-    @GetMapping("/{buyerItemId}")
-    public ResponseEntity findBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId, Authentication authentication) {
+    @GetMapping("/{buyerItemCd}")
+    public ResponseEntity findBuyerItem(@PathVariable("buyerItemCd") @Positive long buyerItemId, Authentication authentication) {
         BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemId, authentication);
 
         return new ResponseEntity<>(
@@ -63,7 +63,7 @@ public class BuyerItemController {
 
         String criteria = "buyerItemId";
         if(sort != null) {
-            List<String> sorts = Arrays.asList("buyerItemId", "buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
+            List<String> sorts = Arrays.asList("buyerItemId", "buyer.buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
             if (sorts.contains(sort)) {
                 criteria = sort;
             } else {
@@ -96,15 +96,8 @@ public class BuyerItemController {
 
     }
 
-    @DeleteMapping("/{buyerItemId}")
-    public ResponseEntity deleteBuyerItem(@PathVariable("buyerItemId") @Positive long buyerItemId,
-                                          Authentication authentication) {
-        buyerItemService.deleteBuyerItem(buyerItemId, authentication);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @DeleteMapping
-    public ResponseEntity deleteBuyerItems(Dto.BuyerItemDeleteDtos deleteDtos, Authentication authentication) {
+    public ResponseEntity deleteBuyerItems(@RequestBody Dto.BuyerItemDeleteDtos deleteDtos, Authentication authentication) {
         List<Long> deleteIds = deleteDtos.getItemId();
         for(Long id : deleteIds) {
             buyerItemService.deleteBuyerItem(id, authentication);

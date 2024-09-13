@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,6 +90,17 @@ public class BuyerController {
 
         return new ResponseEntity<>(
                 new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity getAllBuyers() {
+        List<Buyer> buyers = buyerService.findAll();
+
+        List<Buyer> sortedBuyers = buyers.stream()
+                .sorted(Comparator.comparing(Buyer::getBuyerNm))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(buyerMapper.buyerToBuyerResponseDtos(sortedBuyers), HttpStatus.OK);
     }
 
     @PatchMapping

@@ -67,6 +67,7 @@ public class BuyerService {
         }
     }
 
+    //Pageable 생성
     private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
 
         Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
@@ -87,6 +88,7 @@ public class BuyerService {
         return buyer;
     }
 
+    //Buyer 정보 수정 - 이름/주소/이메일/연락처/사업자유형
     public Buyer updateBuyer(Buyer buyer, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -128,6 +130,8 @@ public class BuyerService {
         return buyerRepository.save(findBuyer);
     }
 
+
+    //Buyer 삭제 - 상태만 변경
     public void deleteBuyer(long buyerId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -138,6 +142,7 @@ public class BuyerService {
         buyerRepository.save(buyer);
     }
 
+    //Buyer 검증 (buyerCd를 통해)
     private void verifyBuyerCdExists(String buyerCd) {
         Optional<Buyer> buyer = buyerRepository.findByBuyerCd(buyerCd);
         if(buyer.isPresent()) {
@@ -145,6 +150,7 @@ public class BuyerService {
         }
     }
 
+    //Buyer-email 중복검사
     private void verifyExistEmail(String email) {
         Optional<Buyer> buyer = buyerRepository.findByEmail(email);
         if(buyer.isPresent()) {
@@ -152,6 +158,7 @@ public class BuyerService {
         }
     }
 
+    //Buyer-name 중복검사
     private void verifyExistName(String name) {
         Optional<Buyer> buyer = buyerRepository.findByBuyerNm(name);
         if(buyer.isPresent()) {
@@ -159,12 +166,14 @@ public class BuyerService {
         }
     }
 
+    //Buyer-tel 중복검사
     private void verifyExistTel(String tel) {
         if(buyerRepository.existsByTel(tel)) {
             throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
         }
     }
 
+    //Buyer 검증
     public Buyer findVerifiedBuyer(String buyerCd) {
         return buyerRepository.findByBuyerCd(buyerCd)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
@@ -177,4 +186,7 @@ public class BuyerService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
+    public List<Buyer> findAll() {
+        return buyerRepository.findAll();
+    }
 }
