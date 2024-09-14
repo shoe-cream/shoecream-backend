@@ -152,6 +152,7 @@ public class BuyerService {
     //BuyerCd 중복검사
     private void verifyBuyerCdExists(String buyerCd) {
         Optional<Buyer> buyer = buyerRepository.findByBuyerCd(buyerCd);
+
         if(buyer.isPresent()) {
             throw new BusinessLogicException(ExceptionCode.BUYER_CD_ALREADY_EXIST);
         }
@@ -182,14 +183,22 @@ public class BuyerService {
 
     //buyerId를 통해 Buyer 검증
     private Buyer findVerifiedBuyer(Long buyerId) {
-        return buyerRepository.findById(buyerId)
+        Buyer buyer = buyerRepository.findById(buyerId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+
+        isDeleted(buyer);
+
+        return buyer;
     }
 
     //buyerCd를 통해 Buyer 검증
     public Buyer findVerifiedBuyer(String buyerCd) {
-        return buyerRepository.findByBuyerCd(buyerCd)
+        Buyer buyer = buyerRepository.findByBuyerCd(buyerCd)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+
+        isDeleted(buyer);
+
+        return buyer;
     }
 
     //검증된 member 정보 가져오기
@@ -203,5 +212,17 @@ public class BuyerService {
     //고객사 전체 조회
     public List<Buyer> findAllActiveBuyers() {
         return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE);
+    }
+
+    public void isDeleted (Buyer buyer) {
+        if(buyer.getBuyerStatus().equals(Buyer.BuyerStatus.INACTIVE)) {
+            throw new BusinessLogicException(ExceptionCode.INACTIVE_STATUS);
+        }
+    }
+
+    public Buyer findBuyer(String buyerCd, Authentication authentication) {
+        extractMemberFromAuthentication(authentication);
+
+        return findVerifiedBuyer(buyerCd);
     }
 }

@@ -104,14 +104,6 @@ public class ItemController {
                 new SingleResponseDto<>(itemMapper.itemToResponseDtos(response)), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{itemId}")
-    public ResponseEntity deleteItem(@PathVariable("itemId") long itemId,
-                                     Authentication authentication) {
-        itemService.deleteItem(itemId, authentication);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @DeleteMapping
     public ResponseEntity deleteItems(@RequestBody Dto.ItemDeleteRequestDto itemDeleteRequestDto, Authentication authentication) {
         List<Long> itemIds = itemDeleteRequestDto.getItemId();
