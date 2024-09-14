@@ -1,5 +1,6 @@
 package com.springboot.item.service;
 
+import com.springboot.buyer.entity.Buyer;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
@@ -45,14 +46,14 @@ public class ItemService {
         extractMemberFromAuthentication(authentication);
 
         Pageable pageable = createPageable(page, size, criteria, direction);
-        Page<Item> items = itemRepository.findAll(pageable);
+        Page<Item> items = itemRepository.findAllByItemStatusNot(Item.ItemStatus.INACTIVE, pageable);
 
         return items;
     }
 
     //전체 item 조회
     public List<Item> findItemsAll() {
-        return itemRepository.findAll();
+        return itemRepository.findAllByItemStatusNot(Item.ItemStatus.INACTIVE);
     }
 
     //item 정보 수정 (이름/단위/단가/상태)
@@ -89,8 +90,9 @@ public class ItemService {
         extractMemberFromAuthentication(authentication);
 
         Item item = findVerifiedItemId(itemId);
+        item.setItemStatus(Item.ItemStatus.INACTIVE);
 
-        itemRepository.delete(item);
+        itemRepository.save(item);
     }
 
     //authentication -> member 정보 가져오기
@@ -117,16 +119,22 @@ public class ItemService {
 
     //검증된 item 찾기 - itemCd를 통해
     private Item findVerifiedItem(String itemCd) {
-        Optional<Item> item = itemRepository.findByItemCd(itemCd);
+        Item item = itemRepository.findByItemCd(itemCd)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
 
-        return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+        isDeleted(item);
+
+        return item;
     }
 
     //검증된 item 찾기 - itemId를 통해
     public Item findVerifiedItemId(Long itemId) {
-        Optional<Item> item = itemRepository.findByItemId(itemId);
+        Item item = itemRepository.findByItemId(itemId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
 
-        return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+        isDeleted(item);
+
+        return item;
     }
 
     //Pageable 생성
@@ -137,5 +145,11 @@ public class ItemService {
         Sort sort = Sort.by(sortDirection, sortCriteria);
 
         return PageRequest.of(page, size, sort);
+    }
+
+    public void isDeleted (Item item) {
+        if(item.getItemStatus().equals(Item.ItemStatus.INACTIVE)) {
+            throw new BusinessLogicException(ExceptionCode.INACTIVE_STATUS);
+        }
     }
 }

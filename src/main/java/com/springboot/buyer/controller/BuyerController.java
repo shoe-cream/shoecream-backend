@@ -4,9 +4,10 @@ import com.springboot.buyer.dto.Dto;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.mapper.BuyerMapper;
 import com.springboot.buyer.service.BuyerService;
-import com.springboot.buyer_item.mapper.BuyerItemMapper;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
+import com.springboot.item.entity.Item;
+import com.springboot.report.reportDto.ReportDto;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -136,5 +137,13 @@ public class BuyerController {
             buyerService.deleteBuyer(id, authentication);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{buyer-cd}")
+    public ResponseEntity getbuyer(@PathVariable("buyer-cd") String buyerCd, Authentication authentication) {
+        Buyer buyer = buyerService.findBuyer(buyerCd, authentication);
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyer)), HttpStatus.OK);
     }
 }
