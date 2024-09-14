@@ -146,6 +146,7 @@ public class BuyerService {
 
         Buyer buyer = findVerifiedBuyer(buyerId);
         buyer.setBuyerStatus(Buyer.BuyerStatus.INACTIVE);
+        buyerRepository.save(buyer);
     }
 
     //BuyerCd 중복검사
