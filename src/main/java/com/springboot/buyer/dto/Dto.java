@@ -45,6 +45,8 @@ public class Dto {
 
         private String buyerNm;
 
+        private Buyer.BuyerStatus buyerStatus;
+
         private String tel;
 
         private String address;

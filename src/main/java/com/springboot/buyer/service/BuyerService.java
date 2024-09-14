@@ -49,7 +49,7 @@ public class BuyerService {
             buyerNm != null && !buyerNm.isEmpty() ||
             businessType != null && !businessType.isEmpty()) {
 
-           return buyerRepository.findByBuyerCdOrBuyerNmOrBusinessType(buyerCd, buyerNm, businessType)
+           return buyerRepository.findByBuyerCdOrBuyerNmOrBusinessTypeAndBuyerStatusNot(buyerCd, buyerNm, businessType,  Buyer.BuyerStatus.INACTIVE)
                    .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CONDITION_NOT_FIT));
         } else {
                 throw new BusinessLogicException(ExceptionCode.AT_LEAST_ONE_CONDITION);
@@ -65,7 +65,7 @@ public class BuyerService {
         if (businessType != null && !businessType.isEmpty()) {
             return buyerRepository.findAllByBusinessTypeAndBuyerStatusNot(businessType, Buyer.BuyerStatus.INACTIVE, pageable);
         } else {
-            return buyerRepository.findAll(pageable);
+            return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE, pageable);
         }
     }
 
@@ -85,7 +85,7 @@ public class BuyerService {
             throw new BusinessLogicException(ExceptionCode.CONDITION_NOT_FIT);
         }
 
-        Buyer buyer = buyerRepository.findByBuyerCdOrBuyerNm(buyerCd, buyerNm)
+        Buyer buyer = buyerRepository.findByBuyerCdOrBuyerNmAndBuyerStatusNot(buyerCd, buyerNm, Buyer.BuyerStatus.INACTIVE )
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
 
         return buyer;
@@ -118,12 +118,21 @@ public class BuyerService {
         Optional.ofNullable(buyer.getTel())
                 .ifPresent(tel -> {
 
-                        verifyExistTel(tel);
-                        findBuyer.setTel(tel);
+                    verifyExistTel(tel);
+                    findBuyer.setTel(tel);
                 });
 
         Optional.ofNullable(buyer.getBusinessType())
                 .ifPresent(findBuyer::setBusinessType);
+
+        Optional.ofNullable(buyer.getBuyerStatus())
+                .ifPresent(status -> {
+                    if(status.equals(Buyer.BuyerStatus.INACTIVE)) {
+                        throw new BusinessLogicException(ExceptionCode.INVALID_REQUEST);
+                    }
+
+                    findBuyer.setBuyerStatus(status);
+                });
 
         findBuyer.setModifiedAt(LocalDateTime.now());
 
@@ -136,7 +145,7 @@ public class BuyerService {
         extractMemberFromAuthentication(authentication);
 
         Buyer buyer = findVerifiedBuyer(buyerId);
-        buyerRepository.delete(buyer);
+        buyer.setBuyerStatus(Buyer.BuyerStatus.INACTIVE);
     }
 
     //BuyerCd 중복검사
@@ -191,7 +200,7 @@ public class BuyerService {
     }
 
     //고객사 전체 조회
-    public List<Buyer> findAll() {
-        return buyerRepository.findAll();
+    public List<Buyer> findAllActiveBuyers() {
+        return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE);
     }
 }

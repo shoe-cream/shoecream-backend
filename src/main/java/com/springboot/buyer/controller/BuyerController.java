@@ -103,7 +103,7 @@ public class BuyerController {
     //Buyer 전체 조회
     @GetMapping("/all")
     public ResponseEntity getAllBuyers() {
-        List<Buyer> buyers = buyerService.findAll();
+        List<Buyer> buyers = buyerService.findAllActiveBuyers();
 
         List<Buyer> sortedBuyers = buyers.stream()
                 .sorted(Comparator.comparing(Buyer::getBuyerNm))
