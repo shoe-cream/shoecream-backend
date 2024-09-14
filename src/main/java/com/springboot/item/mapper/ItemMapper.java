@@ -28,6 +28,7 @@ public interface ItemMapper {
         itemResponseDto.setCreatedAt( item.getCreatedAt() );
         itemResponseDto.setTotalStock(report.getTotalStock());
         itemResponseDto.setPrepareOrder(report.getPreparedOrder());
+        itemResponseDto.setUnusedStock(report.getUnusedStock());
         return itemResponseDto;
     }
     List<Dto.ItemResponseDto> itemToResponseDtos(List<Item> items);

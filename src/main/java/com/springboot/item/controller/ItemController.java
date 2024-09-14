@@ -1,7 +1,5 @@
 package com.springboot.item.controller;
 
-
-import com.springboot.buyer.entity.Buyer;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.dto.Dto;

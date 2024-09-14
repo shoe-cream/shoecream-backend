@@ -34,9 +34,11 @@ public class ManufactureService {
         extractMemberFromAuthentication(authentication);
 
         manufactures.stream().forEach(manufacture -> {
+
             verifyManufactureCdExists(manufacture.getMfCd());
             verifyManufactureNmExists(manufacture.getMfNm());
             verifyExistsEmail(manufacture.getEmail());
+
             manufactureRepository.save(manufacture);
         });
     }
