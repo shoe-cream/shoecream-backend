@@ -27,7 +27,8 @@ public enum ExceptionCode {
     MANUFACTURE_NAME_EXIST(409,"MF Name Already Exists" ),
     INVALID_SORT_FIELD(400,"Invalid Sort Field" ),
     EMAIL_ALREADY_EXISTS(409,"Email Already Exists" ),
-    ORDER_CD_NOT_FOUND(404,"Order Code Not Found" );
+    ORDER_CD_NOT_FOUND(404,"Order Code Not Found" ),
+    INVALID_REQUEST(400, "Invalid request" );
 
     @Getter
     private int status;
