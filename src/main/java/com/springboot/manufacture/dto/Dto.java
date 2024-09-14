@@ -42,6 +42,7 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class ManufactureResponseDto {
+        private Long mfId;
         private String region;
         private String email;
         private String mfNm;
