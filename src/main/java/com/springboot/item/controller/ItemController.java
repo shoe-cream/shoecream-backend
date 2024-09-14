@@ -50,6 +50,7 @@ public class ItemController {
         return new ResponseEntity<>(
                 new SingleResponseDto<>(itemMapper.itemToResponseDto(item, report)), HttpStatus.OK);
     }
+
     @GetMapping("/all")
     public ResponseEntity getItemsAll() {
         List<Item> items = itemService.findItemsAll();
@@ -80,8 +81,10 @@ public class ItemController {
         }
 
         Page<Item> itemPage = itemService.findItems(page-1, size, sortCriteria, direction, authentication);
+        List<ReportDto.InventoryDto> reports = itemPage.getContent().stream().map(item -> saleReport.getInventory(item.getItemCd())).collect(Collectors.toList());
+
         List<Dto.ItemResponseDto> itemResponseDtos =
-                itemMapper.itemToResponseDtos(itemPage.getContent());
+                itemMapper.itemsToResponseDtos(itemPage.getContent(), reports);
 
         return new ResponseEntity<>(
                 new MultiResponseDto<>(itemResponseDtos, itemPage), HttpStatus.OK);
