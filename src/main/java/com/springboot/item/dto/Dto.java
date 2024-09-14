@@ -67,6 +67,7 @@ public class Dto {
         private LocalDateTime createdAt;
         private Integer totalStock; // 총 재고량
         private Integer prepareOrder; // 주문대기 수량
+        private Integer unusedStock;
     }
 
     @Getter
