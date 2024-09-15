@@ -30,7 +30,7 @@ public interface ItemMfMapper {
 
     default Dto.ItemMfResponseDto itemMfToItemMfResponseDto(ItemManufacture itemManufacture) {
         Dto.ItemMfResponseDto responseDto = new Dto.ItemMfResponseDto();
-
+        responseDto.setMfItemId(itemManufacture.getMfItemId());
         responseDto.setItemCd(itemManufacture.getItem().getItemCd());
         responseDto.setItemNm(itemManufacture.getItem().getItemNm());
         responseDto.setRegion(itemManufacture.getManufacture().getRegion());
@@ -48,6 +48,7 @@ public interface ItemMfMapper {
                 .stream()
                 .map(itemManufacture -> Dto.ItemMfResponseDto
                         .builder()
+                        .mfItemId(itemManufacture.getMfItemId())
                         .region(itemManufacture.getManufacture().getRegion())
                         .email(itemManufacture.getManufacture().getEmail())
                         .mfCd(itemManufacture.getManufacture().getMfCd())
