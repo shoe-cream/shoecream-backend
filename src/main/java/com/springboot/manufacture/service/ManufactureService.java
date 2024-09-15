@@ -47,8 +47,10 @@ public class ManufactureService {
     public Manufacture findManufacture(String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        return findVerifiedManufactureByMfCd(mfCd);
+        Manufacture manufacture = findVerifiedManufactureByMfCd(mfCd);
+        isDeleted(manufacture);
 
+        return manufacture;
     }
 
     //제조사 전체 조회 (pagination)
@@ -57,7 +59,7 @@ public class ManufactureService {
 
         Pageable pageable = createPageable(page, size, sortBy, direction);
 
-       return manufactureRepository.findAll(pageable);
+       return manufactureRepository.findAllByManufactureStatusNot(Manufacture.ManufactureStatus.INACTIVE, pageable);
     }
 
     //제조사 정보 수정 (이메일/ 지역/ 이름)
@@ -84,7 +86,13 @@ public class ManufactureService {
                 });
 
         Optional.ofNullable(manufacture.getManufactureStatus())
-                .ifPresent(findManufacture::setManufactureStatus);
+                .ifPresent(status-> {
+                    if(status.equals(Manufacture.ManufactureStatus.INACTIVE)) {
+                        throw new BusinessLogicException(ExceptionCode.INVALID_REQUEST);
+                    }
+
+                    findManufacture.setManufactureStatus(status);
+                });
 
         findManufacture.setModifiedAt(LocalDateTime.now());
 
@@ -96,8 +104,9 @@ public class ManufactureService {
         extractMemberFromAuthentication(authentication);
 
         Manufacture manufacture = verifyManufacture(mfId);
+        manufacture.setManufactureStatus(Manufacture.ManufactureStatus.INACTIVE);
 
-        manufactureRepository.delete(manufacture);
+        manufactureRepository.save(manufacture);
     }
 
     //mfCd로 manufacture DB에서 삭제
@@ -105,11 +114,12 @@ public class ManufactureService {
         extractMemberFromAuthentication(authentication);
 
         Manufacture manufacture = findVerifiedManufactureByMfCd(mfCd);
+        manufacture.setManufactureStatus(Manufacture.ManufactureStatus.INACTIVE);
 
-        manufactureRepository.delete(manufacture);
+        manufactureRepository.save(manufacture);
     }
 
-    //ManuFactureHistory 조회 (mfCd로 필터 , pagination)
+    //ManuFacture-History 조회 (mfCd로 필터 , pagination)
     public Page<ManuFactureHistory> findManufactureHistories (int page, int size,
                                                               String sort,
                                                               String direction,
@@ -122,7 +132,7 @@ public class ManufactureService {
 
     // 제조사 전체 조회
     public List<Manufacture> findManufactureAll() {
-        return manufactureRepository.findAll();
+        return manufactureRepository.findAllByManufactureStatusNot(Manufacture.ManufactureStatus.INACTIVE);
     }
 
     //Pageable 생성
@@ -179,4 +189,9 @@ public class ManufactureService {
         }
     }
 
+    public void isDeleted (Manufacture manufacture) {
+        if(manufacture.getManufactureStatus().equals(Manufacture.ManufactureStatus.INACTIVE)) {
+            throw new BusinessLogicException(ExceptionCode.INACTIVE_STATUS);
+        }
+    }
 }

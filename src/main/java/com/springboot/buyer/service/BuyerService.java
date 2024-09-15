@@ -146,6 +146,7 @@ public class BuyerService {
 
         Buyer buyer = findVerifiedBuyer(buyerId);
         buyer.setBuyerStatus(Buyer.BuyerStatus.INACTIVE);
+
         buyerRepository.save(buyer);
     }
 
@@ -186,7 +187,7 @@ public class BuyerService {
         Buyer buyer = buyerRepository.findById(buyerId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
 
-        isDeleted(buyer);
+        //isDeleted(buyer);
 
         return buyer;
     }
@@ -196,7 +197,7 @@ public class BuyerService {
         Buyer buyer = buyerRepository.findByBuyerCd(buyerCd)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
 
-        isDeleted(buyer);
+       // isDeleted(buyer);
 
         return buyer;
     }
@@ -223,6 +224,9 @@ public class BuyerService {
     public Buyer findBuyer(String buyerCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        return findVerifiedBuyer(buyerCd);
+        Buyer buyer = findVerifiedBuyer(buyerCd);
+        isDeleted(buyer);
+
+        return buyer;
     }
 }
