@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Service
+@Transactional
 public class OrderService {
     private final OrderHeadersRepository orderHeadersRepository;
     private final OrderItemsRepository orderItemsRepository;
@@ -116,13 +117,25 @@ public class OrderService {
         if (!findItem.getOrderHeaders().getOrderId().equals(orderId)) {
             throw new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND_IN_ORDER);
         }
-        Optional.ofNullable(orderItems.getQty()).ifPresent(findItem::setQty);
+
+        //팀장 승인 이후에는 아이템의 상태를 변경할 수 없다.
+        if(!orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.PURCHASE_REQUEST) &&
+        !orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.REQUEST_TEMP)) {
+            throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
+        }
+
+        Optional.ofNullable(orderItems.getQty()).ifPresent(qty -> {
+            findItem.setQty(qty);
+            isStock(findItem.getOrderHeaders());
+        });
+
         Optional.ofNullable(orderItems.getUnitPrice()).ifPresent(findItem::setUnitPrice);
         Optional.ofNullable(orderItems.getStartDate()).ifPresent(findItem::setStartDate);
         Optional.ofNullable(orderItems.getEndDate()).ifPresent(findItem::setEndDate);
 
         findItem.setOrderHeaders(orderHeaders);
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeaders, member));
+
         return orderItemsRepository.save(findItem);
     }
 

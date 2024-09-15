@@ -14,7 +14,8 @@ public interface ManufactureRepository extends JpaRepository<Manufacture, Long> 
     boolean existsByMfNm(String mfNm);
     boolean existsByEmail(String email);
 
-    Optional<Manufacture> findBymfCd(String mfCd);
+    Optional<Manufacture> findByMfCd(String mfCd);
+    Optional<Manufacture> findByMfNm(String mfNm);
     Page<Manufacture> findAllByManufactureStatusNot(Manufacture.ManufactureStatus manufactureStatus, Pageable pageable);
     List<Manufacture> findAllByManufactureStatusNot(Manufacture.ManufactureStatus manufactureStatus);
 }
