@@ -43,6 +43,7 @@ public class Dto {
     @AllArgsConstructor
     @Builder
     public static class ItemMfResponseDto {
+        private Long mfItemId;
         private String region; // 제조국
         private String email;  // 제조사 email
         private String mfNm;   // 공장명
