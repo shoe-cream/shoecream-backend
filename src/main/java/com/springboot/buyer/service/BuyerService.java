@@ -221,6 +221,15 @@ public class BuyerService {
         }
     }
 
+    public Buyer findVerifiedBuyerByBuyerNm (String buyerNm) {
+        Buyer buyer = buyerRepository.findByBuyerNm(buyerNm)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+
+        isDeleted(buyer);
+
+        return buyer;
+    }
+
     public Buyer findBuyer(String buyerCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 

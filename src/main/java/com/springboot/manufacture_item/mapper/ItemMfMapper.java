@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public interface ItemMfMapper {
     default ItemManufacture itemMfPostDtoToItemMf(Dto.ItemMfPostDto postDto) {
         Item item = new Item();
-        item.setItemId(postDto.getItemId());
+        item.setItemNm(postDto.getItemNm());
         Manufacture manufacture = new Manufacture();
-        manufacture.setMfId(postDto.getMfId());
+        manufacture.setMfNm(postDto.getMfNm());
 
         ItemManufacture itemManufacture = new ItemManufacture();
         itemManufacture.setItem(item);

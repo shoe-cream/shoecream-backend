@@ -3,18 +3,15 @@ package com.springboot.manufacture_item.service;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
-import com.springboot.item.repository.ItemRepository;
 import com.springboot.item.service.ItemService;
 import com.springboot.manufacture.service.ManufactureService;
 import com.springboot.manufacture_item.entity.ItemManufacture;
 import com.springboot.manufacture_item.repository.ManufactureItemRepository;
 import com.springboot.manufacture.entity.Manufacture;
-import com.springboot.manufacture.repository.ManufactureRepository;
 import com.springboot.manufacture_history.entity.ManuFactureHistory;
 import com.springboot.manufacture_history.mapper.ManufactureHistoryMapper;
 import com.springboot.manufacture_history.repository.ManufactureHistoryRepository;
 import com.springboot.member.entity.Member;
-import com.springboot.member.repository.MemberRepository;
 import com.springboot.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,16 +36,17 @@ public class ManufactureItemService {
     private final ManufactureHistoryRepository manufactureHistoryRepository;
     private final ManufactureHistoryMapper manufactureHistoryMapper;
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     public void createItemMf(List<ItemManufacture> itemManufactures, Authentication authentication) {
         Member member = extractMemberFromAuthentication(authentication);
 
         itemManufactures.stream().forEach(itemManufacture -> {
-            Item item = itemService.findVerifiedItemId(itemManufacture.getItem().getItemId());
-            Manufacture manufacture = manufactureService.verifyManufacture(itemManufacture.getManufacture().getMfId());
+            Item item = itemService.findVerifiedItemNm(itemManufacture.getItem().getItemNm());
+            Manufacture manufacture = manufactureService.verifyManufactureByNm(itemManufacture.getManufacture().getMfNm());
+
             itemManufacture.addItem(item);
             itemManufacture.addMf(manufacture);
+
             ItemManufacture saveItemManufacture = itemMfRepository.save(itemManufacture);
             manufactureHistoryRepository.save(manufactureHistoryMapper.manufactureHistoryToItemManufacture(saveItemManufacture, member));
         });
@@ -98,9 +96,9 @@ public class ManufactureItemService {
         ItemManufacture findItemMf = verifyItemMf(itemManufacture.getMfItemId());
 
         Optional.ofNullable(itemManufacture.getUnitPrice())
-                .ifPresent(unitPrice -> findItemMf.setUnitPrice(unitPrice));
+                .ifPresent(findItemMf::setUnitPrice);
         Optional.ofNullable(itemManufacture.getQty())
-                .ifPresent(qty -> findItemMf.setQty(qty));
+                .ifPresent(findItemMf::setQty);
 
         findItemMf.setModifiedAt(LocalDateTime.now());
 

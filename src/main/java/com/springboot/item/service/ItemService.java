@@ -40,6 +40,17 @@ public class ItemService {
         return findVerifiedItem(itemCd);
     }
 
+    //item Nm로 item 찾기
+    @Transactional(readOnly = true)
+    public Item findItemByNm(String itemNm) {
+        Item item = itemRepository.findByItemNm(itemNm)
+                .orElseThrow(()-> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+
+        isDeleted(item);
+
+        return item;
+    }
+
     //전체 item 조회 - pagination
     @Transactional(readOnly = true)
     public Page<Item> findItems(int page, int size, String criteria, String direction, Authentication authentication) {
@@ -122,7 +133,7 @@ public class ItemService {
         Item item = itemRepository.findByItemCd(itemCd)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
 
-        isDeleted(item);
+      //  isDeleted(item);
 
         return item;
     }
@@ -130,6 +141,16 @@ public class ItemService {
     //검증된 item 찾기 - itemId를 통해
     public Item findVerifiedItemId(Long itemId) {
         Item item = itemRepository.findByItemId(itemId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
+
+      //  isDeleted(item);
+
+        return item;
+    }
+
+    //검증된 item 찾기 - itemNm를 통해
+    public Item findVerifiedItemNm(String itemNm) {
+        Item item = itemRepository.findByItemNm(itemNm)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
 
         isDeleted(item);

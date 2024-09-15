@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,11 +13,11 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class ItemMfPostDto {
-        @Min(value = 1, message = "Item ID는 1 이상이어야 합니다.")
-        private long itemId;
+        @NotNull
+        private String itemNm;
 
-        @Min(value = 1, message = "Manufacture ID는 1 이상이어야 합니다.")
-        private long mfId;
+        @NotNull
+        private String mfNm;
 
         @DecimalMin(value = "0.01", message = "단가는 0보다 커야 합니다.")
         private BigDecimal unitPrice;

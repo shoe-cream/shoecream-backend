@@ -153,10 +153,19 @@ public class ManufactureService {
 
     }
 
+    // mfNm로 Manufacture 검증
+    public Manufacture verifyManufactureByNm(String mfNm) {
+        Manufacture manufacture = manufactureRepository.findByMfNm(mfNm)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
+
+        isDeleted(manufacture);
+        return manufacture;
+    }
+
     // mfCd로 Manufacture 검증
     private Manufacture findVerifiedManufactureByMfCd(String mfCd) {
 
-        return manufactureRepository.findBymfCd(mfCd)
+        return manufactureRepository.findByMfCd(mfCd)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
     }
 
