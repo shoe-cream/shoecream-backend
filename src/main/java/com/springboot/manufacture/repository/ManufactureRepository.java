@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ManufactureRepository extends JpaRepository<Manufacture, Long> {
@@ -12,8 +13,9 @@ public interface ManufactureRepository extends JpaRepository<Manufacture, Long> 
     boolean existsByMfCd(String mfCd);
     boolean existsByMfNm(String mfNm);
     boolean existsByEmail(String email);
-    Page<Manufacture> findAllByManufactureStatus(Manufacture.ManufactureStatus manufactureStatus, Pageable pageable);
 
     Optional<Manufacture> findBymfCd(String mfCd);
+    Page<Manufacture> findAllByManufactureStatusNot(Manufacture.ManufactureStatus manufactureStatus, Pageable pageable);
+    List<Manufacture> findAllByManufactureStatusNot(Manufacture.ManufactureStatus manufactureStatus);
 }
 
