@@ -59,7 +59,7 @@ public class MemberController {
         // 멤버 정보와 역할을 응답으로 반환
         MemberDto.Response response = mapper.memberToMemberResponseMyPage(member, role);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(response), HttpStatus.OK);
     }
 
     // 멤버 정보 업데이트
