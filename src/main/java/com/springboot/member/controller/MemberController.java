@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.GrantedAuthority;
+
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -43,12 +45,21 @@ public class MemberController {
         String employeeId = (String) authentication.getPrincipal();
         Member member = memberService.findVerifiedEmployee(employeeId);
 
+        // 사용자 권한 가져오기 (ADMIN 또는 USER 여부)
+        String role = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(authority -> authority.equals("ROLE_ADMIN"))
+                ? "ADMIN" : "USER";
+
         // 사용자 인증 정보와 조회된 정보가 일치하지 않을 경우 권한 없음 상태 반환
         if (!member.getEmployeeId().equals(employeeId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
+        // 멤버 정보와 역할을 응답으로 반환
+        MemberDto.Response response = mapper.memberToMemberResponseMyPage(member, role);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 멤버 정보 업데이트

@@ -44,7 +44,7 @@ public interface MemberMapper {
     MemberDto.Response memberToMemberResponse(Member member);
 
 
-    default MemberDto.Response memberToMemberResponseMyPage(Member member){
+    default MemberDto.Response memberToMemberResponseMyPage(Member member, String role){
         MemberDto.Response response = new MemberDto.Response();
         response.setMemberId(member.getMemberId());
         response.setName(member.getName());
@@ -55,6 +55,8 @@ public interface MemberMapper {
         } else {
             response.setMemberStatus(member.getMemberStatus());
         }
+
+        response.setRole(role);
         return response;
     }
 
