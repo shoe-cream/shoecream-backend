@@ -19,6 +19,7 @@ import java.util.List;
 public interface SaleHistoryMapper {
     default SaleHistory orderToSaleHistory(OrderHeaders orderHeader, Member member) {
         SaleHistory saleHistory = new SaleHistory();
+        saleHistory.setOrderCd(orderHeader.getOrderCd());
         saleHistory.setEmployeeId(member.getEmployeeId());
         saleHistory.setCreatedAt(LocalDateTime.now());
         saleHistory.setPersonInCharge(orderHeader.getMember().getEmployeeId());
