@@ -36,6 +36,7 @@ public class MemberDto {
     public static class Update {
         private String profileUrl;  // 업데이트할 새 프로필 사진 URL
     }
+
     @Getter
     @Setter
     public static class UpdateRole {
@@ -47,6 +48,7 @@ public class MemberDto {
     public static class RoleResponse {
         private String role;  // 현재 역할 반환
     }
+
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -90,7 +92,7 @@ public class MemberDto {
         private String name;
         private String profileUrl;
         private Member.MemberStatus memberStatus;
-
+        private String role;
         public String getMemberStatus() {
             return memberStatus.getStatus();
         }
