@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 
 import com.springboot.validator.NotSpace;
 
+import java.util.List;
+
 
 public class MemberDto {
 
@@ -92,7 +94,7 @@ public class MemberDto {
         private String name;
         private String profileUrl;
         private Member.MemberStatus memberStatus;
-        private String role;
+        private List<String> roles;
         public String getMemberStatus() {
             return memberStatus.getStatus();
         }
