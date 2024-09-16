@@ -47,17 +47,14 @@ public class MemberController {
         String employeeId = (String) authentication.getPrincipal();
         Member member = memberService.findVerifiedEmployee(employeeId);
 
-        // 사용자 권한 가져오기 (여러 개의 권한을 List<String> 형태로 반환)
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        // 사용자 인증 정보와 조회된 정보가 일치하지 않을 경우 권한 없음 상태 반환
         if (!member.getEmployeeId().equals(employeeId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        // 멤버 정보와 역할 리스트를 응답으로 반환
         MemberDto.Response response = mapper.memberToMemberResponseMyPage(member, roles);
 
         return new ResponseEntity<>(new SingleResponseDto<>(response), HttpStatus.OK);

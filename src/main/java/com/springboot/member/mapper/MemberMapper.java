@@ -57,7 +57,7 @@ public interface MemberMapper {
             response.setMemberStatus(member.getMemberStatus());
         }
 
-        response.setRoles(roles);  
+        response.setRoles(roles);
         return response;
     }
 
