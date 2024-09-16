@@ -20,6 +20,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -45,21 +47,20 @@ public class MemberController {
         String employeeId = (String) authentication.getPrincipal();
         Member member = memberService.findVerifiedEmployee(employeeId);
 
-        // 사용자 권한 가져오기 (ADMIN 또는 USER 여부)
-        String role = authentication.getAuthorities().stream()
+        // 사용자 권한 가져오기 (여러 개의 권한을 List<String> 형태로 반환)
+        List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(authority -> authority.equals("ROLE_ADMIN"))
-                ? "ADMIN" : "USER";
+                .collect(Collectors.toList());
 
         // 사용자 인증 정보와 조회된 정보가 일치하지 않을 경우 권한 없음 상태 반환
         if (!member.getEmployeeId().equals(employeeId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        // 멤버 정보와 역할을 응답으로 반환
-        MemberDto.Response response = mapper.memberToMemberResponseMyPage(member, role);
+        // 멤버 정보와 역할 리스트를 응답으로 반환
+        MemberDto.Response response = mapper.memberToMemberResponseMyPage(member, roles);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(response), HttpStatus.OK);
     }
 
     // 멤버 정보 업데이트
