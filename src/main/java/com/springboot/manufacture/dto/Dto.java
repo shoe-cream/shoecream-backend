@@ -4,8 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,6 +41,7 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class ManufactureResponseDto {
+        private Long mfId;
         private String region;
         private String email;
         private String mfNm;
@@ -50,6 +50,9 @@ public class Dto {
 
     @Getter
     public static class ManufactureDeleteList {
+        @NotNull(message = "mfId의 List는 null일 수 없습니다.")
+        @NotEmpty(message = "mfId의 List는 비어있으면 안됩니다.")
+        @Size(min = 1, message = "mfId의 List는 최소 1개 이상이어야 합니다.")
         private List<Long> mfId;
     }
 }

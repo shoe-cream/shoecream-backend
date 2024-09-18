@@ -342,26 +342,26 @@ INSERT INTO item_manufacture (unit_price, qty, created_at, mf_id, item_id) VALUE
 
 -- Dummy data for Buyer
 INSERT INTO buyer (buyer_cd, email, buyer_nm, tel, address, business_type, buyer_status) VALUES
-('B001', 'buyer1@store.com', 'Buyer 1', '123-456-7890', '123 Main St', 'Retail', 'ACTIVE'),
-('B002', 'buyer2@store.com', 'Buyer 2', '987-654-3210', '456 Oak St', 'Wholesale', 'ACTIVE'),
-('B003', 'buyer3@store.com', 'Buyer 3', '555-789-1234', '789 Pine St', 'Retail', 'ACTIVE'),
-('B004', 'buyer4@store.com', 'Buyer 4', '555-123-4567', '123 Elm St', 'Wholesale', 'ACTIVE'),
-('B005', 'buyer5@store.com', 'Buyer 5', '444-555-6666', '456 Cedar St', 'Retail', 'ACTIVE'),
-('B006', 'buyer6@store.com', 'Buyer 6', '333-444-5555', '789 Maple St', 'E-commerce', 'ACTIVE'),
-('B007', 'buyer7@store.com', 'Buyer 7', '555-333-2222', '101 Oak St', 'Retail', 'ACTIVE'),
-('B008', 'buyer8@store.com', 'Buyer 8', '555-666-7777', '222 Maple St', 'Retail', 'ACTIVE'),
-('B009', 'buyer9@store.com', 'Buyer 9', '555-888-9999', '789 Cedar St', 'E-commerce', 'ACTIVE'),
-('B010', 'buyer10@store.com', 'Buyer 10', '444-999-0000', '123 Birch St', 'Distributor', 'ACTIVE'),
-('B011', 'buyer11@store.com', 'Buyer 11', '123-987-6543', '111 Maple St', 'Retail', 'ACTIVE'),
-('B012', 'buyer12@store.com', 'Buyer 12', '444-321-1234', '222 Elm St', 'Wholesale', 'ACTIVE'),
-('B013', 'buyer13@store.com', 'Buyer 13', '555-234-5678', '333 Cedar St', 'Retail', 'ACTIVE'),
-('B014', 'buyer14@store.com', 'Buyer 14', '666-777-8888', '444 Pine St', 'E-commerce', 'ACTIVE'),
-('B015', 'buyer15@store.com', 'Buyer 15', '123-456-9876', '555 Oak St', 'Retail', 'ACTIVE'),
-('B016', 'buyer16@store.com', 'Buyer 16', '789-123-4567', '666 Birch St', 'Retail', 'ACTIVE'),
-('B017', 'buyer17@store.com', 'Buyer 17', '987-654-3333', '777 Maple St', 'Wholesale', 'ACTIVE'),
-('B018', 'buyer18@store.com', 'Buyer 18', '321-555-9876', '888 Cedar St', 'Distributor', 'ACTIVE'),
-('B019', 'buyer19@store.com', 'Buyer 19', '654-987-3210', '999 Pine St', 'Retail', 'ACTIVE'),
-('B020', 'buyer20@store.com', 'Buyer 20', '333-444-9876', '101 Oak St', 'Wholesale', 'ACTIVE');
+('B001', 'buyer1@footwearworld.com', 'Footwear World', '123-456-7890', '123 Main St', 'Retail', 'ACTIVE'),
+('B002', 'buyer2@solestore.com', 'Sole Store', '987-654-3210', '456 Oak St', 'Wholesale', 'ACTIVE'),
+('B003', 'buyer3@shoebarn.com', 'Shoe Barn', '555-789-1234', '789 Pine St', 'Retail', 'ACTIVE'),
+('B004', 'buyer4@stepinshoes.com', 'Step In Shoes', '555-123-4567', '123 Elm St', 'Wholesale', 'ACTIVE'),
+('B005', 'buyer5@footgear.com', 'Footgear', '444-555-6666', '456 Cedar St', 'Retail', 'ACTIVE'),
+('B006', 'buyer6@lacesandmore.com', 'Laces & More', '333-444-5555', '789 Maple St', 'E-commerce', 'ACTIVE'),
+('B007', 'buyer7@kickstore.com', 'Kickstore', '555-333-2222', '101 Oak St', 'Retail', 'ACTIVE'),
+('B008', 'buyer8@shoelocker.com', 'Shoe Locker', '555-666-7777', '222 Maple St', 'Retail', 'ACTIVE'),
+('B009', 'buyer9@thesneakerhub.com', 'The Sneaker Hub', '555-888-9999', '789 Cedar St', 'E-commerce', 'ACTIVE'),
+('B010', 'buyer10@footaction.com', 'Foot Action', '444-999-0000', '123 Birch St', 'Distributor', 'ACTIVE'),
+('B011', 'buyer11@shoeempire.com', 'Shoe Empire', '123-987-6543', '111 Maple St', 'Retail', 'ACTIVE'),
+('B012', 'buyer12@footprintzone.com', 'Footprint Zone', '444-321-1234', '222 Elm St', 'Wholesale', 'ACTIVE'),
+('B013', 'buyer13@kickculture.com', 'Kick Culture', '555-234-5678', '333 Cedar St', 'Retail', 'ACTIVE'),
+('B014', 'buyer14@sneakerplanet.com', 'Sneaker Planet', '666-777-8888', '444 Pine St', 'E-commerce', 'ACTIVE'),
+('B015', 'buyer15@shoewarehouse.com', 'Shoe Warehouse', '123-456-9876', '555 Oak St', 'Retail', 'ACTIVE'),
+('B016', 'buyer16@walkshop.com', 'Walk Shop', '789-123-4567', '666 Birch St', 'Retail', 'ACTIVE'),
+('B017', 'buyer17@stepinstyle.com', 'Step In Style', '987-654-3333', '777 Maple St', 'Wholesale', 'ACTIVE'),
+('B018', 'buyer18@shoebox.com', 'Shoe Box', '321-555-9876', '888 Cedar St', 'Distributor', 'ACTIVE'),
+('B019', 'buyer19@sneakerlounge.com', 'Sneaker Lounge', '654-987-3210', '999 Pine St', 'Retail', 'ACTIVE'),
+('B020', 'buyer20@footwearhub.com', 'Footwear Hub', '333-444-9876', '101 Oak St', 'Wholesale', 'ACTIVE');
 
 -- Dummy data for BuyerItem
 INSERT INTO buyer_item (unit_price, start_date, end_date, buyer_id, item_id) VALUES

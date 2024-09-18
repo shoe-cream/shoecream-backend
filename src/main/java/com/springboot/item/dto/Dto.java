@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,12 +69,16 @@ public class Dto {
         private LocalDateTime createdAt;
         private Integer totalStock; // 총 재고량
         private Integer prepareOrder; // 주문대기 수량
+        private Integer unusedStock;
     }
 
     @Getter
     @Setter
     @NoArgsConstructor
     public static class ItemDeleteRequestDto {
+        @NotNull(message = "itemId의 List는 null일 수 없습니다.")
+        @NotEmpty(message = "itemId의 List는 비어있으면 안됩니다.")
+        @Size(min = 1, message = "itemId의 List는 최소 1개 이상이어야 합니다.")
         private List<Long> itemId;
 
     }

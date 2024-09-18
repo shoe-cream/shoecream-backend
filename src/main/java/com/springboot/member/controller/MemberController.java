@@ -15,9 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.GrantedAuthority;
+
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -43,12 +47,17 @@ public class MemberController {
         String employeeId = (String) authentication.getPrincipal();
         Member member = memberService.findVerifiedEmployee(employeeId);
 
-        // 사용자 인증 정보와 조회된 정보가 일치하지 않을 경우 권한 없음 상태 반환
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
         if (!member.getEmployeeId().equals(employeeId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponseMyPage(member)), HttpStatus.OK);
+        MemberDto.Response response = mapper.memberToMemberResponseMyPage(member, roles);
+
+        return new ResponseEntity<>(new SingleResponseDto<>(response), HttpStatus.OK);
     }
 
     // 멤버 정보 업데이트
@@ -102,7 +111,7 @@ public class MemberController {
     public ResponseEntity<?> uploadProfile(@Valid @RequestBody MemberDto.UploadProfile profileUploadDto, Authentication authentication) {
         String employeeId = authentication.getName();
         Member updatedMember = memberService.uploadProfile(employeeId, profileUploadDto.getProfileUrl());
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.profileUploadToMember(profileUploadDto)), HttpStatus.OK);
+        return new ResponseEntity<>(new SingleResponseDto<>(updatedMember), HttpStatus.OK);
     }
 
     // 프로필 사진 수정

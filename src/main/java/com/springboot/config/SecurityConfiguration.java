@@ -73,6 +73,7 @@ public class SecurityConfiguration {
                         .antMatchers(HttpMethod.GET, "/orders").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/orders/items").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.PATCH, "/orders/approve").hasAnyRole( "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/*/histories").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/inventories").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/reports").hasAnyRole("USER", "ADMIN")

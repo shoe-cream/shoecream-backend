@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,6 +42,8 @@ public class Dto {
         private Long buyerId;
 
         private String buyerNm;
+
+        private Buyer.BuyerStatus buyerStatus;
 
         private String tel;
 
@@ -90,6 +90,9 @@ public class Dto {
     }
     @Getter
     public static class BuyerDeleteDtos {
+        @NotNull(message = "buyerId의 List는 null일 수 없습니다.")
+        @NotEmpty(message = "buyerId의 List는 비어있을 수 없습니다.")
+        @Size(min = 1, message = "buyerId의 List 최소 1개 이상이어야 합니다.")
         private List<Long> buyerId;
     }
 }

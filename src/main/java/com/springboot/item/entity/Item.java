@@ -64,7 +64,8 @@ public class Item {
     @AllArgsConstructor
     public enum ItemStatus {
         ON_SALE("판매중"),
-        NOT_FOR_SALE("판매중지");
+        NOT_FOR_SALE("판매중지"),
+        INACTIVE("비활성");
 
         @Getter
         @Setter

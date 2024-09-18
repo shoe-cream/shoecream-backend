@@ -25,6 +25,7 @@ public class ReportDto {
     @NoArgsConstructor
     public static class SaleReportDto {
         private String itemCd;
+        private String itemNm;
         private int totalManufactured; //제품에 대한 총 공급량
         private int totalOrdered; //제품에 대한 총 주문량
         private BigDecimal totalOrderedPrice; //총 주문 가격
