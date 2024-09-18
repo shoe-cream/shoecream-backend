@@ -1,7 +1,5 @@
 package com.springboot.item.controller;
 
-
-import com.springboot.buyer.entity.Buyer;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.dto.Dto;
@@ -52,6 +50,7 @@ public class ItemController {
         return new ResponseEntity<>(
                 new SingleResponseDto<>(itemMapper.itemToResponseDto(item, report)), HttpStatus.OK);
     }
+
     @GetMapping("/all")
     public ResponseEntity getItemsAll() {
         List<Item> items = itemService.findItemsAll();
@@ -82,8 +81,10 @@ public class ItemController {
         }
 
         Page<Item> itemPage = itemService.findItems(page-1, size, sortCriteria, direction, authentication);
+        List<ReportDto.InventoryDto> reports = itemPage.getContent().stream().map(item -> saleReport.getInventory(item.getItemCd())).collect(Collectors.toList());
+
         List<Dto.ItemResponseDto> itemResponseDtos =
-                itemMapper.itemToResponseDtos(itemPage.getContent());
+                itemMapper.itemsToResponseDtos(itemPage.getContent(), reports);
 
         return new ResponseEntity<>(
                 new MultiResponseDto<>(itemResponseDtos, itemPage), HttpStatus.OK);
@@ -101,14 +102,6 @@ public class ItemController {
 
         return new ResponseEntity<>(
                 new SingleResponseDto<>(itemMapper.itemToResponseDtos(response)), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{itemId}")
-    public ResponseEntity deleteItem(@PathVariable("itemId") long itemId,
-                                     Authentication authentication) {
-        itemService.deleteItem(itemId, authentication);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping

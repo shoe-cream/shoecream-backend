@@ -44,17 +44,22 @@ public interface MemberMapper {
     MemberDto.Response memberToMemberResponse(Member member);
 
 
-    default MemberDto.Response memberToMemberResponseMyPage(Member member){
+    default MemberDto.Response memberToMemberResponseMyPage(Member member, List<String> roles) {
         MemberDto.Response response = new MemberDto.Response();
         response.setMemberId(member.getMemberId());
+        response.setEmployeeId(member.getEmployeeId());
         response.setName(member.getName());
         response.setEmail(member.getEmail());
         response.setProfileUrl(member.getProfileUrl());
-        if(member.getMemberStatus() == null) {
+        response.setAddress(member.getAddress());
+        response.setTel(member.getTel());
+        if (member.getMemberStatus() == null) {
             response.setMemberStatus(Member.MemberStatus.MEMBER_ACTIVE);
         } else {
             response.setMemberStatus(member.getMemberStatus());
         }
+
+        response.setRoles(roles);
         return response;
     }
 

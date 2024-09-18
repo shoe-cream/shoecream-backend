@@ -1,10 +1,13 @@
 package com.springboot.item.mapper;
 
+import com.springboot.exception.BusinessLogicException;
+import com.springboot.exception.ExceptionCode;
 import com.springboot.item.dto.Dto;
 import com.springboot.item.entity.Item;
 import com.springboot.report.reportDto.ReportDto;
 import org.mapstruct.Mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -13,6 +16,7 @@ public interface ItemMapper {
     List<Item> itemPostDtosToItems(List<Dto.ItemPostDto> postDtos);
     Item itemPatchToItem(Dto.ItemPatchDto patchDto);
     List<Item> itemPatchDtosToItems(List<Dto.ItemPatchDto> patchDtos);
+
     default Dto.ItemResponseDto itemToResponseDto(Item item , ReportDto.InventoryDto report) {
         Dto.ItemResponseDto itemResponseDto = new Dto.ItemResponseDto();
 
@@ -28,7 +32,20 @@ public interface ItemMapper {
         itemResponseDto.setCreatedAt( item.getCreatedAt() );
         itemResponseDto.setTotalStock(report.getTotalStock());
         itemResponseDto.setPrepareOrder(report.getPreparedOrder());
+        itemResponseDto.setUnusedStock(report.getUnusedStock());
         return itemResponseDto;
     }
     List<Dto.ItemResponseDto> itemToResponseDtos(List<Item> items);
+
+    default List<Dto.ItemResponseDto> itemsToResponseDtos(List<Item> items, List<ReportDto.InventoryDto> reports) {
+
+        List<Dto.ItemResponseDto> responseDtos = new ArrayList<>();
+
+        for(int i = 0 ; i < items.size(); i++) {
+            Item item = items.get(i);
+            ReportDto.InventoryDto report = reports.get(i);
+            responseDtos.add(itemToResponseDto(item, report));
+        }
+        return responseDtos;
+    }
 }

@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public interface ItemMfMapper {
     default ItemManufacture itemMfPostDtoToItemMf(Dto.ItemMfPostDto postDto) {
         Item item = new Item();
-        item.setItemId(postDto.getItemId());
+        item.setItemNm(postDto.getItemNm());
         Manufacture manufacture = new Manufacture();
-        manufacture.setMfId(postDto.getMfId());
+        manufacture.setMfNm(postDto.getMfNm());
 
         ItemManufacture itemManufacture = new ItemManufacture();
         itemManufacture.setItem(item);
@@ -30,7 +30,7 @@ public interface ItemMfMapper {
 
     default Dto.ItemMfResponseDto itemMfToItemMfResponseDto(ItemManufacture itemManufacture) {
         Dto.ItemMfResponseDto responseDto = new Dto.ItemMfResponseDto();
-
+        responseDto.setMfItemId(itemManufacture.getMfItemId());
         responseDto.setItemCd(itemManufacture.getItem().getItemCd());
         responseDto.setItemNm(itemManufacture.getItem().getItemNm());
         responseDto.setRegion(itemManufacture.getManufacture().getRegion());
@@ -48,6 +48,7 @@ public interface ItemMfMapper {
                 .stream()
                 .map(itemManufacture -> Dto.ItemMfResponseDto
                         .builder()
+                        .mfItemId(itemManufacture.getMfItemId())
                         .region(itemManufacture.getManufacture().getRegion())
                         .email(itemManufacture.getManufacture().getEmail())
                         .mfCd(itemManufacture.getManufacture().getMfCd())

@@ -10,6 +10,7 @@ import com.springboot.order_item.repository.OrderItemsRepository;
 import com.springboot.report.reportDto.ReportDto;
 import org.springframework.stereotype.Component;
 
+import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -45,8 +46,10 @@ public class SaleReport {
 
         return new ArrayList<>(ordersInRange.stream()
                 .collect(Collectors.toMap(OrderItems::getItemCd, orderItem -> {
+                    Optional<Item> item = itemRepository.findByItemCd(orderItem.getItemCd());
                     ReportDto.SaleReportDto reportDto = new ReportDto.SaleReportDto();
                     reportDto.setItemCd(orderItem.getItemCd());
+                    reportDto.setItemNm(item.get().getItemNm());
                     reportDto.setTotalOrdered(getTotalOrderedPeriod(orderItem.getItemCd(), startDateTime, endDateTime));
                     reportDto.setTotalManufactured(getTotalManufacturedPeriod(orderItem.getItemCd(), startDateTime, endDateTime));
                     reportDto.setTotalOrderedPrice(getOrderTotalPrice(orderItem.getItemCd(), startDateTime, endDateTime));

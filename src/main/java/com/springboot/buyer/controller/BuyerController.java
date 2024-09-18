@@ -4,9 +4,10 @@ import com.springboot.buyer.dto.Dto;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.mapper.BuyerMapper;
 import com.springboot.buyer.service.BuyerService;
-import com.springboot.buyer_item.mapper.BuyerItemMapper;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
+import com.springboot.item.entity.Item;
+import com.springboot.report.reportDto.ReportDto;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 public class BuyerController {
     private final BuyerService buyerService;
     private final BuyerMapper buyerMapper;
-    private final BuyerItemMapper buyerItemMapper;
+
 
     //Buyer 등록
     @PostMapping
@@ -103,13 +104,14 @@ public class BuyerController {
     //Buyer 전체 조회
     @GetMapping("/all")
     public ResponseEntity getAllBuyers() {
-        List<Buyer> buyers = buyerService.findAll();
+        List<Buyer> buyers = buyerService.findAllActiveBuyers();
 
         List<Buyer> sortedBuyers = buyers.stream()
                 .sorted(Comparator.comparing(Buyer::getBuyerNm))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(buyerMapper.buyerToBuyerResponseDtos(sortedBuyers), HttpStatus.OK);
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(sortedBuyers)), HttpStatus.OK);
     }
 
     //Buyer 수정
@@ -135,5 +137,13 @@ public class BuyerController {
             buyerService.deleteBuyer(id, authentication);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{buyer-cd}")
+    public ResponseEntity getbuyer(@PathVariable("buyer-cd") String buyerCd, Authentication authentication) {
+        Buyer buyer = buyerService.findBuyer(buyerCd, authentication);
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyer)), HttpStatus.OK);
     }
 }
