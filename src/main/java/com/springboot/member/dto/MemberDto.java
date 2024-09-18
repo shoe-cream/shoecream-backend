@@ -89,11 +89,10 @@ public class MemberDto {
         private String email;
         private String name;
         private String profileUrl;
-        private Member.MemberStatus memberStatus;
-
-        public String getMemberStatus() {
-            return memberStatus.getStatus();
-        }
+        private Member.MemberStatus memberStatus = Member.MemberStatus.MEMBER_ACTIVE;
+//        public String getMemberStatus() {
+//            return memberStatus.getStatus();
+//        }
     }
 
     @Getter

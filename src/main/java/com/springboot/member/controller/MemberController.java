@@ -80,28 +80,22 @@ public class MemberController {
     }
 
     // 비밀번호 변경
-    @PatchMapping("/{member-id}/password")
-    public ResponseEntity<?> patchMemberPassword(@PathVariable("member-id") @Positive long memberId, @Valid @RequestBody MemberDto.PatchPassword requestBody,
+    @PatchMapping("/password")
+    public ResponseEntity<?> patchMemberPassword(
+                                                 @Valid @RequestBody MemberDto.PatchPassword requestBody,
                                                  Authentication authentication) {
-        requestBody.setMemberId(memberId);
         String employeeId = authentication.getName();
+        Member member = memberService.findVerifiedEmployee(employeeId);
+        memberService.verifyPassword(member.getMemberId(), requestBody.getPassword());
 
-        // 비밀번호 검증 및 변경 처리
-        memberService.verifyPassword(memberId, requestBody.getPassword(), requestBody.getNewPassword());
-        Member member = memberService.updatePassword(mapper.memberPatchPasswordToMember(requestBody), employeeId);
-        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
+//        Member memberToUpdate = mapper.memberPatchPasswordToMember(requestBody);
+        member.setPassword(requestBody.getNewPassword());
+        Member updatedMember = memberService.updatePassword(member);
+
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(updatedMember)), HttpStatus.OK);
     }
 
-    // 직원 ID 중복 여부 체크
-    @GetMapping("/check-employee/{employeeId}")
-    public ResponseEntity<?> checkEmployeeId(@PathVariable String employeeId) {
-        boolean exists = memberService.existsByEmployeeId(employeeId);
 
-        if (!exists) {
-            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     // 프로필 사진 업로드
     @PostMapping("/profile")
