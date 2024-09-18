@@ -110,25 +110,30 @@ public class MemberService {
         memberRepository.save(findMember);
     }
 
-    public void verifyPassword(long memberId, String password, String newPassword) {
+    public void verifyPassword(long memberId, String password) {
         Member member = findVerifiedMember(memberId);
+
         if (!passwordEncoder.matches(password, member.getPassword())) {
+
             throw new BusinessLogicException(ExceptionCode.CONFIRM_PASSWORD_MISMATCH);
         }
     }
 
-    public Member updatePassword(Member member, String email) {
+
+
+    public Member updatePassword(Member member) {
         Member findMember = findVerifiedMember(member.getMemberId());
 
         if (member.getPassword() == null || member.getPassword().isEmpty()) {
             throw new BusinessLogicException(ExceptionCode.PASSWORD_WRONG);
         }
 
-        Optional.ofNullable(member.getPassword())
-                .ifPresent(password -> findMember.setPassword(passwordEncoder.encode(member.getPassword())));
+        findMember.setPassword(passwordEncoder.encode(member.getPassword()));
 
         return memberRepository.save(findMember);
     }
+
+
 
     public boolean existsByEmployeeId(String employeeId) {
         return memberRepository.existsByEmployeeId(employeeId);
