@@ -47,10 +47,12 @@ public interface MemberMapper {
     default MemberDto.Response memberToMemberResponseMyPage(Member member, List<String> roles) {
         MemberDto.Response response = new MemberDto.Response();
         response.setMemberId(member.getMemberId());
+        response.setEmployeeId(member.getEmployeeId());
         response.setName(member.getName());
         response.setEmail(member.getEmail());
         response.setProfileUrl(member.getProfileUrl());
-
+        response.setAddress(member.getAddress());
+        response.setTel(member.getTel());
         if (member.getMemberStatus() == null) {
             response.setMemberStatus(Member.MemberStatus.MEMBER_ACTIVE);
         } else {
