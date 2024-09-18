@@ -26,6 +26,7 @@ public class OrderDto {
     @Getter
     public static class OrderPatch {
         @Setter
+        @NotNull
         private Long orderId;
         private LocalDateTime requestDate;
         private OrderHeaders.OrderStatus orderStatus;
@@ -33,7 +34,10 @@ public class OrderDto {
 
     @Getter
     public static class ItemPatch {
+        @NotNull
         private Long orderId;
+
+        @NotNull
         private Long itemId;
         private BigDecimal unitPrice;
         private Long qty;

@@ -6,12 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import com.springboot.validator.NotSpace;
+
+import java.util.List;
 
 
 public class MemberDto {
@@ -36,6 +35,7 @@ public class MemberDto {
     public static class Update {
         private String profileUrl;  // 업데이트할 새 프로필 사진 URL
     }
+
     @Getter
     @Setter
     public static class UpdateRole {
@@ -47,6 +47,7 @@ public class MemberDto {
     public static class RoleResponse {
         private String role;  // 현재 역할 반환
     }
+
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -87,12 +88,16 @@ public class MemberDto {
     public static class Response {
         private long memberId;
         private String email;
+        private String tel;
+        private String address;
+        private String employeeId;
         private String name;
         private String profileUrl;
         private Member.MemberStatus memberStatus = Member.MemberStatus.MEMBER_ACTIVE;
-//        public String getMemberStatus() {
-//            return memberStatus.getStatus();
-//        }
+        private List<String> roles;
+        public String getMemberStatus() {
+            return memberStatus.getStatus();
+        }
     }
 
     @Getter

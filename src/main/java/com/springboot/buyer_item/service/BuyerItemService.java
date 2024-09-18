@@ -1,15 +1,12 @@
 package com.springboot.buyer_item.service;
 
-import com.springboot.buyer.entity.Buyer;
-import com.springboot.buyer.repository.BuyerRepository;
+import com.springboot.buyer.service.BuyerService;
 import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.repository.BuyerItemRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
-import com.springboot.item.entity.Item;
-import com.springboot.item.repository.ItemRepository;
+import com.springboot.item.service.ItemService;
 import com.springboot.member.entity.Member;
-import com.springboot.member.repository.MemberRepository;
 import com.springboot.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,9 +26,8 @@ import java.util.Optional;
 @Transactional
 public class BuyerItemService {
     private final BuyerItemRepository buyerItemRepository;
-    private final BuyerRepository buyerRepository;
-    private final ItemRepository itemRepository;
-    private final MemberRepository memberRepository;
+    private final BuyerService buyerService;
+    private final ItemService itemService;
     private final MemberService memberService;
 
     public void createBuyerItem(List<BuyerItem> buyerItems, Authentication authentication) {
@@ -39,8 +35,9 @@ public class BuyerItemService {
         extractMemberFromAuthentication(authentication);
 
         buyerItems.stream().forEach(buyerItem -> {
-            buyerItem.addItem(findVerifiedItem(buyerItem.getItem().getItemNm()));
-            buyerItem.addBuyer(findVerifiedBuyer(buyerItem.getBuyer().getBuyerNm()));
+            buyerItem.addItem(itemService.findItemByNm(buyerItem.getItem().getItemNm()));
+            buyerItem.addBuyer(buyerService.findVerifiedBuyerByBuyerNm(buyerItem.getBuyer().getBuyerNm()));
+
             buyerItemRepository.save(buyerItem);
         });
     }
@@ -77,8 +74,7 @@ public class BuyerItemService {
     public BuyerItem updateBuyerItem(BuyerItem buyerItem, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        BuyerItem findedBuyerItem = buyerItemRepository.findById(buyerItem.getBuyerItemId())
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_ITEM_NOT_FOUND));
+        BuyerItem findedBuyerItem = findVerifiedBuyerItem(buyerItem.getBuyerItemId());
 
         //여기서 item 정보는 수정할 수 없어야 함. 만약 수정해야한다면 필드로 가지고 있어야한다.
 
@@ -106,18 +102,7 @@ public class BuyerItemService {
     private Member extractMemberFromAuthentication(Authentication authentication) {
         String username = (String) authentication.getPrincipal();
 
-        return memberRepository.findByEmployeeId(username)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
-    }
-
-    private Item findVerifiedItem(String itemNm) {
-        return itemRepository.findByItemNm(itemNm)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
-    }
-
-    private Buyer findVerifiedBuyer (String buyerNm) {
-        return  buyerRepository.findByBuyerNm(buyerNm)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+        return memberService.findVerifiedEmployee(username);
     }
 
     private BuyerItem findVerifiedBuyerItem(Long buyerItemId) {

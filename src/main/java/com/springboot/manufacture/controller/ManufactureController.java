@@ -73,7 +73,7 @@ public class ManufactureController {
             }
         }
 
-        Page<Manufacture> manufacturePage = manufactureService.getManufactures(sort, direction,page -1, size, authentication);
+        Page<Manufacture> manufacturePage = manufactureService.getManufactures(criteria, direction,page -1, size, authentication);
         List<Dto.ManufactureResponseDto> manufactureResponseDtos =
                 manufactureMapper.manufactureToResponseDtos(manufacturePage.getContent());
 

@@ -16,6 +16,7 @@ public class SaleHistoryDto {
     private LocalDateTime createdAt;
     private String employeeId;
     private Long orderId;
+    private String orderCd;
     private OrderHeaders.OrderStatus orderStatus;
     private LocalDateTime orderDate;
     private LocalDateTime requestDate;
