@@ -17,6 +17,6 @@ public interface BuyerRepository extends JpaRepository<Buyer, Long> {
     List<Buyer> findAllByBuyerStatusNot(Buyer.BuyerStatus buyerStatus);
     Page<Buyer> findAllByBuyerStatusNot(Buyer.BuyerStatus buyerStatus, Pageable pageable);
     Page<Buyer> findAllByBusinessTypeAndBuyerStatusNot(String businessType, Buyer.BuyerStatus buyerStatus, Pageable pageable);
-    Optional<Buyer> findByBuyerCdOrBuyerNmOrBusinessTypeAndBuyerStatusNot(String buyerCd, String buyerNm, String businessType, Buyer.BuyerStatus buyerStatus);
+    Page<Buyer> findByBuyerNmIgnoreCaseAndBuyerStatusNot(String buyerNm, Buyer.BuyerStatus buyerStatus, Pageable pageable);
     Optional<Buyer> findByBuyerCdOrBuyerNmAndBuyerStatusNot(String buyerCd, String buyerNm, Buyer.BuyerStatus buyerStatus);
 }

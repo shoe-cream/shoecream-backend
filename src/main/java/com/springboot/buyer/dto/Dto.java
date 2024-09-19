@@ -79,15 +79,30 @@ public class Dto {
     }
 
     @Getter
+    public static class BuyerSearchRequestDto{
+        private String buyerNm;
+        private String buyerCd;
+
+
+    }
+
+    @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BuyerResponseWithItemDto {
+        private Long buyerId;
+        private String email;
+        private String tel;
+        private String address;
+        private Buyer.BuyerStatus buyerStatus;
+        private String businessType;
         private String buyerNm;
         private String buyerCd;
-        private String tel;
+
         private List<com.springboot.buyer_item.dto.Dto.BuyerItemResponseDto> buyerItems;
     }
+
     @Getter
     public static class BuyerDeleteDtos {
         @NotNull(message = "buyerId의 List는 null일 수 없습니다.")

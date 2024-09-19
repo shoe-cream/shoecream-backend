@@ -2,8 +2,6 @@ package com.springboot.buyer.service;
 
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.repository.BuyerRepository;
-import com.springboot.buyer_item.entity.BuyerItem;
-import com.springboot.buyer_item.repository.BuyerItemRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.member.entity.Member;
@@ -41,33 +39,19 @@ public class BuyerService {
         });
     }
 
-    // 바이어의 이름, 코드, 타입중 하나로 검색
-    public Buyer findBuyerByFilter(String buyerCd, String buyerNm, String businessType, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
-
-        if((buyerCd != null && !buyerCd.isEmpty()) ||
-            buyerNm != null && !buyerNm.isEmpty() ||
-            businessType != null && !businessType.isEmpty()) {
-
-           return buyerRepository.findByBuyerCdOrBuyerNmOrBusinessTypeAndBuyerStatusNot(buyerCd, buyerNm, businessType,  Buyer.BuyerStatus.INACTIVE)
-                   .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CONDITION_NOT_FIT));
-        } else {
-                throw new BusinessLogicException(ExceptionCode.AT_LEAST_ONE_CONDITION);
-        }
-    }
-
-    // 페이지네이션으로 필터링을통해 전체조회 ok 필터링 없이 전체를 조회 ok.
-    public Page<Buyer> findBuyers(int page, int size, String criteria, String direction, String businessType, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
+    public Page<Buyer> findBuyers(int page, int size, String criteria, String direction, String buyerNm, Authentication authentication) {
 
         Pageable pageable = createPageable(page, size, criteria, direction);
 
-        if (businessType != null && !businessType.isEmpty()) {
-            return buyerRepository.findAllByBusinessTypeAndBuyerStatusNot(businessType, Buyer.BuyerStatus.INACTIVE, pageable);
-        } else {
+        if(buyerNm == null || buyerNm.trim().isEmpty()) {
             return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE, pageable);
+
+        } else {
+            String compareBuyerNm = buyerNm.trim().toLowerCase();
+            return buyerRepository.findByBuyerNmIgnoreCaseAndBuyerStatusNot(compareBuyerNm, Buyer.BuyerStatus.INACTIVE, pageable);
         }
     }
+
 
     //Pageable 생성
     private Pageable createPageable(int page, int size, String sortCriteria, String direction) {

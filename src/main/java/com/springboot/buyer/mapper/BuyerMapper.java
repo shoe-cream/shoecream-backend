@@ -20,24 +20,33 @@ public interface BuyerMapper {
     Dto.BuyerResponse buyerToBuyerResponseDto(Buyer buyer);
     List<Dto.BuyerResponse> buyerToBuyerResponseDtos(List<Buyer> buyers);
 
+    List<Dto.BuyerResponseWithItemDto> buyerToBuyerResponseDtoWithItemList(List<Buyer> buyers);
+
     default Dto.BuyerResponseWithItemDto buyerItemsToBuyerResponseWithItems(Buyer buyer) {
         Dto.BuyerResponseWithItemDto response = new Dto.BuyerResponseWithItemDto();
 
         response.setBuyerCd(buyer.getBuyerCd());
         response.setBuyerNm(buyer.getBuyerNm());
         response.setTel(buyer.getTel());
+        response.setBuyerId(buyer.getBuyerId());
+        response.setEmail(buyer.getEmail());
+        response.setAddress(buyer.getAddress());
+        response.setBusinessType(buyer.getBusinessType());
+        response.setBuyerStatus(buyer.getBuyerStatus());
 
         List<BuyerItemResponseDto> itemResponseDtos = buyer.getBuyerItems()
                 .stream()
                 .filter(item -> item.getItem().getItemStatus() != Item.ItemStatus.NOT_FOR_SALE)
                 .map(item -> {
                     BuyerItemResponseDto itemDto = new BuyerItemResponseDto();
+                    itemDto.setBuyerItemId(item.getBuyerItemId());
                     itemDto.setBuyerNm(item.getBuyer().getBuyerNm());
                     itemDto.setItemCd(item.getItem().getItemCd());
                     itemDto.setItemNm(item.getItem().getItemNm());
                     itemDto.setUnit(item.getItem().getUnit());
                     itemDto.setUnitPrice(item.getUnitPrice());
                     itemDto.setStartDate(item.getStartDate());
+                    itemDto.setModifiedAt(item.getModifiedAt());
                     itemDto.setEndDate(item.getEndDate());
                     itemDto.setItemStatus(item.getItem().getItemStatus());
                     return itemDto;

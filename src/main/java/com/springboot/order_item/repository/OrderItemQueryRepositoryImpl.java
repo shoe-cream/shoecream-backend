@@ -43,7 +43,6 @@ public class OrderItemQueryRepositoryImpl implements OrderItemQueryRepositoryCus
                 .where(orderItems.itemCd.eq(itemCd)
                         .and(orderHeaders.requestDate.between(startDateTime, endDateTime))
                         .and(orderHeaders.orderStatus.in(OrderHeaders.OrderStatus.APPROVED,
-                        OrderHeaders.OrderStatus.SHIPPED,
                         OrderHeaders.OrderStatus.PRODUCT_PASS)))
                 .fetchOne();
     }
@@ -59,7 +58,6 @@ public class OrderItemQueryRepositoryImpl implements OrderItemQueryRepositoryCus
                 .join(orderItems.orderHeaders, orderHeaders)
                 .where(orderItems.itemCd.eq(itemCd)
                         .and(orderHeaders.orderStatus.in(OrderHeaders.OrderStatus.APPROVED,
-                                OrderHeaders.OrderStatus.SHIPPED,
                                 OrderHeaders.OrderStatus.PRODUCT_PASS)))
                 .fetchOne();
     }
@@ -102,8 +100,7 @@ public class OrderItemQueryRepositoryImpl implements OrderItemQueryRepositoryCus
                 .from(orderItems)
                 .join(orderItems.orderHeaders, orderHeaders)
                 .where(orderItems.itemCd.eq(itemCd)
-                        .and(orderHeaders.orderStatus.in(OrderHeaders.OrderStatus.PURCHASE_REQUEST,
-                                OrderHeaders.OrderStatus.REQUEST_TEMP)))
+                        .and(orderHeaders.orderStatus.eq(OrderHeaders.OrderStatus.REQUEST_TEMP)))
                 .fetchOne();
     }
 }

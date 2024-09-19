@@ -87,9 +87,9 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
         }
 
-        //승인 이후에는 주문 취소로 변경할 수 없다.
+        //주문 승인 이후에 주문 취소로 변경할 수 없다. (주문요청이/주문거절의 상태가 아닐 경우에는 취소로 변경 불가능)
         List<OrderHeaders.OrderStatus> notApproveStatus =
-                Arrays.asList(OrderHeaders.OrderStatus.PURCHASE_REQUEST, OrderHeaders.OrderStatus.REQUEST_TEMP, OrderHeaders.OrderStatus.REJECTED);
+                Arrays.asList(OrderHeaders.OrderStatus.REQUEST_TEMP, OrderHeaders.OrderStatus.REJECTED);
 
         if (!notApproveStatus.contains(findOrder.getOrderStatus()) && orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
@@ -134,8 +134,7 @@ public class OrderService {
         }
 
         //팀장 승인 이후에는 아이템의 상태를 변경할 수 없다.
-        if(!orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.PURCHASE_REQUEST) &&
-        !orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.REQUEST_TEMP)) {
+        if(!orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.REQUEST_TEMP)) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
@@ -180,6 +179,7 @@ public class OrderService {
         //승인 시 재고 확인
         if (status.equals(OrderHeaders.OrderStatus.APPROVED)) {
             isStock(orderHeaders);
+            orderHeaders.setMessage(reason);
 
         } else {
             //반려시 사유 확인
@@ -263,6 +263,7 @@ public class OrderService {
     }
 
     //재고 여부 확인
+    @Transactional
     private void isStock (OrderHeaders orderHeaders) {
         boolean isStock = orderHeaders.getOrderItems()
                 .stream()
