@@ -9,9 +9,4 @@ import java.util.Optional;
 
 public interface OrderHeadersRepository extends JpaRepository<OrderHeaders, Long> {
     Optional<OrderHeaders> findByOrderCd(String orderCd);
-//
-//    boolean existsByOrderCd(String orderCd);
-//
-//    @Query("SELECT oh.orderCd FROM OrderHeaders oh WHERE oh.orderCd LIKE :orderCdPrefix% ORDER BY oh.orderCd DESC")
-//    Optional<String> findLatestOrderCd(@Param("orderCdPrefix") String orderCdPrefix);
 }

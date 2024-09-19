@@ -73,7 +73,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
                 .fetch();
 
         long total = queryFactory
-                .select(orderHeaders.countDistinct())  // DISTINCT 사용
+                .select(orderHeaders.countDistinct())
                 .from(orderHeaders)
                 .leftJoin(orderHeaders.buyer, buyer)
                 .leftJoin(orderHeaders.orderItems, orderItems)

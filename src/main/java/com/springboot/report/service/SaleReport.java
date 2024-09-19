@@ -6,6 +6,7 @@ import com.springboot.item.entity.Item;
 import com.springboot.item.repository.ItemRepository;
 import com.springboot.manufacture_item.repository.ManufactureItemRepository;
 import com.springboot.order_item.entity.OrderItems;
+import com.springboot.order_item.repository.OrderItemQueryRepositoryCustom;
 import com.springboot.order_item.repository.OrderItemsRepository;
 import com.springboot.report.reportDto.ReportDto;
 import org.springframework.stereotype.Component;
@@ -22,11 +23,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class SaleReport {
-    private final OrderItemsRepository orderItemsRepository;
+    private final OrderItemQueryRepositoryCustom orderItemsRepository;
     private final ManufactureItemRepository manufactureItemRepository;
     private final ItemRepository itemRepository;
 
-    public SaleReport(OrderItemsRepository orderItemsRepository,
+    public SaleReport(OrderItemQueryRepositoryCustom orderItemsRepository,
                       ManufactureItemRepository manufactureItemRepository,
                       ItemRepository itemRepository) {
 

@@ -15,7 +15,6 @@ import java.util.Optional;
 public interface BuyerItemRepository extends JpaRepository<BuyerItem, Long> {
     Page<BuyerItem> findAll(Pageable pageable);
     Page<BuyerItem> findAllByBuyer_BuyerCd(String buyerCd, Pageable pageable);
-
     Optional<BuyerItem> findByItem_ItemCd(String buyerItemCd);
 
 }
