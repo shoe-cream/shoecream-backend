@@ -124,7 +124,7 @@ public class BuyerService {
     }
 
 
-    //Buyer 삭제
+    //Buyer 삭제 - 상태만 비활성화로 변경
     public void deleteBuyer(Long buyerId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 

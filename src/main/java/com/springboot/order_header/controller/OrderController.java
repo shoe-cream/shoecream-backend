@@ -67,6 +67,13 @@ public class OrderController {
             //item 저장
             List<OrderItems> orderItemsList = orderMapper.orderItemDtosToOrderItems(post.getOrderItems());
             for (OrderItems orderItem : orderItemsList) {
+                if(orderItem.getStartDate().isAfter(orderHeaders.getRequestDate()) || (orderItem.getEndDate().isBefore(orderHeaders.getRequestDate()))){
+                    throw new BusinessLogicException(ExceptionCode.CHECK_CONTRACT_DATE);
+                }
+
+                if(orderItem.getQty() < 0) {
+                    throw new BusinessLogicException(ExceptionCode.CANNOT_ORDER_NEGATIVE_QUANTITY);
+                }
                 orderItem.setOrderHeaders(orderHeaders);
             }
 
