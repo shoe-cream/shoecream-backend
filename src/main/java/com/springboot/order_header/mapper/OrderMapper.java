@@ -27,6 +27,7 @@ public interface OrderMapper {
       response.requestDate(order.getRequestDate());
       response.status(order.getOrderStatus());
       response.orderItems(order.getOrderItems());
+      response.message(order.getMessage());
       return response.build();
    }
 

@@ -40,5 +40,4 @@ public class MemberAuthenticationFailureHandler implements AuthenticationFailure
         response.setStatus(status.value());
         response.getWriter().write(gson.toJson(errorResponse, ErrorResponse.class));
     }
-
 }

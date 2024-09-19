@@ -57,6 +57,7 @@ public class OrderDto {
         private LocalDateTime requestDate;
         private OrderHeaders.OrderStatus status;
         private List<OrderItems> orderItems;
+        private String message;
     }
 
 
