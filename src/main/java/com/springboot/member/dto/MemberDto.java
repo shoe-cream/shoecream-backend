@@ -93,11 +93,8 @@ public class MemberDto {
         private String employeeId;
         private String name;
         private String profileUrl;
-        private Member.MemberStatus memberStatus;
+        private Member.MemberStatus memberStatus = Member.MemberStatus.MEMBER_ACTIVE;
         private List<String> roles;
-//        public String getMemberStatus() {
-//            return memberStatus.getStatus();
-//        }
     }
 
     @Getter
