@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,12 +100,25 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
-        // 상태, 납기일 변경
-        Optional.ofNullable(orderHeaders.getOrderStatus()).ifPresent(findOrder::setOrderStatus);
-        Optional.ofNullable(orderHeaders.getRequestDate()).ifPresent(findOrder::setRequestDate);
+        boolean isUpdated = false;
 
-        saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(findOrder, member));
-        return orderHeadersRepository.save(findOrder);
+        // 상태, 납기일 변경
+        if (orderHeaders.getOrderStatus() != null && !orderHeaders.getOrderStatus().equals(findOrder.getOrderStatus())) {
+            findOrder.setOrderStatus(orderHeaders.getOrderStatus());
+            isUpdated = true;
+        }
+
+        if (orderHeaders.getRequestDate() != null && !orderHeaders.getRequestDate().equals(findOrder.getRequestDate())) {
+            findOrder.setRequestDate(orderHeaders.getRequestDate());
+            isUpdated = true;
+        }
+
+        if (isUpdated) {
+            orderHeadersRepository.save(findOrder);
+            saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(findOrder, member));
+        }
+
+            return findOrder;
     }
 
     //item 수정 - 수량, 금액
@@ -125,19 +139,36 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
-        Optional.ofNullable(orderItems.getQty()).ifPresent(qty -> {
-            findItem.setQty(qty);
+        boolean isUpdate = false;
+
+        if(orderItems.getQty() != null && !orderItems.getQty().equals(findItem.getQty())) {
+            findItem.setQty(orderItems.getQty());
             isStock(findItem.getOrderHeaders());
-        });
+            isUpdate = true;
+        }
 
-        Optional.ofNullable(orderItems.getUnitPrice()).ifPresent(findItem::setUnitPrice);
-        Optional.ofNullable(orderItems.getStartDate()).ifPresent(findItem::setStartDate);
-        Optional.ofNullable(orderItems.getEndDate()).ifPresent(findItem::setEndDate);
+        if(orderItems.getUnitPrice() != null && orderItems.getUnitPrice().compareTo(findItem.getUnitPrice()) != 0) {
+            findItem.setUnitPrice(orderItems.getUnitPrice());
+            isUpdate = true;
+        }
 
-        findItem.setOrderHeaders(orderHeaders);
-        saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeaders, member));
+        if(orderItems.getStartDate() != null && !orderItems.getStartDate().equals(findItem.getStartDate())) {
+            findItem.setStartDate(orderItems.getStartDate());
+            isUpdate = true;
+        }
 
-        return orderItemsRepository.save(findItem);
+        if(orderItems.getEndDate() != null && !orderItems.getEndDate().equals(findItem.getEndDate())) {
+            findItem.setEndDate(orderItems.getEndDate());
+            isUpdate = true;
+        }
+
+        if(isUpdate) {
+          //  findItem.setOrderHeaders(orderHeaders);
+            orderItemsRepository.save(findItem);
+            saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeaders, member));
+        }
+
+        return findItem;
     }
 
     //팀장이 승인, 반려 버튼을 눌렀을 때
@@ -152,7 +183,7 @@ public class OrderService {
 
         } else {
             //반려시 사유 확인
-            orderHeaders.setRejectReason(reason);
+            orderHeaders.setMessage(reason);
         }
 
         orderHeaders.setOrderStatus(status);

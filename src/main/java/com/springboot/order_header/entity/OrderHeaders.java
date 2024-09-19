@@ -35,7 +35,7 @@ public class OrderHeaders {
     private LocalDateTime createdAt = LocalDateTime.now(); //주문일자
 
     @Column
-    private String rejectReason;
+    private String message;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
