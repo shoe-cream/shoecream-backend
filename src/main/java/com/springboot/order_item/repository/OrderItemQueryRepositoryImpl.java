@@ -41,7 +41,10 @@ public class OrderItemQueryRepositoryImpl implements OrderItemQueryRepositoryCus
                 .select(orderItems.qty.sum())
                 .from(orderItems)
                 .where(orderItems.itemCd.eq(itemCd)
-                        .and(orderHeaders.requestDate.between(startDateTime, endDateTime)))
+                        .and(orderHeaders.requestDate.between(startDateTime, endDateTime))
+                        .and(orderHeaders.orderStatus.in(OrderHeaders.OrderStatus.APPROVED,
+                        OrderHeaders.OrderStatus.SHIPPED,
+                        OrderHeaders.OrderStatus.PRODUCT_PASS)))
                 .fetchOne();
     }
 

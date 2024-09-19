@@ -43,7 +43,6 @@ public class SaleReport {
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
         List<OrderItems> ordersInRange = orderItemsRepository.findByOrderHeadersRequestDateBetween(startDateTime, endDateTime);
-        //List<ItemManufacture> manufacturesInRange = manufactureItemRepository.findByCreatedAtBetween(startDateTime, endDateTime);
 
         return new ArrayList<>(ordersInRange.stream()
                 .collect(Collectors.toMap(OrderItems::getItemCd, orderItem -> {
@@ -113,7 +112,7 @@ public class SaleReport {
         return total != null ? total : 0 ;
     }
 
-    //재고 계산 (총 공급량 - 총 주문량(승인 이후) - 불용재고량
+    //재고 계산 (총 공급량 - 총 주문량(승인이후) - 불용재고량
     public Integer calculateInventory(String itemCd) {
         Integer totalManufactured = getManufacturedQty(itemCd);
         Integer totalOrdered = getOrderQty(itemCd);

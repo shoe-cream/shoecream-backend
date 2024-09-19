@@ -15,10 +15,10 @@ public interface OrderItemQueryRepositoryCustom {
     // 해당기간의 총 판매량
     Integer findTotalOrderedByItemCd(String itemCd, LocalDateTime startDateTime, LocalDateTime endDateTime);
 
-    //총 판매량 (승인 이후의 상태)
+    //총 판매량 (승인 이후의 상태) - 재고 계산을 위함
     Integer findTotalOrderedByItemCdAfterApproval(@Param("itemCd") String itemCd);
 
-    //해당 기간의 총 판매액 (승인 이후의 상태)
+    //해당 기간의 총 판매액 (합격 이후의 상태)
     BigDecimal findTotalOrderPriceByItemCdAndOrderDateBetween(String itemCd, LocalDateTime startDateTime, LocalDateTime endDateTime);
 
     // 총 불용재고량

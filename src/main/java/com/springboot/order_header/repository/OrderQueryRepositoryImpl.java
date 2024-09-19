@@ -62,10 +62,10 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
         }
 
         List<OrderHeaders> results = queryFactory
-                .selectDistinct(orderHeaders)  // DISTINCT 사용
+                .selectDistinct(orderHeaders)
                 .from(orderHeaders)
                 .leftJoin(orderHeaders.buyer, buyer)
-                .leftJoin(orderHeaders.orderItems, orderItems).fetchJoin()  // fetchJoin 사용
+                .leftJoin(orderHeaders.orderItems, orderItems).fetchJoin()
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
