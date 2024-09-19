@@ -1,7 +1,7 @@
 
 -- 팀장 데이터 추가
 INSERT INTO member (employee_id, email, name, password, tel, address)
-VALUES ('TL001', 'admin@gmail.com', '팀장님', '{bcrypt}$2a$10$ZuxK7vHU5jpTbednD.zrYOsJgm48HiBTMPBYfJTGIfzrh.nqxxgXq', '010-1234-5678', '123 Leader Street');
+VALUES ('TL001', 'admin@gmail.com', '팀장', '{bcrypt}$2a$10$ZuxK7vHU5jpTbednD.zrYOsJgm48HiBTMPBYfJTGIfzrh.nqxxgXq', '010-1234-5678', '123 Leader Street');
 
 -- 멤버 추가
 INSERT INTO member (employee_id, email, name, password, tel, address)
