@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -58,6 +59,12 @@ public class OrderService {
 
     @Transactional
     public OrderHeaders createOrder(OrderHeaders orderHeaders, Authentication authentication) {
+
+        //납기일이 현재 날짜 보다 이전의 날짜일 경우 예외처리
+        if(orderHeaders.getRequestDate().isBefore(LocalDateTime.now())) {
+            throw new BusinessLogicException(ExceptionCode.CHECK_REQUEST_DATE);
+        }
+
         //담당자 설정
         Member member = verifiedMember(authentication);
         orderHeaders.setMember(member);
@@ -109,6 +116,11 @@ public class OrderService {
         }
 
         if (orderHeaders.getRequestDate() != null && !orderHeaders.getRequestDate().equals(findOrder.getRequestDate())) {
+
+            //납기일이 현재 날짜 보다 이전의 날짜일 경우 예외처리
+            if(orderHeaders.getRequestDate().isBefore(LocalDateTime.now())) {
+                throw new BusinessLogicException(ExceptionCode.CHECK_REQUEST_DATE);
+            }
             findOrder.setRequestDate(orderHeaders.getRequestDate());
             isUpdated = true;
         }

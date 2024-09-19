@@ -29,7 +29,10 @@ public enum ExceptionCode {
     EMAIL_ALREADY_EXISTS(409,"Email Already Exists" ),
     ORDER_CD_NOT_FOUND(404,"Order Code Not Found" ),
     INVALID_REQUEST(400, "Invalid request" ),
-    INACTIVE_STATUS(400, "비활성 상태입니다.");
+    INACTIVE_STATUS(400, "비활성 상태입니다."),
+    CHECK_REQUEST_DATE(400, "Check the request date" ),
+    CHECK_CONTRACT_DATE(400, "Check the contract date"),
+    CANNOT_ORDER_NEGATIVE_QUANTITY(400, "The order quantity must not be negative" );
 
     @Getter
     private int status;
