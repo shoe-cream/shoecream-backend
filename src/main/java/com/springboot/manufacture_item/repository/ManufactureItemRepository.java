@@ -15,7 +15,6 @@ public interface ManufactureItemRepository extends JpaRepository<ItemManufacture
     Page<ItemManufacture> findByItem_ItemCd(String itemCd, Pageable pageable);
     Page<ItemManufacture> findByManufacture_MfCd(String mfCd, Pageable pageable);
 
-    List<ItemManufacture> findByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 
     //기간별 전체 공급량
     @Query("SELECT SUM(im.qty) FROM ItemManufacture im WHERE im.item.itemCd = :itemCd AND im.createdAt BETWEEN :startDateTime AND :endDateTime")

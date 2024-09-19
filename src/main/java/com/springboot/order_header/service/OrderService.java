@@ -87,7 +87,7 @@ public class OrderService {
 
         //승인 이후에는 주문 취소로 변경할 수 없다.
         List<OrderHeaders.OrderStatus> notApproveStatus =
-                Arrays.asList(OrderHeaders.OrderStatus.PURCHASE_REQUEST, OrderHeaders.OrderStatus.REQUEST_TEMP);
+                Arrays.asList(OrderHeaders.OrderStatus.PURCHASE_REQUEST, OrderHeaders.OrderStatus.REQUEST_TEMP, OrderHeaders.OrderStatus.REJECTED);
 
         if (!notApproveStatus.contains(findOrder.getOrderStatus()) && orderHeaders.getOrderStatus() == OrderHeaders.OrderStatus.CANCELLED) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
