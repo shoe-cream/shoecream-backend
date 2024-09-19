@@ -16,6 +16,7 @@ import com.springboot.response.SingleResponseDto;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
 import com.springboot.utils.UriCreator;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
@@ -206,8 +208,9 @@ public class OrderController {
 
     //판매 report
     @GetMapping("/reports")
-    public ResponseEntity totalSales (@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+    public ResponseEntity totalTopSales (@RequestParam (required = false) Integer topNumber,
+                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
 
         if(startDate == null) {
             startDate= LocalDate.of(1900, 1, 1);
@@ -215,7 +218,15 @@ public class OrderController {
         if (endDate == null) {
             endDate = LocalDate.of(9999, 12, 31);
         }
-        List<ReportDto.SaleReportDto> dtos = orderService.generateReport(startDate,endDate);
+
+        List<ReportDto.SaleReportDto> dtos = new ArrayList<>();
+
+        if (topNumber == null) {
+            dtos = orderService.generateReport(startDate, endDate);
+        } else {
+            dtos = orderService.generateTopReport(startDate, endDate, topNumber);
+        }
+
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 

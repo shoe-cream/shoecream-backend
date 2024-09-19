@@ -95,9 +95,9 @@ public class MemberDto {
         private String profileUrl;
         private Member.MemberStatus memberStatus;
         private List<String> roles;
-        public String getMemberStatus() {
-            return memberStatus.getStatus();
-        }
+//        public String getMemberStatus() {
+//            return memberStatus.getStatus();
+//        }
     }
 
     @Getter

@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -207,10 +208,21 @@ public class OrderService {
         return memberService.findVerifiedEmployee(user);
     }
 
-    // 판매 report (마진률)
+    // 판매 top report (마진률, 판매량)
     public List<ReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
 
-        return saleReport.getSaleReport(startDate, endDate);
+        return saleReport.getSaleReport(startDate, endDate).stream()
+                .sorted(Comparator.comparing(ReportDto.SaleReportDto::getTotalOrdered))
+                .collect(Collectors.toList());
+    }
+
+    // 판매 report (마진률, 판매량)
+    public List<ReportDto.SaleReportDto> generateTopReport(LocalDate startDate, LocalDate endDate, Integer topNumber) {
+
+        return saleReport.getSaleReport(startDate, endDate).stream()
+                .sorted(Comparator.comparing(ReportDto.SaleReportDto::getTotalOrderedPrice).reversed())
+                .limit(topNumber)
+                .collect(Collectors.toList());
     }
 
     // 아이템 재고 조회
