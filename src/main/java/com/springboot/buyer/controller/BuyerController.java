@@ -6,8 +6,6 @@ import com.springboot.buyer.mapper.BuyerMapper;
 import com.springboot.buyer.service.BuyerService;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
-import com.springboot.item.entity.Item;
-import com.springboot.report.reportDto.ReportDto;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -44,18 +42,18 @@ public class BuyerController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 특정 바이어를, 바이어이름, 바이어코드, 바이어의 사업유형으로 조회 (없으면 예외처리)
-    @GetMapping("/search")
-    public ResponseEntity getBuyer(@RequestParam(required = false) String buyerCd,
-                                   @RequestParam(required = false) String buyerNm,
-                                   @RequestParam(required = false) String businessType,
-                                   Authentication authentication) {
-
-        Buyer buyerByCd = buyerService.findBuyerByFilter(buyerCd, buyerNm, businessType, authentication);
-
-        return new ResponseEntity<>(
-                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyerByCd)), HttpStatus.OK);
-    }
+//    // 특정 바이어 -  바이어이름, 바이어코드
+//    @GetMapping("/search")
+//    public ResponseEntity getBuyer(@RequestParam(required = false) String buyerCd,
+//                                   @RequestParam(required = false) String buyerNm,
+//                                   @RequestParam(required = false) String businessType,
+//                                   Authentication authentication) {
+//
+//        Buyer buyerByCd = buyerService.findBuyerByFilter(buyerCd, buyerNm, businessType, authentication);
+//
+//        return new ResponseEntity<>(
+//                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyerByCd)), HttpStatus.OK);
+//    }
 
     // 바이어와 바이어아이템을 함께 조회
     @GetMapping("/search/items")
@@ -71,12 +69,12 @@ public class BuyerController {
                 new SingleResponseDto<>(response), HttpStatus.OK);
     }
 
-    // 페이지네이션으로 바이어 전체조회 또는 사업유형으로 전체조회.
+    // 페이지네이션으로 바이어 조회
     @GetMapping
     public ResponseEntity getBuyers(@RequestParam @Positive int page,
                                     @RequestParam @Positive int size,
                                     @RequestParam(required = false) String sort,
-                                    @RequestParam(required = false) String businessType,
+                                    @RequestParam(required = false) String buyerNm,
                                     @RequestParam(required = false) String direction,
                                     Authentication authentication) {
 
@@ -94,11 +92,11 @@ public class BuyerController {
             }
         }
 
-        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, direction, businessType, authentication);
+        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, direction, buyerNm, authentication);
         List<Buyer> buyers = buyerPage.getContent();
 
         return new ResponseEntity<>(
-                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
+                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtoWithItemList(buyers), buyerPage), HttpStatus.OK);
     }
 
     //Buyer 전체 조회

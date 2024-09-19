@@ -57,10 +57,8 @@ public class OrderHeaders {
 
     public enum OrderStatus {
         REQUEST_TEMP("견적요청"),
-        PURCHASE_REQUEST("발주요청"),
         APPROVED("승인"),
         REJECTED("반려"),
-        SHIPPED("출하완료"),
         PRODUCT_PASS("제품합격"),
         PRODUCT_FAIL("불합격"),
         CANCELLED("취소");

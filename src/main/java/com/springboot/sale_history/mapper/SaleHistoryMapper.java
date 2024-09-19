@@ -27,6 +27,7 @@ public interface SaleHistoryMapper {
         saleHistory.setRequestDate(orderHeader.getRequestDate());
         saleHistory.setOrderId(orderHeader.getOrderId());
         saleHistory.setOrderDate(orderHeader.getCreatedAt());
+        saleHistory.setMessage(orderHeader.getMessage());
         saleHistory.setBuyerCd(orderHeader.getBuyer().getBuyerCd());
 
         for (OrderItems orderItem : orderHeader.getOrderItems()) {

@@ -51,6 +51,9 @@ public class SaleHistory {
     @Column
     private LocalDateTime requestDate;
 
+    @Column
+    private String message;
+
     @OneToMany(mappedBy = "saleHistory", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<SaleHistoryItems> saleHistoryItems = new ArrayList<>();
