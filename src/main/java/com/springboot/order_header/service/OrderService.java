@@ -208,7 +208,7 @@ public class OrderService {
         return memberService.findVerifiedEmployee(user);
     }
 
-    // 판매 top report (마진률, 판매량)
+    // 판매 report - 주문량으로 정렬
     public List<ReportDto.SaleReportDto> generateReport(LocalDate startDate, LocalDate endDate) {
 
         return saleReport.getSaleReport(startDate, endDate).stream()
@@ -216,7 +216,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    // 판매 report (마진률, 판매량)
+    // 판매 report (마진률, 판매량) -> 주문금액별 top seller (topNumber) 수만큼
     public List<ReportDto.SaleReportDto> generateTopReport(LocalDate startDate, LocalDate endDate, Integer topNumber) {
 
         return saleReport.getSaleReport(startDate, endDate).stream()
