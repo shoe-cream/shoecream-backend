@@ -51,6 +51,7 @@ public class Dto {
     @Builder
     public static class BuyerItemResponseDto {
         private Long buyerItemId;
+        private String buyerCd;
         private String buyerNm;     // 바이어 이름
         private String itemCd;      // 기본 아이템 코드
         private String itemNm;      // 기본 아이템 이름

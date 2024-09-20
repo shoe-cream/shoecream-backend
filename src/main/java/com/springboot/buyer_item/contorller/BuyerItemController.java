@@ -45,10 +45,10 @@ public class BuyerItemController {
     // 특정 바이어아이템 조회
     @GetMapping("/{buyerItemCd}")
     public ResponseEntity findBuyerItem(@PathVariable("buyerItemCd") String buyerItemCd, Authentication authentication) {
-        BuyerItem buyerItem = buyerItemService.findBuyerItem(buyerItemCd, authentication);
+        List<BuyerItem> buyerItems = buyerItemService.findBuyerItem(buyerItemCd, authentication);
 
         return new ResponseEntity<>(
-                new SingleResponseDto<>(buyerItemMapper.buyerItemToBuyerResponseDto(buyerItem)), HttpStatus.OK);
+                new SingleResponseDto<>(buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItems)), HttpStatus.OK);
     }
 
     //전체조회 (Pagination, buyerCd 입력시 필터)

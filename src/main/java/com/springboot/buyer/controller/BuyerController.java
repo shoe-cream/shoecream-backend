@@ -42,19 +42,6 @@ public class BuyerController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//    // 특정 바이어 -  바이어이름, 바이어코드
-//    @GetMapping("/search")
-//    public ResponseEntity getBuyer(@RequestParam(required = false) String buyerCd,
-//                                   @RequestParam(required = false) String buyerNm,
-//                                   @RequestParam(required = false) String businessType,
-//                                   Authentication authentication) {
-//
-//        Buyer buyerByCd = buyerService.findBuyerByFilter(buyerCd, buyerNm, businessType, authentication);
-//
-//        return new ResponseEntity<>(
-//                new SingleResponseDto<>(buyerMapper.buyerToBuyerResponseDto(buyerByCd)), HttpStatus.OK);
-//    }
-
     // 바이어와 바이어아이템을 함께 조회
     @GetMapping("/search/items")
     public ResponseEntity getBuyerWithItems(@RequestParam(required = false) String buyerCd,
