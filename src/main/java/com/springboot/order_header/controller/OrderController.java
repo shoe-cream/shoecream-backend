@@ -228,15 +228,18 @@ public class OrderController {
 
         List<ReportDto.SaleReportDto> dtos = new ArrayList<>();
 
+        // top Number 가 없으면 주문량으로 정렬한 전체 조회
         if (topNumber == null) {
             dtos = orderService.generateReport(startDate, endDate);
         } else {
+            //top Number 있으면 주문금액 순으로 (topNumber) 수만큼 조회
             dtos = orderService.generateTopReport(startDate, endDate, topNumber);
         }
 
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
+    //재고 조회
     @GetMapping("/inventories")
     public ResponseEntity getStock (@RequestParam String itemCd) {
         ReportDto.InventoryDto dto = orderService.getStock(itemCd);

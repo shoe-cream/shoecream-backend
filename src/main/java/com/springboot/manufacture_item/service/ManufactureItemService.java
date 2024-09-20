@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.springboot.utils.PageableCreator.createPageable;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -79,16 +81,6 @@ public class ManufactureItemService {
 
         return manufactureHistoryRepository.findByMfItemId(mfItemId, pageable);
     }
-
-    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
-
-        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
-
-        Sort sort = Sort.by(sortDirection, sortCriteria);
-
-        return PageRequest.of(page, size, sort);
-    }
-
 
     public ItemManufacture updateItemMf(ItemManufacture itemManufacture, Authentication authentication){
         Member member = extractMemberFromAuthentication(authentication);

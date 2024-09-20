@@ -10,16 +10,15 @@ import com.springboot.member.entity.Member;
 import com.springboot.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import static com.springboot.utils.PageableCreator.createPageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -134,17 +133,6 @@ public class ManufactureService {
     public List<Manufacture> findManufactureAll() {
         return manufactureRepository.findAllByManufactureStatusNot(Manufacture.ManufactureStatus.INACTIVE);
     }
-
-    //Pageable 생성
-    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
-
-        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
-
-        Sort sort = Sort.by(sortDirection, sortCriteria);
-
-        return PageRequest.of(page, size, sort);
-    }
-
 
     // mfId로 Manufacture 검증
     public Manufacture verifyManufacture(long mfId) {
