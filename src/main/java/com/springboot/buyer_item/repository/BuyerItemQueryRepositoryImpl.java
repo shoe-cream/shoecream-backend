@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -45,6 +46,33 @@ public class BuyerItemQueryRepositoryImpl implements BuyerItemQueryRepositoryCus
 
         if (itemNm != null && !itemNm.isEmpty()) {
             builder.and(buyerItem.item.itemNm.containsIgnoreCase(itemNm));
+        }
+
+        List<BuyerItem> results = queryFactory.selectFrom(buyerItem)
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = queryFactory.selectFrom(buyerItem)
+                .where(builder)
+                .fetchCount();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<BuyerItem> findBuyerItemsByBuyerCdAndCurrentDate(String buyerCd, LocalDateTime currentDate, Pageable pageable) {
+        QBuyerItem buyerItem = QBuyerItem.buyerItem;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if (buyerCd != null && !buyerCd.isEmpty()) {
+            builder.and(buyerItem.buyer.buyerCd.eq(buyerCd));
+        }
+
+        if (currentDate != null) {
+            builder.and(buyerItem.startDate.loe(currentDate))
+                    .and(buyerItem.endDate.goe(currentDate));
         }
 
         List<BuyerItem> results = queryFactory.selectFrom(buyerItem)
