@@ -10,17 +10,15 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
    OrderHeaders orderPostDtoToOrder(OrderDto.Post orderPostDto);
-   List<OrderHeaders> postDtosToOrders(List<OrderDto.Post> orderPostDtos);
    OrderHeaders orderPatchDtoToOrder(OrderDto.OrderPatch orderPatchDto);
-   List<OrderHeaders> patchDtosToOrders(List<OrderDto.OrderPatch> orderPatchDtos);
    OrderItems itemPatchDtoToOrderItem(OrderDto.ItemPatch itemPatchDto);
-   List<OrderItems> itemPatchesToOrderItems(List<OrderDto.ItemPatch> itemPatchDtos);
 
    default OrderDto.Response orderToOrderResponseDto(OrderHeaders order) {
       OrderDto.Response.ResponseBuilder response = OrderDto.Response.builder();
       response.orderId(order.getOrderId());
       response.orderCd(order.getOrderCd());
       response.employeeId(order.getMember().getEmployeeId());
+      response.employeeNm(order.getMember().getName());
       response.buyerCd(order.getBuyer().getBuyerCd());
       response.buyerNm(order.getBuyer().getBuyerNm());
       response.createdAt(order.getCreatedAt());

@@ -50,6 +50,7 @@ public class OrderDto {
     public static class Response {
         private Long orderId;
         private String employeeId;
+        private String employeeNm;
         private String buyerCd;
         private String buyerNm;
         private String orderCd;

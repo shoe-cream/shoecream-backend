@@ -17,17 +17,16 @@ import com.springboot.sale_history.mapper.SaleHistoryMapper;
 import com.springboot.sale_history.repository.SaleHistoryRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static com.springboot.utils.PageableCreator.createPageable;
 
 @Service
 @Transactional
@@ -153,8 +152,14 @@ public class OrderService {
         boolean isUpdate = false;
 
         if(orderItems.getQty() != null && !orderItems.getQty().equals(findItem.getQty())) {
+
+            if(orderItems.getQty() < 0) {
+                throw new BusinessLogicException(ExceptionCode.CANNOT_ORDER_NEGATIVE_QUANTITY);
+            }
             findItem.setQty(orderItems.getQty());
+
             isStock(findItem.getOrderHeaders());
+
             isUpdate = true;
         }
 
@@ -191,10 +196,11 @@ public class OrderService {
         //승인 시 재고 확인
         if (status.equals(OrderHeaders.OrderStatus.APPROVED)) {
             isStock(orderHeaders);
+            //승인시 승인 메세지
             orderHeaders.setMessage(reason);
 
         } else {
-            //반려시 사유 확인
+            //반려시 반려 메세지 확인
             orderHeaders.setMessage(reason);
         }
 
@@ -208,13 +214,6 @@ public class OrderService {
     public Page<OrderHeaders> findOrders(int page, int size, String criteria, String direction, OrderDto.OrderSearchRequest orderSearchRequest) {
         Pageable pageable = createPageable(page, size, criteria, direction);
         return orderQueryRepository.findByCreatedAtBetweenAndOrderStatusAndBuyer_BuyerCdAndOrderItems_ItemCdAndOrderCd(orderSearchRequest, pageable);
-    }
-
-    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
-        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
-        Sort sort = Sort.by(sortDirection, sortCriteria);
-
-        return PageRequest.of(page, size, sort);
     }
 
     // 판매내역 조회 (order-code 로 분류)
@@ -275,7 +274,6 @@ public class OrderService {
     }
 
     //재고 여부 확인
-    @Transactional
     private void isStock (OrderHeaders orderHeaders) {
         boolean isStock = orderHeaders.getOrderItems()
                 .stream()
