@@ -8,9 +8,8 @@ import com.springboot.member.entity.Member;
 import com.springboot.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import static com.springboot.utils.PageableCreator.createPageable;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,17 +49,6 @@ public class BuyerService {
             String compareBuyerNm = buyerNm.trim().toLowerCase();
             return buyerRepository.findByBuyerNmIgnoreCaseAndBuyerStatusNot(compareBuyerNm, Buyer.BuyerStatus.INACTIVE, pageable);
         }
-    }
-
-
-    //Pageable 생성
-    private Pageable createPageable(int page, int size, String sortCriteria, String direction) {
-
-        Sort.Direction sortDirection = (direction == null || direction.isEmpty()) ? Sort.Direction.DESC : Sort.Direction.fromString(direction);
-
-        Sort sort = Sort.by(sortDirection, sortCriteria);
-
-        return PageRequest.of(page, size, sort);
     }
 
     //buyerNm + buyerCd 조합으로 조회
