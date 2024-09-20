@@ -42,7 +42,7 @@ public class Member {
     private List<String> roles = new ArrayList<>();
 
     @Column(nullable = true)
-    private String profileUrl = "https://img.hankyung.com/photo/202208/BF.30820179.1.jpg";
+    private String profileUrl = "https://ibb.co/9Zvwgzt";
 
     @OneToMany(mappedBy = "member")
     @JsonManagedReference

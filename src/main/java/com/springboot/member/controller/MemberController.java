@@ -88,6 +88,14 @@ public class MemberController {
         return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
     }
 
+    @GetMapping("/{employeeId}")
+    public ResponseEntity<?> getMemberByEmployeeId(@PathVariable String employeeId) {
+        Member member = memberService.findVerifiedEmployee(employeeId); // 서비스에서 사번으로 멤버 정보 조회
+
+        return new ResponseEntity<>(new SingleResponseDto<>(mapper.memberToMemberResponse(member)), HttpStatus.OK);
+    }
+
+
     // 비밀번호 변경
     @PatchMapping("/password")
     public ResponseEntity<?> patchMemberPassword(
