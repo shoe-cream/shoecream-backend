@@ -22,8 +22,6 @@ public class Dto {
         @NotBlank
         private String mfNm;
 
-        @NotBlank
-        private String mfCd;
     }
 
     @Getter

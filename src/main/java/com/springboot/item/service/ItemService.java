@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.springboot.utils.PageableCreator.createPageable;
 
@@ -29,8 +30,9 @@ public class ItemService {
     public void createItem(List<Item> items, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
         items.stream().forEach(item -> {
-            verifiedExistsItemCd(item.getItemCd());
             verifiedExists(item.getItemNm());
+            String itemCd = createItemCd();
+            item.setItemCd(itemCd);
             itemRepository.save(item);
         });
     }
@@ -164,5 +166,12 @@ public class ItemService {
         if(item.getItemStatus().equals(Item.ItemStatus.INACTIVE)) {
             throw new BusinessLogicException(ExceptionCode.INACTIVE_STATUS);
         }
+    }
+
+    // 제품 코드 생성 메서드
+    private String createItemCd() {
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 3).toUpperCase();
+
+        return "AD" + uuid;
     }
 }

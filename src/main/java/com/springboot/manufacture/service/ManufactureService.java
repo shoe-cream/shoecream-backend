@@ -18,6 +18,7 @@ import static com.springboot.utils.PageableCreator.createPageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -37,7 +38,8 @@ public class ManufactureService {
             verifyManufactureCdExists(manufacture.getMfCd());
             verifyManufactureNmExists(manufacture.getMfNm());
             verifyExistsEmail(manufacture.getEmail());
-
+            String manufactureCd = createManufactureCd();
+            manufacture.setMfCd(manufactureCd);
             manufactureRepository.save(manufacture);
         });
     }
@@ -190,5 +192,12 @@ public class ManufactureService {
         if(manufacture.getManufactureStatus().equals(Manufacture.ManufactureStatus.INACTIVE)) {
             throw new BusinessLogicException(ExceptionCode.INACTIVE_STATUS);
         }
+    }
+
+    // 제조사 코드 생성 메서드
+    private String createManufactureCd() {
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 3).toUpperCase();
+
+        return "MF" + uuid;
     }
 }
