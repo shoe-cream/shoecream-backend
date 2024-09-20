@@ -9,6 +9,7 @@ import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,6 +76,34 @@ public class BuyerItemController {
         }
 
         Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, buyerNm, itemCd, itemNm, criteria, direction, authentication);
+
+        List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
+                buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());
+
+        return new ResponseEntity<>(
+                new MultiResponseDto<>(buyerItemResponseDtos, buyerItemPage), HttpStatus.OK);
+    }
+
+    @GetMapping("/period")
+    public ResponseEntity getBuyerByBuyerCdBetweenPeriod (@RequestParam(required = false) String buyerCd,
+                                                          @RequestParam @Positive int page,
+                                                          @RequestParam @Positive int size,
+                                                          @RequestParam(required = false) String sort,
+                                                          @RequestParam(required = false) String direction,
+                                                          Authentication authentication) {
+
+        String criteria = "buyerItemId";
+        if(sort != null) {
+            List<String> sorts = Arrays.asList("buyerItemId", "buyer.buyerCd", "unitPrice", "startDate", "endDate", "modifiedAt");
+            if (sorts.contains(sort)) {
+                criteria = sort;
+            } else {
+                throw new BusinessLogicException(ExceptionCode.INVALID_SORT_FIELD);
+            }
+        }
+
+        LocalDateTime current = LocalDateTime.now();
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItemsByBuyerCdAndCurrentDate(buyerCd, current, page - 1, size, criteria, direction);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());

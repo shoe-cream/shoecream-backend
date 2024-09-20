@@ -68,8 +68,20 @@ public class BuyerItemService {
                                           String itemCd,
                                           String itemNm,
                                           String criteria, String direction, Authentication authentication) {
+
         Pageable pageable = createPageable(page, size, criteria, direction);
+
         return buyerItemQueryRepositoryCustom.findBuyerItems(buyerCd, buyerNm, itemCd, itemNm, pageable);
+    }
+
+    public Page<BuyerItem> findBuyerItemsByBuyerCdAndCurrentDate(String buyerCd, LocalDateTime currentDate,
+                                                                 int page, int size,
+                                                                 String criteria,
+                                                                 String direction) {
+
+        Pageable pageable = createPageable(page, size, criteria, direction);
+
+        return buyerItemQueryRepositoryCustom.findBuyerItemsByBuyerCdAndCurrentDate(buyerCd, currentDate, pageable);
     }
 
     //BuyerItem 수정 (단가/단가시작일/단가종료일)
