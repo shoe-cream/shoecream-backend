@@ -3,6 +3,7 @@ package com.springboot.buyer_item.service;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.service.BuyerService;
 import com.springboot.buyer_item.entity.BuyerItem;
+import com.springboot.buyer_item.repository.BuyerItemQueryRepositoryCustom;
 import com.springboot.buyer_item.repository.BuyerItemRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class BuyerItemService {
     private final BuyerItemRepository buyerItemRepository;
+    private final BuyerItemQueryRepositoryCustom buyerItemQueryRepositoryCustom;
     private final BuyerService buyerService;
     private final ItemService itemService;
     private final MemberService memberService;
@@ -60,20 +62,14 @@ public class BuyerItemService {
         return findVerifiedBuyerItemByItemCd(buyerItemCd);
     }
 
-    public Page<BuyerItem> findBuyerItems(int page, int size, String buyerCd, String criteria, String direction, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
-
+    public Page<BuyerItem> findBuyerItems(int page, int size,
+                                          String buyerCd,
+                                          String buyerNm,
+                                          String itemCd,
+                                          String itemNm,
+                                          String criteria, String direction, Authentication authentication) {
         Pageable pageable = createPageable(page, size, criteria, direction);
-        LocalDateTime today = LocalDateTime.now();
-
-        if(buyerCd == null || buyerCd.isEmpty()) {
-            // buyerCd가 없으면 전체 데이터를 조회
-            return buyerItemRepository.findAll(pageable);
-        } else {
-            // buyerCd가 있으면 해당 바이어 코드에 맞는 데이터 조회
-            return buyerItemRepository.findBuyerItemsByBuyerCdAndCurrentDate(buyerCd, today, pageable);
-
-        }
+        return buyerItemQueryRepositoryCustom.findBuyerItems(buyerCd, buyerNm, itemCd, itemNm, pageable);
     }
 
     //BuyerItem 수정 (단가/단가시작일/단가종료일)

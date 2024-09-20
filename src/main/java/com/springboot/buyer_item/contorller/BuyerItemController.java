@@ -51,9 +51,12 @@ public class BuyerItemController {
                 new SingleResponseDto<>(buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItems)), HttpStatus.OK);
     }
 
-    //전체조회 (Pagination, buyerCd 입력시 필터)
+    //전체조회 (Pagination, buyerCd / buyerNm / itemCd / itemNm 등 유동적으로 검색 )
     @GetMapping
     public ResponseEntity getBuyerItems(@RequestParam(required = false) String buyerCd,
+                                        @RequestParam(required = false) String buyerNm,
+                                        @RequestParam(required = false) String itemCd,
+                                        @RequestParam(required = false) String itemNm,
                                         @RequestParam @Positive int page,
                                         @RequestParam @Positive int size,
                                         @RequestParam(required = false) String sort,
@@ -70,7 +73,7 @@ public class BuyerItemController {
             }
         }
 
-        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, criteria, direction, authentication);
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItems(page - 1, size, buyerCd, buyerNm, itemCd, itemNm, criteria, direction, authentication);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());

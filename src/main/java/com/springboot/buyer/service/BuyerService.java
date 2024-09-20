@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,10 +31,15 @@ public class BuyerService {
         extractMemberFromAuthentication(authentication);
 
         buyers.stream().forEach(buyer -> {
+
+            // 중복 확인 (바이어 이름/ 연락처/ 이메일)
             verifyExistName(buyer.getBuyerNm());
             verifyExistTel(buyer.getTel());
             verifyExistEmail(buyer.getEmail());
-            verifyBuyerCdExists(buyer.getBuyerCd());
+
+            //바이어 코드 생성 후 저장
+            buyer.setBuyerCd(createManufactureCd());
+
             buyerRepository.save(buyer);
         });
     }
@@ -209,5 +215,12 @@ public class BuyerService {
         isDeleted(buyer);
 
         return buyer;
+    }
+
+    // 바이어 코드 생성 메서드
+    private String createManufactureCd() {
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 3).toUpperCase();
+
+        return "B" + uuid;
     }
 }
