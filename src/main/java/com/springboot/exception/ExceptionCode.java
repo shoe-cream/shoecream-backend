@@ -32,7 +32,8 @@ public enum ExceptionCode {
     INACTIVE_STATUS(400, "비활성 상태입니다."),
     CHECK_REQUEST_DATE(400, "Check the request date" ),
     CHECK_CONTRACT_DATE(400, "Check the contract date"),
-    CANNOT_ORDER_NEGATIVE_QUANTITY(400, "The order quantity must not be negative" );
+    CANNOT_ORDER_NEGATIVE_QUANTITY(400, "The order quantity must not be negative" ),
+    PERIOD_OVERLAP_ERROR(409, "The specified period overlaps with an existing period" );
 
     @Getter
     private int status;

@@ -46,8 +46,8 @@ public class BuyerService {
             return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE, pageable);
 
         } else {
-            String compareBuyerNm = buyerNm.trim().toLowerCase();
-            return buyerRepository.findByBuyerNmIgnoreCaseAndBuyerStatusNot(compareBuyerNm, Buyer.BuyerStatus.INACTIVE, pageable);
+            String compareBuyerNm = buyerNm.trim().toLowerCase().replaceAll("\\s", "");
+            return buyerRepository.findByBuyerNmIgnoreCaseWithoutSpacesAndBuyerStatusNot(compareBuyerNm, Buyer.BuyerStatus.INACTIVE, pageable);
         }
     }
 

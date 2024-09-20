@@ -33,6 +33,7 @@ public interface BuyerItemMapper {
 
         return buyerItem;
     }
+
     List<BuyerItem> postDtosToBuyerItems(List<Dto.BuyerItemPostDto> postDtos);
 
     BuyerItem buyerItemPatchDtoToBuyer(Dto.BuyerItemPatchDto patchDto);
@@ -60,6 +61,7 @@ public interface BuyerItemMapper {
                 .filter(buyerItem -> buyerItem.getItem().getItemStatus() != Item.ItemStatus.NOT_FOR_SALE)
                 .map(buyerItem -> Dto.BuyerItemResponseDto
                         .builder()
+                        .buyerCd(buyerItem.getBuyer().getBuyerCd())
                         .buyerItemId(buyerItem.getBuyerItemId())
                         .itemNm(buyerItem.getItem().getItemNm())
                         .itemCd(buyerItem.getItem().getItemCd())
