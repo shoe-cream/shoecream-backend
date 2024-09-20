@@ -14,11 +14,6 @@ import java.util.Optional;
 
 public interface BuyerItemRepository extends JpaRepository<BuyerItem, Long> {
     Page<BuyerItem> findAll(Pageable pageable);
-    Page<BuyerItem> findAllByBuyer_BuyerCd(String buyerCd, Pageable pageable);
-    Optional<BuyerItem> findByItem_ItemCd(String itemCd);
-    List<BuyerItem> findAllByItem_ItemCd(String itemCd);
-    @Query("SELECT b FROM BuyerItem b WHERE b.buyer.buyerCd = :buyerCd AND :currentDate BETWEEN b.startDate AND b.endDate")
-    Page<BuyerItem> findBuyerItemsByBuyerCdAndCurrentDate(
-            @Param("buyerCd") String buyerCd, @Param("currentDate") LocalDateTime currentDate, Pageable pageable);
 
+    List<BuyerItem> findAllByItem_ItemCd(String itemCd);
 }

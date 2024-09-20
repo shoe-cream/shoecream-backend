@@ -16,9 +16,6 @@ public class Dto {
     @Setter
     @NoArgsConstructor
     public static class BuyerPostDto {
-        @Length(max = 5)
-        @NotBlank(message = "구매자 코드는 필수 입력 항목입니다.")
-        private String buyerCd;
 
         @NotBlank(message = "구매자 이름은 필수 입력 항목입니다.")
         private String buyerNm;
