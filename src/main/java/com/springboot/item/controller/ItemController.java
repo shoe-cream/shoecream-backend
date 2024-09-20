@@ -67,6 +67,8 @@ public class ItemController {
     @GetMapping
     public ResponseEntity getItems(@RequestParam @Positive int page,
                                    @RequestParam @Positive int size,
+                                   @RequestParam(required = false) String itemNm,
+                                   @RequestParam(required = false) String itemCd,
                                    @RequestParam(required = false) String sort,
                                    @RequestParam(required = false) String direction,
                                    Authentication authentication) {
@@ -80,8 +82,11 @@ public class ItemController {
             }
         }
 
-        Page<Item> itemPage = itemService.findItems(page-1, size, sortCriteria, direction, authentication);
-        List<ReportDto.InventoryDto> reports = itemPage.getContent().stream().map(item -> saleReport.getInventory(item.getItemCd())).collect(Collectors.toList());
+        Page<Item> itemPage = itemService.findItems(page-1, size, itemNm, itemCd, sortCriteria, direction, authentication);
+        List<ReportDto.InventoryDto> reports = itemPage.getContent()
+                .stream()
+                .map(item -> saleReport.getInventory(item.getItemCd()))
+                .collect(Collectors.toList());
 
         List<Dto.ItemResponseDto> itemResponseDtos =
                 itemMapper.itemsToResponseDtos(itemPage.getContent(), reports);
