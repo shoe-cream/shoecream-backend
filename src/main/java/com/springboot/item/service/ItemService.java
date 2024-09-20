@@ -1,6 +1,5 @@
 package com.springboot.item.service;
 
-import com.springboot.buyer.entity.Buyer;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
@@ -57,11 +56,26 @@ public class ItemService {
 
     //전체 item 조회 - pagination
     @Transactional(readOnly = true)
-    public Page<Item> findItems(int page, int size, String criteria, String direction, Authentication authentication) {
+    public Page<Item> findItems(int page, int size, String itemNm, String itemCd, String criteria, String direction, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         Pageable pageable = createPageable(page, size, criteria, direction);
-        Page<Item> items = itemRepository.findAllByItemStatusNot(Item.ItemStatus.INACTIVE, pageable);
+        Page<Item> items;
+
+        if ((itemNm == null || itemNm.isEmpty())  && (itemCd == null || itemCd.isEmpty())) {
+
+            items = itemRepository.findAllByItemStatusNot(Item.ItemStatus.INACTIVE, pageable);
+
+        } else if (itemCd == null || itemCd.isEmpty()) {
+
+            String compareItemNm = itemNm.trim().toLowerCase().replaceAll("\\s", "");
+            items =  itemRepository.findByItemNmIgnoreCaseWithoutSpacesAndItemStatusNot(compareItemNm, Item.ItemStatus.INACTIVE, pageable);
+
+        } else {
+            String compareItemCd = itemCd.trim().toLowerCase().replaceAll("\\s", "");
+            items = itemRepository.findByItemCdIgnoreCaseAndItemStatusNot(compareItemCd, Item.ItemStatus.INACTIVE, pageable);
+
+        }
 
         return items;
     }

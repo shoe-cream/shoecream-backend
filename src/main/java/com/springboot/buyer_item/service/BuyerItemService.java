@@ -33,23 +33,6 @@ public class BuyerItemService {
     private final ItemService itemService;
     private final MemberService memberService;
 
-//    //Buyer-Item 생성
-//    public void createBuyerItem(List<BuyerItem> buyerItems, Authentication authentication) {
-//        // 기본 아이템 정보 가져오기 (Item 테이블에서 가져옴)
-//        extractMemberFromAuthentication(authentication);
-//
-//        buyerItems.stream().forEach(buyerItem -> {
-//            //단가적용기간 중복 검사
-//            Item item = itemService.findVerifiedItemNm(buyerItem.getItem().getItemNm());
-//            checkPriceApplicationDateOverlap(buyerItem.getBuyer().getBuyerNm(), item.getItemCd(), buyerItem.getStartDate());
-//
-//            buyerItem.addItem(item);
-//            buyerItem.addBuyer(buyerService.findVerifiedBuyerByBuyerNm(buyerItem.getBuyer().getBuyerNm()));
-//
-//            buyerItemRepository.save(buyerItem);
-//        });
-//    }
-
     //Buyer-Item 생성
     public void createBuyerItem(List<BuyerItem> buyerItems, Authentication authentication) {
         // 기본 아이템 정보 가져오기 (Item 테이블에서 가져옴)
@@ -160,24 +143,6 @@ public class BuyerItemService {
     //ItemCd로 검증
     private List<BuyerItem> findVerifiedBuyerItemByItemCd(String itemCd) {
         return buyerItemRepository.findAllByItem_ItemCd(itemCd);
-    }
-
-    //buyer-itemCD가 동일한 여러 개가 있을 수 있음. 만약 없다면 기간중복은 보지 않고 등록 및 수정 가능
-    //단가적용기간 중복 검사
-    private void checkPriceApplicationDateOverlap(String buyerNm, String itemCd, LocalDateTime startDate) {
-        Buyer buyer = buyerService.findVerifiedBuyerByBuyerNm(buyerNm);
-        buyer.getBuyerItems()
-                .stream()
-                .forEach(buyerItem -> {
-                    List<BuyerItem> buyerItems = findVerifiedBuyerItemByItemCd(itemCd);
-
-                    for(BuyerItem findBuyerItem : buyerItems) {
-                        //2023-09-01 ~2023-12-01 일때 새로 적용되는 startDate가 endDate 이전일때
-                        if(startDate.isBefore(findBuyerItem.getEndDate())) {
-                            throw new BusinessLogicException(ExceptionCode.PERIOD_OVERLAP_ERROR);
-                        }
-                    }
-                });
     }
 
     private List<BuyerItem> recentGetBuyerItem(String buyerNm, String itemCd, LocalDateTime date) {
