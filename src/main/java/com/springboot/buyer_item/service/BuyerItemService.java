@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +75,7 @@ public class BuyerItemService {
         return buyerItemQueryRepositoryCustom.findBuyerItems(buyerCd, buyerNm, itemCd, itemNm, pageable);
     }
 
-    public Page<BuyerItem> findBuyerItemsByBuyerCdAndCurrentDate(String buyerCd, LocalDateTime currentDate,
+    public Page<BuyerItem> findBuyerItemsByBuyerCdAndCurrentDate(String buyerCd, LocalDate currentDate,
                                                                  int page, int size,
                                                                  String criteria,
                                                                  String direction) {

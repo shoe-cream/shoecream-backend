@@ -86,6 +86,7 @@ public class BuyerItemController {
 
     @GetMapping("/period")
     public ResponseEntity getBuyerByBuyerCdBetweenPeriod (@RequestParam(required = false) String buyerCd,
+                                                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                                           @RequestParam @Positive int page,
                                                           @RequestParam @Positive int size,
                                                           @RequestParam(required = false) String sort,
@@ -102,8 +103,7 @@ public class BuyerItemController {
             }
         }
 
-        LocalDateTime current = LocalDateTime.now();
-        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItemsByBuyerCdAndCurrentDate(buyerCd, current, page - 1, size, criteria, direction);
+        Page<BuyerItem> buyerItemPage = buyerItemService.findBuyerItemsByBuyerCdAndCurrentDate(buyerCd, date, page - 1, size, criteria, direction);
 
         List<Dto.BuyerItemResponseDto> buyerItemResponseDtos =
                 buyerItemMapper.buyerItemsToBuyerItemResponseDtos(buyerItemPage.getContent());
