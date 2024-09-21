@@ -57,6 +57,10 @@ public class ManufactureController {
     @GetMapping
     public ResponseEntity getManufactures(@RequestParam(required = false) String sort,
                                           @RequestParam(required = false) String direction,
+                                          @RequestParam(required = false) String mfCd,
+                                          @RequestParam(required = false) String mfNm,
+                                          @RequestParam(required = false) String email,
+                                          @RequestParam(required = false) String region,
                                           @RequestParam @Positive int page,
                                           @RequestParam @Positive int size,
                                           Authentication authentication) {
@@ -73,7 +77,7 @@ public class ManufactureController {
             }
         }
 
-        Page<Manufacture> manufacturePage = manufactureService.getManufactures(criteria, direction,page -1, size, authentication);
+        Page<Manufacture> manufacturePage = manufactureService.getManufactures(mfCd, mfNm, email, region, criteria, direction,page -1, size);
         List<Dto.ManufactureResponseDto> manufactureResponseDtos =
                 manufactureMapper.manufactureToResponseDtos(manufacturePage.getContent());
 

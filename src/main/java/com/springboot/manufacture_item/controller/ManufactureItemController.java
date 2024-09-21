@@ -52,10 +52,12 @@ public class ManufactureItemController {
                 new SingleResponseDto<>(itemMfMapper.itemMfToItemMfResponseDto(itemMf)), HttpStatus.OK);
     }
 
-    // 제조사 공급단가 전체 조회 mfCd/itemCd 선택사항
     @GetMapping
     public ResponseEntity getItemMfs(@RequestParam(required = false) String mfCd,
+                                     @RequestParam(required = false) String mfNm,
                                      @RequestParam(required = false) String itemCd,
+                                     @RequestParam(required = false) String itemNm,
+                                     @RequestParam(required = false) String region,
                                      @Positive int page,
                                      @Positive int size,
                                      @RequestParam(required = false) String sort,
@@ -64,7 +66,7 @@ public class ManufactureItemController {
 
         String criteria = "mfItemId";
         if(sort != null) {
-            List<String> sorts = Arrays.asList("mfItemId", "unitPrice", "createdAt", "modifiedAt", "qty");
+            List<String> sorts = Arrays.asList("mfItemId", "unitPrice", "createdAt", "modifiedAt", "qty", "region", "itemNm", "itemCd", "mfNm");
             if (sorts.contains(sort)) {
                 criteria = sort;
             } else {
@@ -72,7 +74,7 @@ public class ManufactureItemController {
             }
         }
 
-        Page<ItemManufacture> itemManufacturePage = manufactureItemService.findItemMfs(page - 1, size, criteria, direction, itemCd, mfCd, authentication);
+        Page<ItemManufacture> itemManufacturePage = manufactureItemService.findItemMfs(page - 1, size, criteria, direction, itemNm, itemCd, mfNm, mfCd, region);
         List<ItemManufacture> itemManufactures = itemManufacturePage.getContent();
 
         return new ResponseEntity<>(
