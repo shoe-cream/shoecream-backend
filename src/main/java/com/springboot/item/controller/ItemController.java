@@ -7,7 +7,7 @@ import com.springboot.item.entity.Item;
 import com.springboot.item.mapper.ItemMapper;
 import com.springboot.item.service.ItemService;
 import com.springboot.report.reportDto.ReportDto;
-import com.springboot.report.service.SaleReport;
+import com.springboot.report.service.InventoryReport;
 import com.springboot.response.MultiResponseDto;
 import com.springboot.response.SingleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class ItemController {
     private final ItemMapper itemMapper;
     private final ItemService itemService;
-    private final SaleReport saleReport;
+    private final InventoryReport inventoryReport;
 
     @PostMapping
     public ResponseEntity createItem(@Valid @RequestBody List<Dto.ItemPostDto> postDtos, Authentication authentication) {
@@ -46,7 +46,7 @@ public class ItemController {
     @GetMapping("/{itemCd}")
     public ResponseEntity getItem(@PathVariable("itemCd") String itemCd, Authentication authentication) {
         Item item = itemService.findItem(itemCd, authentication);
-        ReportDto.InventoryDto report = saleReport.getInventory(itemCd);
+        ReportDto.InventoryDto report = inventoryReport.getInventory(itemCd);
         return new ResponseEntity<>(
                 new SingleResponseDto<>(itemMapper.itemToResponseDto(item, report)), HttpStatus.OK);
     }
@@ -85,7 +85,7 @@ public class ItemController {
         Page<Item> itemPage = itemService.findItems(page-1, size, itemNm, itemCd, sortCriteria, direction, authentication);
         List<ReportDto.InventoryDto> reports = itemPage.getContent()
                 .stream()
-                .map(item -> saleReport.getInventory(item.getItemCd()))
+                .map(item -> inventoryReport.getInventory(item.getItemCd()))
                 .collect(Collectors.toList());
 
         List<Dto.ItemResponseDto> itemResponseDtos =

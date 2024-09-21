@@ -3,6 +3,7 @@ package com.springboot.item.service;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.item.entity.Item;
+import com.springboot.item.repository.ItemQueryRepositoryCustom;
 import com.springboot.item.repository.ItemRepository;
 import com.springboot.member.entity.Member;
 import com.springboot.member.repository.MemberRepository;
@@ -24,6 +25,7 @@ import static com.springboot.utils.PageableCreator.createPageable;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
+    private final ItemQueryRepositoryCustom itemQueryRepositoryCustom;
 
     //item 생성
     public void createItem(List<Item> items, Authentication authentication) {
@@ -60,24 +62,8 @@ public class ItemService {
         extractMemberFromAuthentication(authentication);
 
         Pageable pageable = createPageable(page, size, criteria, direction);
-        Page<Item> items;
 
-        if ((itemNm == null || itemNm.isEmpty())  && (itemCd == null || itemCd.isEmpty())) {
-
-            items = itemRepository.findAllByItemStatusNot(Item.ItemStatus.INACTIVE, pageable);
-
-        } else if (itemCd == null || itemCd.isEmpty()) {
-
-            String compareItemNm = itemNm.trim().toLowerCase().replaceAll("\\s", "");
-            items =  itemRepository.findByItemNmIgnoreCaseWithoutSpacesAndItemStatusNot(compareItemNm, Item.ItemStatus.INACTIVE, pageable);
-
-        } else {
-            String compareItemCd = itemCd.trim().toLowerCase().replaceAll("\\s", "");
-            items = itemRepository.findByItemCdIgnoreCaseAndItemStatusNot(compareItemCd, Item.ItemStatus.INACTIVE, pageable);
-
-        }
-
-        return items;
+        return itemQueryRepositoryCustom.findItemsByCondition(itemNm, itemCd, pageable);
     }
 
     //전체 item 조회
