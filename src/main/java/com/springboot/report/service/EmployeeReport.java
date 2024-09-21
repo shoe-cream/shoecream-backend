@@ -35,7 +35,7 @@ public class EmployeeReport {
     }
 
 
-    public List<ReportDto.EmployeeReportDto> getEmployeeReport (LocalDate startDate, LocalDate endDate) {
+    public List<ReportDto.EmployeeReportDto> getEmployeesReport (LocalDate startDate, LocalDate endDate) {
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
@@ -64,6 +64,24 @@ public class EmployeeReport {
         return reportDtos;
     }
 
+    public ReportDto.EmployeeReportDto getEmployeeReport (String employeeId, LocalDate startDate, LocalDate endDate) {
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        // 해당 사원의 기간별 주문 정보 가져오기
+        List<OrderItems> ordersInRange = orderItemsRepository.findByOrderHeadersRequestDateBetween(employeeId, startDateTime, endDateTime);
+
+        // 실적 정보 계산
+        ReportDto.EmployeeReportDto reportDto = new ReportDto.EmployeeReportDto();
+        reportDto.setEmployeeId(employeeId);
+        reportDto.setTotalOrderCount(calculateOrderCountByEmployee(employeeId, startDateTime, endDateTime)); // 판매 건수
+        reportDto.setTotalOrderPrice(calculateOrderPriceByEmployee(employeeId, startDateTime, endDateTime)); // 판매 금액
+        reportDto.setMarginRate(calculateMarginByEmployee(employeeId, startDateTime, endDateTime)); // 마진률
+
+        return  reportDto;
+    }
+
 
     // 사원 실적 - 마진률 =  판매단가 / 제조단가
     public BigDecimal calculateMarginByEmployee (String employeeId, LocalDateTime start, LocalDateTime end) {
@@ -77,31 +95,31 @@ public class EmployeeReport {
         BigDecimal totalOrderPrice = BigDecimal.ZERO;
         BigDecimal totalManufacturePrice = BigDecimal.ZERO;
 
-        // 3. 총 판매 가격 계산
+        //총 판매 가격 계산
         for (OrderItems orderItem : orderItems) {
             totalOrderPrice = totalOrderPrice.add(orderItem.getUnitPrice().multiply(BigDecimal.valueOf(orderItem.getQty())));
         }
 
-        // 4. 총 제조 가격 계산 (판매 수량에 맞춰 제조 가격을 반영)
+        // 총 제조 가격 계산
         for (ItemManufacture mfItem : mfItems) {
             Optional<OrderItems> correspondingOrderItem = orderItems.stream()
                     .filter(orderItem -> orderItem.getItemCd().equals(mfItem.getItem().getItemCd())) // ItemCd가 일치하는지 확인
-                    .findFirst(); // 첫 번째로 일치하는 항목 찾기
+                    .findFirst();
 
             if (correspondingOrderItem.isPresent()) {
                 OrderItems orderItem = correspondingOrderItem.get();
-                // 해당 판매 수량만큼 제조 단가에 반영
+                // 해당 판매 수량 가져오기
                 totalManufacturePrice = totalManufacturePrice.add(mfItem.getUnitPrice().multiply(BigDecimal.valueOf(orderItem.getQty())));
             }
         }
 
 
-        // 5. 제조 단가가 0일 경우 처리
+        // 나누기 0 조심
         if (totalManufacturePrice.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
 
-        // 6. 마진률 계산
+        //마진률 계산
         return totalOrderPrice.divide(totalManufacturePrice, 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
     }
 

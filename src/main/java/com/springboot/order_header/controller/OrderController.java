@@ -249,7 +249,7 @@ public class OrderController {
 
     //사원별 판매실적 조회
     @GetMapping("/employees")
-    public ResponseEntity getEmployeeReport (@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+    public ResponseEntity getEmployeesReport (@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
 
         if(startDate == null) {
@@ -259,6 +259,23 @@ public class OrderController {
             endDate = LocalDate.of(9999, 12, 31);
         }
 
-        return new ResponseEntity(orderService.getEmployeeReport(startDate, endDate), HttpStatus.OK);
+        return new ResponseEntity(orderService.getEmployeesReport(startDate, endDate), HttpStatus.OK);
     }
+
+    //사원별 판매실적 조회
+    @GetMapping("/employees/{employee-id}")
+    public ResponseEntity getEmployeeReport (@PathVariable("employee-id") String employeeId ,
+                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+
+        if(startDate == null) {
+            startDate= LocalDate.of(1900, 1, 1);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.of(9999, 12, 31);
+        }
+
+        return new ResponseEntity(orderService.getEmployeeReport(employeeId, startDate, endDate), HttpStatus.OK);
+    }
+
 }

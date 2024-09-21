@@ -12,6 +12,7 @@ import com.springboot.order_header.repository.OrderQueryRepositoryCustom;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
 import com.springboot.report.service.EmployeeReport;
+import com.springboot.report.service.InventoryReport;
 import com.springboot.report.service.SaleReport;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
@@ -40,6 +41,7 @@ public class OrderService {
     private final MemberService memberService;
     private final SaleReport saleReport;
     private final EmployeeReport employeeReport;
+    private final InventoryReport inventoryReport;
 
     public OrderService(OrderHeadersRepository orderHeadersRepository,
                         OrderItemsRepository orderItemsRepository,
@@ -47,7 +49,7 @@ public class OrderService {
                         SaleHistoryRepository saleHistoryRepository,
                         SaleHistoryMapper saleHistoryMapper,
                         MemberService memberService,
-                        SaleReport saleReport, EmployeeReport employeeReport) {
+                        SaleReport saleReport, EmployeeReport employeeReport, InventoryReport inventoryReport) {
 
         this.orderHeadersRepository = orderHeadersRepository;
         this.orderItemsRepository = orderItemsRepository;
@@ -57,6 +59,7 @@ public class OrderService {
         this.memberService = memberService;
         this.saleReport = saleReport;
         this.employeeReport = employeeReport;
+        this.inventoryReport = inventoryReport;
     }
 
     @Transactional
@@ -273,20 +276,26 @@ public class OrderService {
     // 아이템 재고 조회
     public ReportDto.InventoryDto getStock(String itemCd) {
 
-        return saleReport.getInventory(itemCd);
+        return inventoryReport.getInventory(itemCd);
     }
 
-    //사원별 판매실적 조회
-    public List<ReportDto.EmployeeReportDto> getEmployeeReport (LocalDate start, LocalDate end) {
+    //사원 전체 판매실적 조회
+    public List<ReportDto.EmployeeReportDto> getEmployeesReport (LocalDate start, LocalDate end) {
 
-        return employeeReport.getEmployeeReport(start, end);
+        return employeeReport.getEmployeesReport(start, end);
+    }
+
+    //사원 개별 판매실적 조회
+    public ReportDto.EmployeeReportDto getEmployeeReport (String employeeId, LocalDate start, LocalDate end) {
+
+        return employeeReport.getEmployeeReport(employeeId, start, end);
     }
 
     //재고 여부 확인
     private void isStock (OrderHeaders orderHeaders) {
         boolean isStock = orderHeaders.getOrderItems()
                 .stream()
-                .map(orderItems -> saleReport.calculateInventory(orderItems.getItemCd()) - orderItems.getQty())
+                .map(orderItems -> inventoryReport.calculateInventory(orderItems.getItemCd()) - orderItems.getQty())
                 .anyMatch(qty -> qty < 0);
         if (isStock) {
             throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
