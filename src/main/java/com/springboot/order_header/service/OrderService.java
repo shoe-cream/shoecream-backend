@@ -11,6 +11,7 @@ import com.springboot.order_header.repository.OrderHeadersRepository;
 import com.springboot.order_header.repository.OrderQueryRepositoryCustom;
 import com.springboot.order_item.entity.OrderItems;
 import com.springboot.order_item.repository.OrderItemsRepository;
+import com.springboot.report.service.EmployeeReport;
 import com.springboot.report.service.SaleReport;
 import com.springboot.sale_history.entity.SaleHistory;
 import com.springboot.sale_history.mapper.SaleHistoryMapper;
@@ -38,6 +39,7 @@ public class OrderService {
     private final SaleHistoryMapper saleHistoryMapper;
     private final MemberService memberService;
     private final SaleReport saleReport;
+    private final EmployeeReport employeeReport;
 
     public OrderService(OrderHeadersRepository orderHeadersRepository,
                         OrderItemsRepository orderItemsRepository,
@@ -45,7 +47,7 @@ public class OrderService {
                         SaleHistoryRepository saleHistoryRepository,
                         SaleHistoryMapper saleHistoryMapper,
                         MemberService memberService,
-                        SaleReport saleReport) {
+                        SaleReport saleReport, EmployeeReport employeeReport) {
 
         this.orderHeadersRepository = orderHeadersRepository;
         this.orderItemsRepository = orderItemsRepository;
@@ -54,6 +56,7 @@ public class OrderService {
         this.saleHistoryMapper = saleHistoryMapper;
         this.memberService = memberService;
         this.saleReport = saleReport;
+        this.employeeReport = employeeReport;
     }
 
     @Transactional
@@ -271,6 +274,12 @@ public class OrderService {
     public ReportDto.InventoryDto getStock(String itemCd) {
 
         return saleReport.getInventory(itemCd);
+    }
+
+    //사원별 판매실적 조회
+    public List<ReportDto.EmployeeReportDto> getEmployeeReport (LocalDate start, LocalDate end) {
+
+        return employeeReport.getEmployeeReport(start, end);
     }
 
     //재고 여부 확인

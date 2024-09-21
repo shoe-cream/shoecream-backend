@@ -32,4 +32,15 @@ public class ReportDto {
         private BigDecimal totalMfPrice; //총 공급가격
         private BigDecimal marginRate; // 마진률
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class EmployeeReportDto {
+        private String employeeId;
+        private String employeeName;
+        private BigDecimal marginRate; // 평균 마진률
+        private int totalOrderCount; // 주문건수
+        private BigDecimal totalOrderPrice; // 판매금액
+    }
 }

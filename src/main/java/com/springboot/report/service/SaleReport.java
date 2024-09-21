@@ -42,7 +42,7 @@ public class SaleReport {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
-        List<OrderItems> ordersInRange = orderItemsRepository.findByOrderHeadersRequestDateBetween(startDateTime, endDateTime);
+        List<OrderItems> ordersInRange = orderItemsRepository.findByOrderHeadersRequestDateBetween(null, startDateTime, endDateTime);
 
         return new ArrayList<>(ordersInRange.stream()
                 .collect(Collectors.toMap(OrderItems::getItemCd, orderItem -> {
@@ -88,9 +88,9 @@ public class SaleReport {
         return BigDecimal.ZERO;
     }
 
-    //해당 기간의 총 판매가(승인 이후 상태만 계산 = APPROVED, SHIPPED, PRODUCT_PASS
+    //해당 기간의 총 판매가(승인 이후 상태만 계산 = PRODUCT_PASS
     private BigDecimal getOrderTotalPrice(String itemCd, LocalDateTime start, LocalDateTime end) {
-        BigDecimal orderTotalPrice = orderItemsRepository.findTotalOrderPriceByItemCdAndOrderDateBetween(itemCd, start, end);
+        BigDecimal orderTotalPrice = orderItemsRepository.findTotalOrderPriceByItemCdAndOrderDateBetween(itemCd, null, start, end);
         return orderTotalPrice != null ? orderTotalPrice : BigDecimal.ZERO;
     }
 
