@@ -3,6 +3,7 @@ package com.springboot.manufacture.service;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
 import com.springboot.manufacture.entity.Manufacture;
+import com.springboot.manufacture.repository.MFQueryRepositoryCustom;
 import com.springboot.manufacture.repository.ManufactureRepository;
 import com.springboot.manufacture_history.entity.ManuFactureHistory;
 import com.springboot.manufacture_history.repository.ManufactureHistoryRepository;
@@ -28,6 +29,7 @@ public class ManufactureService {
     private final ManufactureRepository manufactureRepository;
     private final MemberRepository memberRepository;
     private final ManufactureHistoryRepository manufactureHistoryRepository;
+    private final MFQueryRepositoryCustom mfQueryRepositoryCustom;
 
     //제조사 등록
     public void createManufacture(List<Manufacture> manufactures, Authentication authentication) {
@@ -55,12 +57,19 @@ public class ManufactureService {
     }
 
     //제조사 전체 조회 (pagination)
-    public Page<Manufacture> getManufactures(String sortBy, String direction, int page, int size, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
+    public Page<Manufacture> getManufactures(String mfCd, String mfNm,
+                                             String email, String region,
+                                             String sortBy, String direction,
+                                             int page, int size) {
 
         Pageable pageable = createPageable(page, size, sortBy, direction);
 
-       return manufactureRepository.findAllByManufactureStatusNot(Manufacture.ManufactureStatus.INACTIVE, pageable);
+        return mfQueryRepositoryCustom.findManufactures(mfCd, mfNm, email, region, pageable);
+    }
+
+    // 제조사 전체 조회
+    public List<Manufacture> findManufactureAll() {
+        return manufactureRepository.findAllByManufactureStatusNot(Manufacture.ManufactureStatus.INACTIVE);
     }
 
     //제조사 정보 수정 (이메일/ 지역/ 이름)
@@ -100,7 +109,7 @@ public class ManufactureService {
         return manufactureRepository.save(findManufacture);
     }
 
-    // mfId로 manufacture DB에서 삭제 -> 여러 개 삭제시 사용
+    // mfId로 manufacture 삭제 -> 여러 개 삭제시 사용 : 비활성화 상태로 변경된다.
     public void deleteManufactures(Long mfId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -110,7 +119,7 @@ public class ManufactureService {
         manufactureRepository.save(manufacture);
     }
 
-    //mfCd로 manufacture DB에서 삭제
+    //mfCd로 manufacture 삭제 : 비활성화 상태로 변경 된다.
     public void deleteManufacture(String mfCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -131,11 +140,6 @@ public class ManufactureService {
         return manufactureHistoryRepository.findByMfCd(mfCd, pageable);
     }
 
-    // 제조사 전체 조회
-    public List<Manufacture> findManufactureAll() {
-        return manufactureRepository.findAllByManufactureStatusNot(Manufacture.ManufactureStatus.INACTIVE);
-    }
-
     // mfId로 Manufacture 검증
     public Manufacture verifyManufacture(long mfId) {
         return manufactureRepository.findById(mfId)
@@ -148,7 +152,7 @@ public class ManufactureService {
         Manufacture manufacture = manufactureRepository.findByMfNm(mfNm)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MANUFACTURE_NOT_FOUND));
 
-        isDeleted(manufacture);
+        //isDeleted(manufacture);
         return manufacture;
     }
 
@@ -188,6 +192,7 @@ public class ManufactureService {
         }
     }
 
+    //삭제된 manufacutre 인지 확인 - 전체 조회 불가능
     public void isDeleted (Manufacture manufacture) {
         if(manufacture.getManufactureStatus().equals(Manufacture.ManufactureStatus.INACTIVE)) {
             throw new BusinessLogicException(ExceptionCode.INACTIVE_STATUS);

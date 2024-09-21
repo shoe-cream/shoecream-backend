@@ -11,13 +11,12 @@ import com.springboot.manufacture.entity.Manufacture;
 import com.springboot.manufacture_history.entity.ManuFactureHistory;
 import com.springboot.manufacture_history.mapper.ManufactureHistoryMapper;
 import com.springboot.manufacture_history.repository.ManufactureHistoryRepository;
+import com.springboot.manufacture_item.repository.MfItemQueryRepositoryCustom;
 import com.springboot.member.entity.Member;
 import com.springboot.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +37,9 @@ public class ManufactureItemService {
     private final ManufactureHistoryRepository manufactureHistoryRepository;
     private final ManufactureHistoryMapper manufactureHistoryMapper;
     private final MemberService memberService;
+    private final MfItemQueryRepositoryCustom mfItemQueryRepositoryCustom;
 
+    //납품기록 생성
     public void createItemMf(List<ItemManufacture> itemManufactures, Authentication authentication) {
         Member member = extractMemberFromAuthentication(authentication);
 
@@ -54,26 +55,26 @@ public class ManufactureItemService {
         });
     }
 
+    // mfItemId로 개별 조회
     public ItemManufacture findItemMf(long mfItemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
         return verifyItemMf(mfItemId);
     }
-    
-    public Page<ItemManufacture> findItemMfs(int page, int size, String criteria,String direction, String itemCd, String mfCd, Authentication authentication) {
-        extractMemberFromAuthentication(authentication);
+
+    //납품 전체내역 조회 (매개변수 별로 filter 가능)
+    public Page<ItemManufacture> findItemMfs(int page, int size,
+                                             String criteria,String direction,
+                                             String itemNm, String itemCd,
+                                             String mfNm, String mfCd,
+                                             String region) {
 
         Pageable pageable = createPageable(page, size, criteria, direction);
-        
-        if((itemCd == null || itemCd.isEmpty()) && (mfCd == null || mfCd.isEmpty())) {
-            return itemMfRepository.findAll(pageable);
-        }
-        if(itemCd != null && !itemCd.isEmpty()) {
-            return itemMfRepository.findByItem_ItemCd(itemCd, pageable);
-        }
-            return itemMfRepository.findByManufacture_MfCd(mfCd, pageable);
+
+        return mfItemQueryRepositoryCustom.findItemManufacture(itemNm, itemCd, mfNm, mfCd, region, pageable);
     }
 
+    //납품 History 전체조회
     public Page<ManuFactureHistory> findHistories (int page, int size, String criteria, String direction, Long mfItemId, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
@@ -82,6 +83,7 @@ public class ManufactureItemService {
         return manufactureHistoryRepository.findByMfItemId(mfItemId, pageable);
     }
 
+    //납품기록 수정 : 단가 / 수량 수정 가능
     public ItemManufacture updateItemMf(ItemManufacture itemManufacture, Authentication authentication){
         Member member = extractMemberFromAuthentication(authentication);
 

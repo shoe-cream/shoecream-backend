@@ -1,6 +1,7 @@
 package com.springboot.buyer.service;
 
 import com.springboot.buyer.entity.Buyer;
+import com.springboot.buyer.repository.BuyerQueryRepositoryCustom;
 import com.springboot.buyer.repository.BuyerRepository;
 import com.springboot.exception.BusinessLogicException;
 import com.springboot.exception.ExceptionCode;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class BuyerService {
     private final BuyerRepository buyerRepository;
     private final MemberRepository memberRepository;
+    private final BuyerQueryRepositoryCustom buyerQueryRepositoryCustom;
 
     //Buyer 생성
     public void createBuyer(List<Buyer> buyers, Authentication authentication) {
@@ -44,29 +46,13 @@ public class BuyerService {
         });
     }
 
-    public Page<Buyer> findBuyers(int page, int size, String criteria, String direction, String buyerNm, Authentication authentication) {
+    //전체 조회 (buyer 필드별로 검색 가능) /but, buyer 상태가 ACTIVE 만 조회
+    public Page<Buyer> findBuyers(int page, int size, String criteria, String direction,
+                                  String buyerNm, String buyerCd, String tel, String address,
+                                  String businessType) {
 
         Pageable pageable = createPageable(page, size, criteria, direction);
-
-        if(buyerNm == null || buyerNm.trim().isEmpty()) {
-            return buyerRepository.findAllByBuyerStatusNot(Buyer.BuyerStatus.INACTIVE, pageable);
-
-        } else {
-            String compareBuyerNm = buyerNm.trim().toLowerCase().replaceAll("\\s", "");
-            return buyerRepository.findByBuyerNmIgnoreCaseWithoutSpacesAndBuyerStatusNot(compareBuyerNm, Buyer.BuyerStatus.INACTIVE, pageable);
-        }
-    }
-
-    //buyerNm + buyerCd 조합으로 조회
-    public Buyer findBuyerWithItems(String buyerCd, String buyerNm) {
-        if ((buyerCd == null || buyerCd.isEmpty()) && (buyerNm == null || buyerNm.isEmpty())) {
-            throw new BusinessLogicException(ExceptionCode.CONDITION_NOT_FIT);
-        }
-
-        Buyer buyer = buyerRepository.findByBuyerCdOrBuyerNmAndBuyerStatusNot(buyerCd, buyerNm, Buyer.BuyerStatus.INACTIVE )
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
-
-        return buyer;
+        return buyerQueryRepositoryCustom.findBuyer(buyerNm, buyerCd, tel, address, businessType, pageable);
     }
 
     //Buyer 정보 수정 - 이름/주소/이메일/연락처/사업자유형/상태

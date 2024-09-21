@@ -1,8 +1,6 @@
 package com.springboot.manufacture.repository;
 
 import com.springboot.manufacture.entity.Manufacture;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -16,7 +14,6 @@ public interface ManufactureRepository extends JpaRepository<Manufacture, Long> 
 
     Optional<Manufacture> findByMfCd(String mfCd);
     Optional<Manufacture> findByMfNm(String mfNm);
-    Page<Manufacture> findAllByManufactureStatusNot(Manufacture.ManufactureStatus manufactureStatus, Pageable pageable);
     List<Manufacture> findAllByManufactureStatusNot(Manufacture.ManufactureStatus manufactureStatus);
 }
 

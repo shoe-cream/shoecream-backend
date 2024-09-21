@@ -34,7 +34,7 @@ public class BuyerItemQueryRepositoryImpl implements BuyerItemQueryRepositoryCus
         BooleanBuilder builder = new BooleanBuilder();
 
         if (buyerCd != null && !buyerCd.isEmpty()) {
-            builder.and(buyerItem.buyer.buyerCd.eq(buyerCd));
+            builder.and(buyerItem.buyer.buyerCd.containsIgnoreCase(buyerCd));
         }
 
         if (buyerNm != null && !buyerNm.isEmpty()) {
@@ -42,7 +42,7 @@ public class BuyerItemQueryRepositoryImpl implements BuyerItemQueryRepositoryCus
         }
 
         if (itemCd != null && !itemCd.isEmpty()) {
-            builder.and(buyerItem.item.itemCd.eq(itemCd));
+            builder.and(buyerItem.item.itemCd.containsIgnoreCase(itemCd));
         }
 
         if (itemNm != null && !itemNm.isEmpty()) {

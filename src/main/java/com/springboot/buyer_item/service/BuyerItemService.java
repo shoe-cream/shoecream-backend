@@ -45,10 +45,12 @@ public class BuyerItemService {
             //단가적용기간 중복 검사
             Item item = itemService.findVerifiedItemNm(buyerItem.getItem().getItemNm());
             List<BuyerItem> buyerItemList = recentGetBuyerItem(buyerItem.getBuyer().getBuyerNm(), item.getItemCd(), buyerItem.getStartDate());
+
             if(!buyerItemList.isEmpty()) {
                 throw new BusinessLogicException(ExceptionCode.PERIOD_OVERLAP_ERROR);
             }
 
+            // 중복이 없다면 item, buyer 저장
             buyerItem.addItem(item);
             buyerItem.addBuyer(buyerService.findVerifiedBuyerByBuyerNm(buyerItem.getBuyer().getBuyerNm()));
 
@@ -63,6 +65,7 @@ public class BuyerItemService {
         return findVerifiedBuyerItemByItemCd(buyerItemCd);
     }
 
+    //전체 조회 (Pagination) - 매개변수 개별 검색 가능
     public Page<BuyerItem> findBuyerItems(int page, int size,
                                           String buyerCd,
                                           String buyerNm,
@@ -75,14 +78,15 @@ public class BuyerItemService {
         return buyerItemQueryRepositoryCustom.findBuyerItems(buyerCd, buyerNm, itemCd, itemNm, pageable);
     }
 
-    public Page<BuyerItem> findBuyerItemsByBuyerCdAndCurrentDate(String buyerCd, LocalDate currentDate,
+    // BuyerItem 조회 (buyerCd + 해당 날짜가 적용되는 item) / BuyerCd와 날짜에 따라 검색 가능 -> 주문할 때 사용
+    public Page<BuyerItem> findBuyerItemsByBuyerCdAndCurrentDate(String buyerCd, LocalDate date,
                                                                  int page, int size,
                                                                  String criteria,
                                                                  String direction) {
 
         Pageable pageable = createPageable(page, size, criteria, direction);
 
-        return buyerItemQueryRepositoryCustom.findBuyerItemsByBuyerCdAndCurrentDate(buyerCd, currentDate, pageable);
+        return buyerItemQueryRepositoryCustom.findBuyerItemsByBuyerCdAndCurrentDate(buyerCd, date, pageable);
     }
 
     //BuyerItem 수정 (단가/단가시작일/단가종료일)
@@ -154,6 +158,7 @@ public class BuyerItemService {
         return buyerItemRepository.findAllByItem_ItemCd(itemCd);
     }
 
+    //단가 적용 item 이 있는 BuyerItem List 찾기 (date는 오늘 날짜)
     private List<BuyerItem> recentGetBuyerItem(String buyerNm, String itemCd, LocalDateTime date) {
         Buyer buyer = buyerService.findVerifiedBuyerByBuyerNm(buyerNm);
 

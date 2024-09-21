@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ManufactureItemRepository extends JpaRepository<ItemManufacture, Long> {
-    Page<ItemManufacture> findByItem_ItemCd(String itemCd, Pageable pageable);
-    Page<ItemManufacture> findByManufacture_MfCd(String mfCd, Pageable pageable);
-
 
     //기간별 전체 공급량
     @Query("SELECT SUM(im.qty) FROM ItemManufacture im WHERE im.item.itemCd = :itemCd AND im.createdAt BETWEEN :startDateTime AND :endDateTime")

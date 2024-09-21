@@ -42,27 +42,17 @@ public class BuyerController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 바이어와 바이어아이템을 함께 조회
-    @GetMapping("/search/items")
-    public ResponseEntity getBuyerWithItems(@RequestParam(required = false) String buyerCd,
-                                            @RequestParam(required = false) String buyerNm) {
-        Buyer buyer = buyerService.findBuyerWithItems(buyerCd, buyerNm);
-
-        Dto.BuyerResponseWithItemDto response =
-                buyerMapper.buyerItemsToBuyerResponseWithItems(buyer);
-
-
-        return new ResponseEntity<>(
-                new SingleResponseDto<>(response), HttpStatus.OK);
-    }
-
     // 페이지네이션으로 바이어 조회
     @GetMapping
     public ResponseEntity getBuyers(@RequestParam @Positive int page,
                                     @RequestParam @Positive int size,
                                     @RequestParam(required = false) String sort,
-                                    @RequestParam(required = false) String buyerNm,
                                     @RequestParam(required = false) String direction,
+                                    @RequestParam(required = false) String buyerNm,
+                                    @RequestParam(required = false) String buyerCd,
+                                    @RequestParam(required = false) String tel,
+                                    @RequestParam(required = false) String address,
+                                    @RequestParam(required = false) String businessType,
                                     Authentication authentication) {
 
         String criteria = "buyerId";
@@ -79,11 +69,11 @@ public class BuyerController {
             }
         }
 
-        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, direction, buyerNm, authentication);
+        Page<Buyer> buyerPage = buyerService.findBuyers(page -1, size, criteria, direction, buyerNm, buyerCd, tel, address, businessType);
         List<Buyer> buyers = buyerPage.getContent();
 
         return new ResponseEntity<>(
-                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtoWithItemList(buyers), buyerPage), HttpStatus.OK);
+                new MultiResponseDto<>(buyerMapper.buyerToBuyerResponseDtos(buyers), buyerPage), HttpStatus.OK);
     }
 
     //Buyer 전체 조회
