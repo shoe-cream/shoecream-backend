@@ -1,14 +1,20 @@
 package com.springboot.buyer.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.entity.QBuyer;
+import com.springboot.buyer_item.entity.QBuyerItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -51,8 +57,11 @@ public class BuyerQueryRepositoryImpl implements BuyerQueryRepositoryCustom {
             builder.and(buyer.businessType.containsIgnoreCase(businessType));
         }
 
+        List<OrderSpecifier<?>> orderSpecifiers = getSortOrder(pageable, buyer);
+
         List<Buyer> results = jpaQueryFactory.selectFrom(buyer)
                 .where(builder)
+                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -62,5 +71,14 @@ public class BuyerQueryRepositoryImpl implements BuyerQueryRepositoryCustom {
                 .fetchCount();
 
         return  new PageImpl<>(results, pageable, total);
+    }
+
+    private List<OrderSpecifier<?>> getSortOrder(Pageable pageable, QBuyer buyer) {
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+        for (Sort.Order order : pageable.getSort()) {
+            PathBuilder pathBuilder = new PathBuilder(buyer.getType(), buyer.getMetadata());
+            orders.add(new OrderSpecifier(order.isAscending() ? Order.ASC : Order.DESC, pathBuilder.get(order.getProperty())));
+        }
+        return orders;
     }
 }
