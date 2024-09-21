@@ -66,7 +66,7 @@ public class ManufactureItemController {
 
         String criteria = "mfItemId";
         if(sort != null) {
-            List<String> sorts = Arrays.asList("mfItemId", "unitPrice", "createdAt", "modifiedAt", "qty", "region", "itemNm", "itemCd", "mfNm");
+            List<String> sorts = Arrays.asList("mfItemId", "unitPrice", "createdAt", "modifiedAt", "qty", "manufacture.region", "item.itemNm", "item.itemCd", "manufacture.mfNm");
             if (sorts.contains(sort)) {
                 criteria = sort;
             } else {
