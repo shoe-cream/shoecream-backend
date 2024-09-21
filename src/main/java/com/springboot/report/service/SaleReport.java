@@ -63,27 +63,11 @@ public class SaleReport {
                 }, (existing, replacement) -> existing)).values());
     }
 
-
-    //현재 재고 확인
-    public ReportDto.InventoryDto getInventory(String itemCd) {
-        Item item = findVerifiedItem(itemCd);
-        ReportDto.InventoryDto.InventoryDtoBuilder response = ReportDto.InventoryDto.builder();
-        response.itemId(item.getItemId());
-        response.itemName(item.getItemNm());
-        response.totalOrder(getOrderQty(itemCd));
-        response.totalSupply(getManufacturedQty(itemCd));
-        response.unusedStock(getUnusedItemQty(itemCd));
-        response.preparedOrder(getPreparedItemQty(itemCd));
-        response.totalStock(calculateInventory(itemCd));
-        return response.build();
-    }
-
-
     //마진률 계산
     private BigDecimal calculateMarginRate(BigDecimal orderUnitPrice, BigDecimal manufactureUnitPrice) {
         BigDecimal total = BigDecimal.valueOf(1);
         if (orderUnitPrice != null && manufactureUnitPrice != null && orderUnitPrice.compareTo(BigDecimal.ZERO) > 0) {
-            return total.subtract(manufactureUnitPrice.divide(orderUnitPrice, 2, RoundingMode.HALF_UP ));
+            return total.subtract(manufactureUnitPrice.divide(orderUnitPrice, 2, RoundingMode.HALF_UP )).multiply(BigDecimal.valueOf(100));
         }
         return BigDecimal.ZERO;
     }
@@ -112,45 +96,4 @@ public class SaleReport {
         return total != null ? total : 0 ;
     }
 
-    //재고 계산 (총 공급량 - 총 주문량(승인이후) - 불용재고량
-    public Integer calculateInventory(String itemCd) {
-        Integer totalManufactured = getManufacturedQty(itemCd);
-        Integer totalOrdered = getOrderQty(itemCd);
-        Integer totalUnused = getUnusedItemQty(itemCd);
-        Integer stock =  totalManufactured - totalOrdered - totalUnused;
-        if (stock < 0) {
-            throw new BusinessLogicException(ExceptionCode.OUT_OF_STOCK);
-        }
-        return stock;
-    }
-
-    //재고 계산을 위한 공급량
-    private Integer getManufacturedQty(String itemCd) {
-        Integer totalManufactured = manufactureItemRepository.findTotalManufacturedByItemCd(itemCd);
-        return totalManufactured != null ? totalManufactured : 0;
-    }
-
-    //재고 계산을 위한 주문량 (승인 이후 상태의 주문량만 계산 = APPROVED, SHIPPED, PRODUCT_PASS)
-    private Integer getOrderQty(String itemCd) {
-        Integer totalOrdered = orderItemsRepository.findTotalOrderedByItemCdAfterApproval(itemCd);
-        return totalOrdered != null ? totalOrdered : 0;
-    }
-
-    //주문 대기량 (상태 = 견적요청, 발주요청)
-    private Integer getPreparedItemQty(String itemCd) {
-        Integer totalUnused = orderItemsRepository.findTotalPreparationOrderByItemCd(itemCd);
-        return totalUnused != null ? totalUnused : 0;
-    }
-
-    // 불용재고량 (상태 = PRODUCT_FAIL)
-    private Integer getUnusedItemQty(String itemCd) {
-        Integer totalUnused = orderItemsRepository.findTotalUnusedByItemCd(itemCd);
-        return totalUnused != null ? totalUnused : 0;
-    }
-
-    //유효한 제품인지 검증
-    private Item findVerifiedItem(String itemCd) {
-        Optional<Item> item = itemRepository.findByItemCd(itemCd);
-        return item.orElseThrow(() -> new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND));
-    }
 }

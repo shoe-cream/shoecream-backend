@@ -104,7 +104,7 @@ public class OrderItemQueryRepositoryImpl implements OrderItemQueryRepositoryCus
 
 
         return queryFactory
-                .select(orderItems.unitPrice.sum())
+                .select(orderItems.unitPrice.multiply(orderItems.qty).sum())
                 .from(orderItems)
                 .join(orderItems.orderHeaders, orderHeaders)
                 .where(builder)
