@@ -3,6 +3,7 @@ package com.springboot.order_header.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.springboot.buyer.entity.QBuyer;
+import com.springboot.member.entity.QMember;
 import com.springboot.order_header.dto.OrderDto;
 import com.springboot.order_header.entity.OrderHeaders;
 import com.springboot.order_header.entity.QOrderHeaders;
@@ -48,17 +49,17 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
 
         // BuyerCode 필터
         if (orderSearchRequest.getBuyerCd() != null && !orderSearchRequest.getBuyerCd().trim().isEmpty()) {
-            builder.and(buyer.buyerCd.eq(orderSearchRequest.getBuyerCd()));
+            builder.and(buyer.buyerCd.containsIgnoreCase(orderSearchRequest.getBuyerCd()));
         }
 
         // ItemCode 필터
         if (orderSearchRequest.getItemCd() != null && !orderSearchRequest.getItemCd().trim().isEmpty()) {
-            builder.and(orderItems.itemCd.eq(orderSearchRequest.getItemCd()));
+            builder.and(orderItems.itemCd.containsIgnoreCase(orderSearchRequest.getItemCd()));
         }
 
         //orderCode 필터
         if (orderSearchRequest.getOrderCd() != null) {
-            builder.and(orderHeaders.orderCd.eq(orderSearchRequest.getOrderCd()));
+            builder.and(orderHeaders.orderCd.containsIgnoreCase(orderSearchRequest.getOrderCd()));
         }
 
         List<OrderHeaders> results = queryFactory
@@ -81,5 +82,33 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepositoryCustom {
                 .fetchOne();
 
         return new PageImpl<>(results, pageable, total);
+    }
+
+
+    //해당 기간동안 판매 건수
+    @Override
+    public Integer getOrderCountByEmployee(String employeeId, LocalDateTime start, LocalDateTime end) {
+
+        QOrderHeaders orderHeaders = QOrderHeaders.orderHeaders;
+        QMember member = QMember.member;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (employeeId != null && !employeeId.isEmpty()) {
+            builder.and(orderHeaders.member.employeeId.eq(employeeId));
+        }
+
+        if (start != null && end != null) {
+            builder.and(orderHeaders.requestDate.between(start, end));
+        }
+
+        builder.and(orderHeaders.orderStatus.eq(OrderHeaders.OrderStatus.PRODUCT_PASS));
+
+        Long results = queryFactory.select(orderHeaders.count())
+                .from(orderHeaders)
+                .where(builder)
+                .fetchOne();
+
+        return results != null ? results.intValue() : 0;
     }
 }
