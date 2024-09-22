@@ -120,7 +120,11 @@ public class EmployeeReport {
         }
 
         //마진률 계산
-        return totalOrderPrice.divide(totalManufacturePrice, 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+        BigDecimal marginRate = (totalOrderPrice.subtract(totalManufacturePrice))
+                .divide(totalOrderPrice, 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        return marginRate;
     }
 
     //사원 실적 - 판매 건수
