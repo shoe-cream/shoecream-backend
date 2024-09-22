@@ -135,14 +135,14 @@ public class BuyerService {
     private void verifyExistName(String name) {
         Optional<Buyer> buyer = buyerRepository.findByBuyerNm(name);
         if(buyer.isPresent()) {
-            throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
+            throw new BusinessLogicException(ExceptionCode.BUYER_NAME_ALREADY_EXIST);
         }
     }
 
     //Buyer-tel 중복검사
     private void verifyExistTel(String tel) {
         if(buyerRepository.existsByTel(tel)) {
-            throw new BusinessLogicException(ExceptionCode.BUYER_ALREADY_EXIST);
+            throw new BusinessLogicException(ExceptionCode.TEL_ALREADY_EXIST);
         }
     }
 
