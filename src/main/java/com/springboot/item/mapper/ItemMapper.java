@@ -13,9 +13,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
     Item itemPostDtoToItem(Dto.ItemPostDto postDto);
+
     List<Item> itemPostDtosToItems(List<Dto.ItemPostDto> postDtos);
+
     Item itemPatchToItem(Dto.ItemPatchDto patchDto);
-    List<Item> itemPatchDtosToItems(List<Dto.ItemPatchDto> patchDtos);
 
     default Dto.ItemResponseDto itemToResponseDto(Item item , ReportDto.InventoryDto report) {
         Dto.ItemResponseDto itemResponseDto = new Dto.ItemResponseDto();
@@ -35,6 +36,7 @@ public interface ItemMapper {
         itemResponseDto.setUnusedStock(report.getUnusedStock());
         return itemResponseDto;
     }
+
     List<Dto.ItemResponseDto> itemToResponseDtos(List<Item> items);
 
     default List<Dto.ItemResponseDto> itemsToResponseDtos(List<Item> items, List<ReportDto.InventoryDto> reports) {

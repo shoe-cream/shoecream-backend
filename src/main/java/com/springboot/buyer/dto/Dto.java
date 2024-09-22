@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -76,31 +75,6 @@ public class Dto {
         private Buyer.BuyerStatus buyerStatus;
 
         private String email;
-    }
-
-    @Getter
-    public static class BuyerSearchRequestDto{
-        private String buyerNm;
-        private String buyerCd;
-
-
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class BuyerResponseWithItemDto {
-        private Long buyerId;
-        private String email;
-        private String tel;
-        private String address;
-        private Buyer.BuyerStatus buyerStatus;
-        private String businessType;
-        private String buyerNm;
-        private String buyerCd;
-
-        private List<com.springboot.buyer_item.dto.Dto.BuyerItemResponseDto> buyerItems;
     }
 
     @Getter

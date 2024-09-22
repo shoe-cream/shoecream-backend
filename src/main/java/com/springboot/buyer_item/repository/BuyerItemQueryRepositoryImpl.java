@@ -9,7 +9,6 @@ import com.springboot.buyer.entity.QBuyer;
 import com.springboot.buyer_item.entity.BuyerItem;
 import com.springboot.buyer_item.entity.QBuyerItem;
 import com.springboot.item.entity.QItem;
-import com.springboot.manufacture.entity.QManufacture;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;

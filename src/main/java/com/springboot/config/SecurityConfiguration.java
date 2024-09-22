@@ -23,10 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.Arrays;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfiguration {
@@ -74,26 +71,29 @@ public class SecurityConfiguration {
                         .antMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/orders/items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/orders/approve").hasAnyRole( "ADMIN")
+                        .antMatchers(HttpMethod.PATCH, "/orders/reject").hasAnyRole( "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/*/histories").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/inventories").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/orders/employees").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/orders/employees/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/orders/reports").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST,"/items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET,"/items").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET,"/items/all").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET,"/items/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH,"/items").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.DELETE,"/items/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.DELETE,"/items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST,"/buyer-items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH,"/buyer-items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.DELETE,"/buyer-items").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.DELETE,"/buyer-items/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET,"/buyer-items").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET,"/buyer-items/**").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET,"/buyer-items/period").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST, "/buyers").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.GET, "/buyers/search").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.GET, "/buyers/search/items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/buyers").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/buyers/all").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/buyers/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/buyers").hasAnyRole("USER", "ADMIN")
-                        .antMatchers(HttpMethod.DELETE, "/buyers/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.DELETE, "/buyers").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST, "/manufacturers").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/manufacturers").hasAnyRole("USER", "ADMIN")
@@ -101,6 +101,7 @@ public class SecurityConfiguration {
                         .antMatchers(HttpMethod.GET, "/manufacturers/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/manufacturers").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.DELETE, "/manufacturers/**").hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET, "/manufacturers/all").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.GET, "/manufacturers/*/histories").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.POST, "/manufacture-items").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.PATCH, "/manufacture-items").hasAnyRole("USER", "ADMIN")

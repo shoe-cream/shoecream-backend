@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.buyer.entity.QBuyer;
-import com.springboot.buyer_item.entity.QBuyerItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class BuyerQueryRepositoryImpl implements BuyerQueryRepositoryCustom {
@@ -24,6 +24,23 @@ public class BuyerQueryRepositoryImpl implements BuyerQueryRepositoryCustom {
 
     public BuyerQueryRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
         this.jpaQueryFactory = jpaQueryFactory;
+    }
+
+    @Override
+    public Optional<Buyer> findByBuyerCdContainsIgnoreCase(String buyerCd) {
+        QBuyer buyer = QBuyer.buyer;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if (buyerCd != null && !buyerCd.isEmpty()) {
+            builder.and(buyer.buyerCd.containsIgnoreCase(buyerCd));
+        }
+
+        Buyer result = jpaQueryFactory
+                .selectFrom(buyer)
+                .where(builder)
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 
     @Override
@@ -72,6 +89,8 @@ public class BuyerQueryRepositoryImpl implements BuyerQueryRepositoryCustom {
 
         return  new PageImpl<>(results, pageable, total);
     }
+
+
 
     private List<OrderSpecifier<?>> getSortOrder(Pageable pageable, QBuyer buyer) {
         List<OrderSpecifier<?>> orders = new ArrayList<>();

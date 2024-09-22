@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class ManufactureHistoryResponseDto {
+
     private Long mfHistoryId;
     private Long mfItemId;
     private Long mfId;

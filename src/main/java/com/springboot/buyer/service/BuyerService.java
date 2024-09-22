@@ -194,10 +194,13 @@ public class BuyerService {
         return buyer;
     }
 
+    //주문할 때 buyerCd get 요청
     public Buyer findBuyer(String buyerCd, Authentication authentication) {
         extractMemberFromAuthentication(authentication);
 
-        Buyer buyer = findVerifiedBuyer(buyerCd);
+        Buyer buyer = buyerQueryRepositoryCustom.findByBuyerCdContainsIgnoreCase(buyerCd)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.BUYER_NOT_FOUND));
+
         isDeleted(buyer);
 
         return buyer;

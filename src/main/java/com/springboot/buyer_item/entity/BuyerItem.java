@@ -1,9 +1,7 @@
 package com.springboot.buyer_item.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.springboot.buyer.entity.Buyer;
 import com.springboot.item.entity.Item;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
