@@ -10,8 +10,6 @@ public enum ExceptionCode {
     BUYER_ALREADY_EXIST(409, "Buyer Already Exist"),
     BUYER_CD_ALREADY_EXIST(409, "BuyerCd Already Exist"),
     BUYER_NOT_FOUND(409, "Buyer Not Found"),
-    CONDITION_NOT_FIT(404, "해당 조건에 맞는 바이어는 없습니다."),
-    AT_LEAST_ONE_CONDITION(404, "적어도 하나의 검색 조건을 입력해야 합니다."),
     BUYER_ITEM_NOT_FOUND(409, "바이어아이템을 찾을수 없습니다."),
     MANUFACTURE_NOT_FOUND(409, "제조사를 찾을수 없습니다"),
     MANUFACTURE_CODE_EXIST(409, "MF Code Already Exists"),
@@ -33,7 +31,9 @@ public enum ExceptionCode {
     CHECK_REQUEST_DATE(400, "Check the request date" ),
     CHECK_CONTRACT_DATE(400, "Check the contract date"),
     CANNOT_ORDER_NEGATIVE_QUANTITY(400, "The order quantity must not be negative" ),
-    PERIOD_OVERLAP_ERROR(409, "The specified period overlaps with an existing period" );
+    PERIOD_OVERLAP_ERROR(409, "The specified period overlaps with an existing period" ),
+    TEL_ALREADY_EXIST(409, "Tel Already Exists"),
+    BUYER_NAME_ALREADY_EXIST(409, "Buyer Name Already Exists" );
 
     @Getter
     private int status;
