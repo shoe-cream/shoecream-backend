@@ -65,9 +65,11 @@ public class SaleReport {
 
     //마진률 계산
     private BigDecimal calculateMarginRate(BigDecimal orderUnitPrice, BigDecimal manufactureUnitPrice) {
-        BigDecimal total = BigDecimal.valueOf(1);
         if (orderUnitPrice != null && manufactureUnitPrice != null && orderUnitPrice.compareTo(BigDecimal.ZERO) > 0) {
-            return total.subtract(manufactureUnitPrice.divide(orderUnitPrice, 2, RoundingMode.HALF_UP )).multiply(BigDecimal.valueOf(100));
+            // (판매가 - 원가) / 판매가 * 100
+            return orderUnitPrice.subtract(manufactureUnitPrice)
+                    .divide(orderUnitPrice, 2, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
         }
         return BigDecimal.ZERO;
     }
