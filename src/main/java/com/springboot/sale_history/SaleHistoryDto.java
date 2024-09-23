@@ -21,6 +21,7 @@ public class SaleHistoryDto {
     private LocalDateTime orderDate;
     private LocalDateTime requestDate;
     private String buyerCd;
+    private String message;
     private List<SaleHistoryItems> saleHistoryItems;
 
 }
