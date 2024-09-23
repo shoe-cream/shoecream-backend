@@ -150,8 +150,9 @@ public class OrderService {
             throw new BusinessLogicException(ExceptionCode.ITEM_NOT_FOUND_IN_ORDER);
         }
 
-        //팀장 승인 이후에는 아이템의 상태를 변경할 수 없다.
-        if(!orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.REQUEST_TEMP)) {
+        //팀장 승인 이후에는 아이템의 상태를 변경할 수 없다. 반려에는 재요청 가능
+        if (!orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.REQUEST_TEMP) &&
+                !orderHeaders.getOrderStatus().equals(OrderHeaders.OrderStatus.REJECTED)) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_CHANGE_ORDER_STATUS);
         }
 
