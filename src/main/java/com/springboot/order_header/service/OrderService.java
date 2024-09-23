@@ -212,8 +212,9 @@ public class OrderService {
 
         orderHeaders.setOrderStatus(status);
 
+        OrderHeaders savedOrder = orderHeadersRepository.save(orderHeaders);
         saleHistoryRepository.save(saleHistoryMapper.orderToSaleHistory(orderHeaders, member));
-        return orderHeadersRepository.save(orderHeaders);
+        return savedOrder;
     }
 
     // order 조회 (조회조건 (조합 가능) : 주문 상태별, buyerCode별, itemCode별, 날짜별로 조회가능(기본값 별도))
