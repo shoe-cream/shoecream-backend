@@ -1,0 +1,83 @@
+config:
+  domain: shoecream-database.c5c80myyqjso.ap-northeast-2.rds.amazonaws.com
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  datasource:
+    url: ${SPRING_DATASOURCE_URL} # 원래는 jdbc:h2:mem:testdb  # 민감
+    username: ${SPRING_DATASOURCE_USERNAME}  # 민감
+    password: ${SPRING_DATASOURCE_PASSWORD}  # 민감
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true  # SQL 쿼리를 포맷하여 가독성을 높입니다.
+        highlight_sql: true # SQL 쿼리에서 중요한 부분을 강조합니다.
+        color-codes: true  # SQL 쿼리의 컬러 코드를 사용합니다.
+        use_sql_comments: true # SQL 쿼리에 주석을 추가합니다.
+    defer-datasource-initialization: true # 데이터 소스 초기화를 지연시킵니다.
+  #    open-in-view: false # (주석 처리됨) Open EntityManager in View 패턴을 비활성화합니다.
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SPRING_MAIL_USERNAME}  # 민감
+    password: ${SPRING_MAIL_PASSWORD}  # 민감
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          ssl:
+            trust: smtp.gmail.com
+    subject:
+      member:
+        registration: Thank you for joining our cafe!
+    template:
+      name:
+        member:
+          join: email-registration-member
+  output:
+    ansi:
+      enabled: ALWAYS    # 콘솔 출력에서 ANSI 색상을 항상 활성화합니다.
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: error       # Hibernate SQL 로그 레벨을 에러로 설정합니다.
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace # SQL 바인딩 로그를 추적 레벨로 설정합니다.
+      springframework:    #트랜잭션사용시
+        security: DEBUG
+        orm:
+          jpa: DEBUG
+server:
+  port: 8080
+  servlet:
+    encoding:
+      force-response: true
+mail:
+  address:
+    admin: ${MAIL_ADDRESS_ADMIN}  # 민감
+jwt:
+  key: ${JWT_KEY} # 민감
+  access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINUTES} # 민감
+  refresh-token-expiration-minutes: ${JWT_REFRESH_TOKEN_EXPIRATION_MINUTES} # 민감
