@@ -17,7 +17,7 @@ public class ErrorResponse {
     private List<FieldError> fieldErrors;
     private List<ConstraintViolationError> violationErrors;
 
-    private ErrorResponse(int status, String message) {
+    public ErrorResponse(int status, String message) {
         this.status = status;
         this.message = message;
     }
@@ -89,11 +89,16 @@ public class ErrorResponse {
         public static List<ConstraintViolationError> of(
                 Set<ConstraintViolation<?>> constraintViolations) {
             return constraintViolations.stream()
-                    .map(constraintViolation -> new ConstraintViolationError(
-                            constraintViolation.getPropertyPath().toString(),
-                            constraintViolation.getInvalidValue().toString(),
-                            constraintViolation.getMessage()
-                    )).collect(Collectors.toList());
+                    .map(constraintViolation -> {
+                        String invalidValue = (constraintViolation.getInvalidValue() == null)
+                                ? "null"
+                                : constraintViolation.getInvalidValue().toString();
+                    return new ConstraintViolationError(
+                                constraintViolation.getPropertyPath().toString(),
+                                invalidValue,
+                                constraintViolation.getMessage()
+                        );
+                    }).collect(Collectors.toList());
         }
     }
 }
