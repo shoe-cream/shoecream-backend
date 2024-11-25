@@ -50,6 +50,7 @@ jobs:
               'sudo docker pull whgkswo/spring-cicd:${GITHUB_SHA::7}',
               'sudo docker tag whgkswo/spring-cicd:${GITHUB_SHA::7} spring-cicd',
               'sudo docker run -d --name server -p 8080:8080 \\
+              -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \\
               spring-cicd'
             ]" \
             --output text
