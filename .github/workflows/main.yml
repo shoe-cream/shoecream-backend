@@ -42,26 +42,24 @@ jobs:
           aws ssm send-command \
             --instance-ids i-018c5463cd86d3de3 \
             --document-name "AWS-RunShellScript" \
-            --parameters "commands=[
-              'if sudo docker ps -a --format \\'{{.Names}}\\' | grep -q \\'^server$\\'; then',
-              '  sudo docker stop server',
-              '  sudo docker rm server',
-              'fi',
-              'sudo docker pull whgkswo/spring-cicd:${GITHUB_SHA::7}',
-              'sudo docker tag whgkswo/spring-cicd:${GITHUB_SHA::7} spring-cicd',
-              'sudo docker run -d --name server -p 8080:8080 \\
-              -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \\
-              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \\
-              -e DOCKER_HUB_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }} \\
-              -e DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }} \\
-              -e JWT_ACCESS_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }} \\
-              -e JWT_KEY=${{ secrets.JWT_KEY }} \\
-              -e JWT_REFRESH_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }} \\
-              -e MAIL_ADDRESS_ADMIN=${{ secrets.MAIL_ADDRESS_ADMIN }} \\
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \\
-              -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \\
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \\
-              -e SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \\
-              spring-cicd'
-            ]" \
+            --parameters 'commands=["if sudo docker ps -a --format \"{{.Names}}\" | grep -q \"^server$\"; then", \
+                          "  sudo docker stop server", \
+                          "  sudo docker rm server", \
+                          "fi", \
+                          "sudo docker pull whgkswo/spring-cicd:${GITHUB_SHA::7}", \
+                          "sudo docker tag whgkswo/spring-cicd:${GITHUB_SHA::7} spring-cicd", \
+                          "sudo docker run -d --name server -p 8080:8080 \\", \
+                          "  -e AWS_ACCESS_KEY=${AWS_ACCESS_KEY} \\", \
+                          "  -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \\", \
+                          "  -e DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD} \\", \
+                          "  -e DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME} \\", \
+                          "  -e JWT_ACCESS_TOKEN_EXPIRATION_MINUTES=${JWT_ACCESS_TOKEN_EXPIRATION_MINUTES} \\", \
+                          "  -e JWT_KEY=${JWT_KEY} \\", \
+                          "  -e JWT_REFRESH_TOKEN_EXPIRATION_MINUTES=${JWT_REFRESH_TOKEN_EXPIRATION_MINUTES} \\", \
+                          "  -e MAIL_ADDRESS_ADMIN=${MAIL_ADDRESS_ADMIN} \\", \
+                          "  -e SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD} \\", \
+                          "  -e SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL} \\", \
+                          "  -e SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME} \\", \
+                          "  -e SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME} \\", \
+                          "  spring-cicd"]' \
             --output text
