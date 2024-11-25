@@ -47,8 +47,8 @@ jobs:
               '  sudo docker stop server',
               '  sudo docker rm server',
               'fi',
-              'sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/spring-cicd:${GITHUB_SHA::7}',
-              'sudo docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/spring-cicd:${GITHUB_SHA::7} spring-cicd',
+              'sudo docker pull whgkswo/spring-cicd:${GITHUB_SHA::7}',
+              'sudo docker tag whgkswo/spring-cicd:${GITHUB_SHA::7} spring-cicd',
               'sudo docker run -d --name server -p 8080:8080 \\
               -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \\
               -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \\
