@@ -57,10 +57,6 @@ jobs:
               -e JWT_KEY=${{ secrets.JWT_KEY }} \\
               -e JWT_ACCESS_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }} \\
               -e JWT_REFRESH_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }} \\
-              
-              
-
-              
               spring-cicd'
             ]" \
             --output text
