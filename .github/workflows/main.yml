@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -26,8 +25,6 @@ jobs:
           docker build -t spring-cicd .
           docker tag spring-cicd ${{ secrets.DOCKER_HUB_USERNAME }}/spring-cicd:${GITHUB_SHA::7}
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/spring-cicd:${GITHUB_SHA::7}
-      #위 내용은 지속적 통합을 위한 스크립트입니다.
-      #지속적 통합을 위한 스크립트 아래에 작성합니다.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -52,6 +49,19 @@ jobs:
               'fi',
               'sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/spring-cicd:${GITHUB_SHA::7}',
               'sudo docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/spring-cicd:${GITHUB_SHA::7} spring-cicd',
-              'sudo docker run -d --name server -p 8080:8080 spring-cicd'
+              'sudo docker run -d --name server -p 8080:8080 \
+              -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \\
+              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \\
+              -e DOCKER_HUB_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }} \\
+              -e DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }} \\
+              -e JWT_ACCESS_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }} \\
+              -e JWT_KEY=${{ secrets.JWT_KEY }} \\
+              -e JWT_REFRESH_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }} \\
+              -e MAIL_ADDRESS_ADMIN=${{ secrets.MAIL_ADDRESS_ADMIN }} \\
+              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \\
+              -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \\
+              -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \\
+              -e SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \\
+              spring-cicd'
             ]" \
             --output text
