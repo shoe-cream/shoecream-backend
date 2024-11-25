@@ -59,7 +59,7 @@ jobs:
               -e JWT_REFRESH_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }} \\
               
               
-              -e MAIL_ADDRESS_ADMIN=${{ secrets.MAIL_ADDRESS_ADMIN }} \\
+
               
               spring-cicd'
             ]" \
