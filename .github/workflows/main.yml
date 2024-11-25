@@ -59,6 +59,8 @@ jobs:
               -e JWT_REFRESH_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }} \\
               -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \\
               -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \\
+              -e MAIL_ADDRESS_ADMIN=${{ secrets.MAIL_ADDRESS_ADMIN }} \\
+              -e SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \\
               spring-cicd'
             ]" \
             --output text
