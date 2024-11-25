@@ -60,7 +60,7 @@ jobs:
               
               
               -e MAIL_ADDRESS_ADMIN=${{ secrets.MAIL_ADDRESS_ADMIN }} \\
-              -e SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \\
+              
               spring-cicd'
             ]" \
             --output text
