@@ -18,7 +18,9 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: update
+      # ddl-auto: update # JDBCConnectionException: Unable to open JDBC Connection for DDL execution 발생해서 밑에걸로 대체함
+      hbm2ddl:
+        auto: update
     show-sql: true
     properties:
       hibernate:
