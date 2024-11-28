@@ -3,7 +3,7 @@ config:
 spring:
   data:
     redis:
-      host: 127.0.0.1 # localhost였는데 배포하니 문제 생겨서 수정
+      host: host.docker.internal # redis를 EC2에서 실행했더니 docker container 안에서 localhost로 접근을 못 함. 그래서 수정
       port: 6379
   h2:
     console:
