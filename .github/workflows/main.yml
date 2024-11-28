@@ -54,6 +54,7 @@ jobs:
               -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \\
               -e DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }} \\
               -e DOCKER_HUB_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }} \\
+              -e EC2_IP=${{ secrets.EC2_IP }} \\
               -e JWT_KEY=${{ secrets.JWT_KEY }} \\
               -e JWT_ACCESS_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }} \\
               -e JWT_REFRESH_TOKEN_EXPIRATION_MINUTES=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }} \\
