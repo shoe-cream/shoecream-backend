@@ -57,6 +57,7 @@ public class SecurityConfiguration {
                 .apply(new CustomFilterConfigurer())
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
+                        .antMatchers(HttpMethod.GET, "/health").permitAll() // aws 헬스체크를 위해 추가
                         .antMatchers(HttpMethod.PATCH, "/orders/*/approve").hasRole("ADMIN")
                         .antMatchers(HttpMethod.PATCH,"/orders/*/reject").hasRole("ADMIN")
                         .antMatchers(HttpMethod.POST, "/members").hasRole("ADMIN")
