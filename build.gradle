@@ -13,6 +13,10 @@ sourceSets {
 	}
 }
 
+jar{
+	enabled = false
+}
+
 javadoc.options.encoding = 'UTF-8'
 
 tasks.withType(JavaCompile) {
