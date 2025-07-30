@@ -19,15 +19,15 @@ VALUES ('EMP005', 'nyj@company.com', '노영준', '{bcrypt}$2a$10$ZuxK7vHU5jpTbe
 INSERT INTO member (employee_id, email, name, password, tel, address)
 VALUES ('EMP006', 'hjh@company.com', '황진혁', '{bcrypt}$2a$10$ZuxK7vHU5jpTbednD.zrYOsJgm48HiBTMPBYfJTGIfzrh.nqxxgXq', '010-5678-0006', 'Address 6');
 
---권한 추가
+-- 권한 추가
 INSERT INTO MEMBER_ROLES(MEMBER_MEMBER_ID, ROLES) VALUES
-('1', 'ADMIN'),
-('1', 'USER'),
-('2', 'USER'),
-('3', 'USER'),
-('4', 'USER'),
-('5', 'USER'),
-('6', 'USER');
+('1', 'ROLE_ADMIN'),
+('1', 'ROLE_USER'),
+('2', 'ROLE_USER'),
+('3', 'ROLE_USER'),
+('4', 'ROLE_USER'),
+('5', 'ROLE_USER'),
+('6', 'ROLE_USER');
 
 -- Dummy data for Manufacture
 INSERT INTO manufacture (region, email, mf_cd, mf_nm, created_at, manufacture_status) VALUES
