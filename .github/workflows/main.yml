@@ -36,14 +36,18 @@ jobs:
       
       - name: Deploy on server
         uses: appleboy/ssh-action@master
+        env:
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
         with:
           host: ${{ secrets.BACKEND_SERVER_HOST }}
           username: ${{ secrets.BACKEND_SERVER_USER }}
           key: ${{ secrets.BACKEND_SERVER_SSH_KEY }}
+          envs: SPRING_DATASOURCE_URL,SPRING_DATASOURCE_USERNAME,SPRING_DATASOURCE_PASSWORD
           script: |
             cd /home/ubuntu/app
             
-            # JAR 파일명 찾기
             JAR_FILE=$(ls *.jar | head -1)
             
             cat > Dockerfile << 'EOF'
@@ -61,6 +65,9 @@ jobs:
             docker run -d --name shoecream-backend \
               --network host \
               --restart unless-stopped \
+              -e SPRING_DATASOURCE_URL="${SPRING_DATASOURCE_URL}" \
+              -e SPRING_DATASOURCE_USERNAME="${SPRING_DATASOURCE_USERNAME}" \
+              -e SPRING_DATASOURCE_PASSWORD="${SPRING_DATASOURCE_PASSWORD}" \
               shoecream-backend:latest
             
             sleep 10
