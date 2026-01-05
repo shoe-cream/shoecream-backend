@@ -127,8 +127,10 @@ public class SecurityConfiguration {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
-                "http://shoecream.store",
-                "https://shoecream.store"
+                "http://shoecream.site",
+                "https://shoecream.site",
+                "http://www.shoecream.site",
+                "https://www.shoecream.site"
         ));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Refresh"));
         configuration.addAllowedHeader("*");
