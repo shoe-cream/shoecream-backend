@@ -5,60 +5,63 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Setup JDK 11
+      - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
-          java-version: '11'  # 프로젝트 Java 버전에 맞게 조정
+          java-version: '11'
           distribution: 'temurin'
       
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
       
       - name: Build with Gradle
         run: ./gradlew clean build -x test
-        
-      - name: Deploy to Oracle Cloud
+      
+      - name: Copy JAR to server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.BACKEND_SERVER_HOST }}
           username: ${{ secrets.BACKEND_SERVER_USER }}
           key: ${{ secrets.BACKEND_SERVER_SSH_KEY }}
           source: "build/libs/*.jar"
-          target: "/home/ubuntu/deploy"
+          target: "/home/ubuntu/app/"
           strip_components: 2
       
-      - name: Restart Spring Boot
+      - name: Deploy on server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.BACKEND_SERVER_HOST }}
           username: ${{ secrets.BACKEND_SERVER_USER }}
           key: ${{ secrets.BACKEND_SERVER_SSH_KEY }}
-          command_timeout: 30m
           script: |
-            cd /home/ubuntu
-            # 재시작 스크립트 생성
-            cat > restart.sh << 'EOF'
-            #!/bin/bash
-            OLD_PID=$(pgrep -f springboot-starter.jar)
-            if [ ! -z "$OLD_PID" ]; then
-              kill -15 $OLD_PID
-              sleep 5
-            fi
-            if [ -f deploy/*.jar ]; then
-              mv deploy/*.jar springboot-starter.jar
-            fi
-            nohup java -jar springboot-starter.jar > app.log 2>&1 < /dev/null &
-            disown
+            cd /home/ubuntu/app
+            
+            # JAR 파일명 찾기
+            JAR_FILE=$(ls *.jar | head -1)
+            
+            cat > Dockerfile << 'EOF'
+            FROM openjdk:11
+            WORKDIR /app
+            COPY *.jar app.jar
+            EXPOSE 8080
+            ENTRYPOINT ["java", "-jar", "app.jar"]
             EOF
-            chmod +x restart.sh
-            # 백그라운드에서 실행하고 즉시 종료
-            nohup ./restart.sh > restart.log 2>&1 &
-            sleep 2
-            echo "Restart initiated"
+            
+            docker stop shoecream-backend || true
+            docker rm shoecream-backend || true
+            docker build -t shoecream-backend:latest .
+            
+            docker run -d --name shoecream-backend \
+              --network host \
+              --restart unless-stopped \
+              shoecream-backend:latest
+            
+            sleep 10
+            docker ps | grep shoecream-backend
