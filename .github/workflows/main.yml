@@ -40,24 +40,25 @@ jobs:
           host: ${{ secrets.BACKEND_SERVER_HOST }}
           username: ${{ secrets.BACKEND_SERVER_USER }}
           key: ${{ secrets.BACKEND_SERVER_SSH_KEY }}
+          command_timeout: 30m
           script: |
             cd /home/ubuntu
-            # 기존 프로세스 PID 찾아서 종료
+            # 재시작 스크립트 생성
+            cat > restart.sh << 'EOF'
+            #!/bin/bash
             OLD_PID=$(pgrep -f springboot-starter.jar)
             if [ ! -z "$OLD_PID" ]; then
-              echo "Killing old process: $OLD_PID"
               kill -15 $OLD_PID
               sleep 5
-              # 강제 종료가 필요하면
-              kill -9 $OLD_PID 2>/dev/null || true
             fi
-            # 새 jar로 교체
             if [ -f deploy/*.jar ]; then
               mv deploy/*.jar springboot-starter.jar
             fi
-            # 백그라운드 실행
-            nohup java -jar springboot-starter.jar > app.log 2>&1 &
-            echo "Started new process"
-            sleep 3
-            # 실행 확인
-            pgrep -f springboot-starter.jar
+            nohup java -jar springboot-starter.jar > app.log 2>&1 < /dev/null &
+            disown
+            EOF
+            chmod +x restart.sh
+            # 백그라운드에서 실행하고 즉시 종료
+            nohup ./restart.sh > restart.log 2>&1 &
+            sleep 2
+            echo "Restart initiated"
