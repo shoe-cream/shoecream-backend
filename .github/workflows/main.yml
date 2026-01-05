@@ -47,7 +47,7 @@ jobs:
             JAR_FILE=$(ls *.jar | head -1)
             
             cat > Dockerfile << 'EOF'
-            FROM openjdk:11
+            FROM eclipse-temurin:11-jre
             WORKDIR /app
             COPY *.jar app.jar
             EXPOSE 8080
