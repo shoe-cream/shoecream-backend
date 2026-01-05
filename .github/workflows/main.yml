@@ -42,13 +42,22 @@ jobs:
           key: ${{ secrets.BACKEND_SERVER_SSH_KEY }}
           script: |
             cd /home/ubuntu
-            # 기존 프로세스 종료
-            pkill -f springboot-starter.jar || true
-            sleep 3
+            # 기존 프로세스 PID 찾아서 종료
+            OLD_PID=$(pgrep -f springboot-starter.jar)
+            if [ ! -z "$OLD_PID" ]; then
+              echo "Killing old process: $OLD_PID"
+              kill -15 $OLD_PID
+              sleep 5
+              # 강제 종료가 필요하면
+              kill -9 $OLD_PID 2>/dev/null || true
+            fi
             # 새 jar로 교체
-            mv deploy/*.jar springboot-starter.jar
+            if [ -f deploy/*.jar ]; then
+              mv deploy/*.jar springboot-starter.jar
+            fi
             # 백그라운드 실행
             nohup java -jar springboot-starter.jar > app.log 2>&1 &
-            sleep 5
+            echo "Started new process"
+            sleep 3
             # 실행 확인
-            ps aux | grep springboot-starter.jar | grep -v grep
+            pgrep -f springboot-starter.jar
